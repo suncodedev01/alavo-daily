@@ -16,11 +16,13 @@ import {
 import { Toaster } from '@alavo-daily/design-system';
 
 import { useSettings } from '../../hub-settings';
+import { NotificationActions } from '../../notification-actions';
 import { SyncProvider } from '../../sync-status';
 import { AppLoading, EngineFailure } from './EngineFailure';
 import { AppRoutes } from './AppRoutes';
 import { TranslatedDesignSystem } from './TranslatedDesignSystem';
 import { DEFAULT_MODULES, ModuleBackgrounds, ModulesProvider } from '../../module-registry';
+import { usePalette } from '../../palette/index';
 import { useDocumentSettings } from '../../theme';
 
 export interface AlavoAppProps {
@@ -54,6 +56,7 @@ function ConfiguredApp({ modules }: { modules: readonly ModuleManifest[] }) {
 function ReadyApp({ settings, modules }: { settings: Settings; modules: readonly ModuleManifest[] }) {
   const i18n = useMemo(() => createI18n(settings.language), [settings.language]);
   useDocumentSettings(settings);
+  usePalette();
   return (
     <I18nProvider i18n={i18n}>
       <TranslatedDesignSystem>
@@ -62,6 +65,7 @@ function ReadyApp({ settings, modules }: { settings: Settings; modules: readonly
             <SyncProvider>
               <ModuleBackgrounds />
               <HashRouter>
+                <NotificationActions />
                 <AppRoutes />
               </HashRouter>
             </SyncProvider>

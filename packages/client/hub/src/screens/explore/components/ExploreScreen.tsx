@@ -117,7 +117,7 @@ function YourApps({ query, pinnedIds, onOpen, onTogglePin }: YourAppsProps) {
       {apps.length === 0 ? (
         <p className="text-sm text-text-muted">{t('Không có ứng dụng nào khớp.')}</p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {apps.map((manifest) => (
             <AppCard
               key={manifest.id}

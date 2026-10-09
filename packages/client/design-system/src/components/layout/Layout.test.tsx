@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { IconButton } from '../controls/IconButton';
@@ -42,6 +42,13 @@ describe('AppFrame', () => {
     expect(screen.getByRole('navigation', { name: 'Điều hướng' })).toBeInTheDocument();
     expect(within(screen.getByRole('main')).getByRole('heading', { name: 'Tổng quan' })).toBeInTheDocument();
     expect(screen.getByRole('complementary', { name: 'Bảng ngữ cảnh' })).toBeInTheDocument();
+  });
+
+  it('lets a long sidebar list scroll instead of running over the footer', () => {
+    render(<AppHarness />);
+    const nav = screen.getByRole('navigation', { name: 'Điều hướng' });
+    expect(nav.className).toContain('min-h-0');
+    expect(nav.className).toContain('overflow-y-auto');
   });
 
   it('keeps the working pane flat on the paper background', () => {
@@ -204,6 +211,42 @@ describe('MobileFrame', () => {
     render(<MobileFrame><p>x</p></MobileFrame>);
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+  });
+});
+
+describe('MobileFrame with the on-screen keyboard', () => {
+  function setViewportHeight(height: number) {
+    Object.defineProperty(window, 'innerHeight', { configurable: true, writable: true, value: height });
+    act(() => {
+      window.dispatchEvent(new Event('resize'));
+    });
+  }
+
+  function renderWithInput() {
+    render(
+      <MobileFrame tabBar={<TabBar><TabBarItem icon="house" label="Hôm nay" /></TabBar>}>
+        <input aria-label="Ghi chú" />
+        <button type="button">Lưu</button>
+      </MobileFrame>,
+    );
+  }
+
+  it('hides the tab bar while a text field is focused and the viewport shrinks', async () => {
+    setViewportHeight(800);
+    renderWithInput();
+    await userEvent.click(screen.getByLabelText('Ghi chú'));
+    setViewportHeight(420);
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+    setViewportHeight(800);
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
+  });
+
+  it('keeps the tab bar when the viewport shrinks without a text field focused', () => {
+    setViewportHeight(800);
+    renderWithInput();
+    setViewportHeight(420);
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
+    setViewportHeight(800);
   });
 });
 

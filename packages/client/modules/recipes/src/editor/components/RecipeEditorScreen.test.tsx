@@ -6,7 +6,13 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { renderEdit, renderEditor, fillMinimalRecipe, location } from '../../testing/editorScreens';
 
-const IMPORT_CAPABILITIES = { backgroundReminders: false, keepAwake: true, importFromUrl: true, googleSync: true };
+const IMPORT_CAPABILITIES = {
+  backgroundReminders: false,
+  keepAwake: true,
+  importFromUrl: true,
+  googleSync: true,
+  notificationActions: false,
+};
 
 const IMPORTED: RecipeInput = {
   name: 'Bò kho bánh mì',

@@ -68,6 +68,12 @@ describe('Switch', () => {
     expect(onCheckedChange.mock.calls[0]?.[0]).toBe(true);
   });
 
+  it('keeps the label plain when asked, for choices that are not a to-do list', async () => {
+    render(<Checkbox plain>Chọn tất cả</Checkbox>);
+    await userEvent.click(screen.getByRole('checkbox', { name: /Chọn tất cả/ }));
+    expect(screen.getByText('Chọn tất cả').className).not.toContain('line-through');
+  });
+
   it('toggles with the Space key', async () => {
     render(<Switch label="Nhắc" />);
     await userEvent.tab();
@@ -114,6 +120,13 @@ describe('Checkbox', () => {
     rerender(<Checkbox label="Hành" disabled checked={false} onCheckedChange={() => undefined} />);
     await userEvent.click(screen.getByRole('checkbox', { name: 'Hành' }));
     expect(screen.getByRole('checkbox', { name: 'Hành' })).not.toBeChecked();
+  });
+});
+
+describe('Segmented labels', () => {
+  it('never wrap their text onto a second line', () => {
+    render(<Segmented label="Loại" options={[{ value: 'a', label: 'Nền sáng' }]} value="a" onChange={() => undefined} />);
+    expect(screen.getByRole('radio', { name: 'Nền sáng' }).className).toContain('whitespace-nowrap');
   });
 });
 

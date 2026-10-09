@@ -13,7 +13,7 @@ const WIDTH_CLASS: Record<PageWidth, string> = {
 export type PageColumnProps = ComponentProps<'div'> & { maxWidth?: PageWidth };
 
 export function PageColumn({ maxWidth = 'page', className, ...rest }: PageColumnProps) {
-  return <div className={cn('mx-auto grid w-full gap-4', WIDTH_CLASS[maxWidth], className)} {...rest} />;
+  return <div className={cn('mx-auto grid w-full grid-cols-1 gap-4', WIDTH_CLASS[maxWidth], className)} {...rest} />;
 }
 
 export type PaneBodyProps = ComponentProps<'div'> & { maxWidth?: PageWidth };

@@ -112,13 +112,13 @@ function SaveBar({ valid, saving, backTo, onSave }: SaveBarProps) {
   const navigate = useNavigate();
   return (
     <div className="sticky bottom-0 flex items-center gap-3 rounded-xl bg-surface p-3 shadow-card">
-      <p className="min-w-0 flex-1 text-sm text-text-muted">
+      <p className="min-w-0 flex-1 text-sm text-text-muted max-lg:hidden">
         {valid ? t('Sẵn sàng để lưu.') : t('Còn thiếu thông tin bắt buộc.')}
       </p>
-      <Button variant="outline" onClick={() => navigate(backTo)}>
+      <Button variant="outline" className="max-lg:flex-1" onClick={() => navigate(backTo)}>
         {t('Huỷ')}
       </Button>
-      <Button disabled={!valid || saving} onClick={onSave}>
+      <Button className="max-lg:flex-1" disabled={!valid || saving} onClick={onSave}>
         {t('Lưu công thức')}
       </Button>
     </div>

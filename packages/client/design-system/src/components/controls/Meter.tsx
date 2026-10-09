@@ -13,7 +13,7 @@ export type MeterProps = {
 };
 
 const FILL_CLASS: Record<MeterTone, string> = {
-  normal: 'bg-chart-1',
+  normal: 'bg-meter-ok',
   warn: 'bg-meter-warn',
   over: 'bg-meter-over',
 };

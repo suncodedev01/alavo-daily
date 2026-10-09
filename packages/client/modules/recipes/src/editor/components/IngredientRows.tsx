@@ -18,7 +18,7 @@ export function IngredientSection({ draft, dispatch }: SectionProps) {
       </div>
       <ul className="grid gap-3">
         {draft.ingredients.map((item) => (
-          <li key={item.key}>
+          <li key={item.key} className="max-lg:rounded-lg max-lg:bg-surface-tint max-lg:p-3">
             <IngredientRow
               item={item}
               onChange={(changes) => dispatch({ type: 'edit_ingredient', key: item.key, changes })}
@@ -57,16 +57,16 @@ function IngredientRow({ item, onChange, onRemove }: IngredientRowProps) {
   );
   const aisleOptions = AISLES.map((aisle) => ({ value: aisle, label: t(AISLE_LABELS[aisle]) }));
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="grid grid-cols-[5rem_minmax(0,1fr)_auto] items-center gap-2 lg:flex lg:flex-wrap">
       <Field
-        className="w-20"
+        className="w-20 max-lg:w-full"
         inputMode="decimal"
         aria-label={t('Số lượng')}
         placeholder={t('SL')}
         value={item.quantity}
         onChange={(event) => onChange({ quantity: event.target.value })}
       />
-      <div className="w-32">
+      <div className="w-32 max-lg:w-full">
         <OptionPicker
           label={t('Đơn vị')}
           value={item.unit}
@@ -75,13 +75,13 @@ function IngredientRow({ item, onChange, onRemove }: IngredientRowProps) {
         />
       </div>
       <Field
-        className="min-w-40 flex-1"
+        className="min-w-40 flex-1 max-lg:col-span-3 max-lg:min-w-0"
         aria-label={t('Tên nguyên liệu')}
         placeholder={t('Tên nguyên liệu')}
         value={item.name}
         onChange={(event) => onChange({ name: event.target.value })}
       />
-      <div className="w-36">
+      <div className="w-36 max-lg:w-full">
         <OptionPicker
           label={t('Mua ở khu nào')}
           value={item.aisle}
@@ -90,7 +90,7 @@ function IngredientRow({ item, onChange, onRemove }: IngredientRowProps) {
         />
       </div>
       <Field
-        className="w-36"
+        className="w-36 max-lg:col-span-2 max-lg:w-full"
         inputMode="numeric"
         aria-label={t('Giá ước tính')}
         placeholder={t('Giá ước tính')}
@@ -98,7 +98,13 @@ function IngredientRow({ item, onChange, onRemove }: IngredientRowProps) {
         value={item.costVnd > 0 ? formatVndInput(String(item.costVnd)) : ''}
         onChange={(event) => onChange({ costVnd: parseVndInput(event.target.value) })}
       />
-      <IconButton icon="trash" label={t('Xoá nguyên liệu')} size="sm" onClick={onRemove} />
+      <IconButton
+        icon="trash"
+        label={t('Xoá nguyên liệu')}
+        size="sm"
+        className="max-lg:col-start-3 max-lg:row-start-1"
+        onClick={onRemove}
+      />
     </div>
   );
 }

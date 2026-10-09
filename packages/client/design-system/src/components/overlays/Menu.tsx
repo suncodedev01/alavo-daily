@@ -54,7 +54,7 @@ export type MenuItemProps = {
 };
 
 const ITEM_CLASS =
-  'flex min-h-10 w-full cursor-pointer items-center gap-2 rounded-md px-3 text-left text-sm outline-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:not-aria-checked:bg-surface-tint aria-checked:bg-accent aria-checked:text-accent-fg';
+  'flex min-h-10 w-full max-lg:min-h-11 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-sm outline-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:not-aria-checked:bg-surface-tint aria-checked:bg-accent aria-checked:text-accent-fg';
 
 export function MenuItem({
   icon,

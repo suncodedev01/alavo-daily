@@ -13,7 +13,15 @@ import {
   type EngineEvent,
 } from '../engine';
 import { I18nProvider, createI18n } from '../i18n';
-import { PlatformProvider, type PlatformServices } from '../platform';
+import {
+  PlatformProvider,
+  type NotificationActionEvent,
+  type NotificationActionHandler,
+  type NotificationActionType,
+  type NotifyOptions,
+  type PlatformServices,
+  type ScheduledNotification,
+} from '../platform';
 import { ReminderProvider } from '../reminders';
 
 export type Handlers = {
@@ -59,12 +67,20 @@ export class FakeEngineClient implements EngineClient {
 
 export function createFakePlatform(overrides: Partial<PlatformServices> = {}): PlatformServices {
   return {
-    capabilities: { backgroundReminders: false, keepAwake: true, importFromUrl: false, googleSync: true },
+    capabilities: {
+      backgroundReminders: false,
+      keepAwake: true,
+      importFromUrl: false,
+      googleSync: true,
+      notificationActions: false,
+    },
     keepAwake: async () => () => undefined,
     saveTextFile: async () => undefined,
     openLink: async () => undefined,
     notify: async () => true,
     scheduleNotifications: async () => undefined,
+    registerNotificationActions: async () => undefined,
+    onNotificationAction: () => () => undefined,
     notificationPermission: async () => 'granted',
     requestNotificationPermission: async () => 'granted',
     fetchPage: async () => {
@@ -73,6 +89,47 @@ export function createFakePlatform(overrides: Partial<PlatformServices> = {}): P
     googleAuth: null,
     ...overrides,
   };
+}
+
+export interface ActionablePlatform {
+  platform: PlatformServices;
+  registered: NotificationActionType[];
+  shown: { title: string; body: string; options?: NotifyOptions }[];
+  scheduled: ScheduledNotification[][];
+  listenerCount(): number;
+  /** Presses a button on a notification, as the operating system would report it. */
+  press(actionId: string, event?: Partial<NotificationActionEvent>): void;
+}
+
+/** A platform whose notifications have buttons, and that records what it was asked to show. */
+export function createActionablePlatform(overrides: Partial<PlatformServices> = {}): ActionablePlatform {
+  const listeners = new Set<NotificationActionHandler>();
+  const registered: NotificationActionType[] = [];
+  const shown: ActionablePlatform['shown'] = [];
+  const scheduled: ScheduledNotification[][] = [];
+  const platform = createFakePlatform({
+    capabilities: { ...createFakePlatform().capabilities, notificationActions: true },
+    notify: async (title, body, options) => {
+      shown.push({ title, body, options });
+      return true;
+    },
+    scheduleNotifications: async (items) => {
+      scheduled.push(items);
+    },
+    registerNotificationActions: async (types) => {
+      registered.push(...types);
+    },
+    onNotificationAction: (handler) => {
+      listeners.add(handler);
+      return () => void listeners.delete(handler);
+    },
+    ...overrides,
+  });
+  const press = (actionId: string, event: Partial<NotificationActionEvent> = {}) =>
+    listeners.forEach((listener) =>
+      listener({ actionId, actionTypeId: null, notificationId: 1, title: '', body: '', data: {}, ...event }),
+    );
+  return { platform, registered, shown, scheduled, press, listenerCount: () => listeners.size };
 }
 
 export interface ProviderOptions {

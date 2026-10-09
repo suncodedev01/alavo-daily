@@ -32,9 +32,9 @@ export function NarrowFrame({ shell, children }: { shell: ShellState; children: 
       }
       tabBar={<NarrowTabBar manifest={current} />}
     >
-      <div className="flex items-center gap-2 px-1">
-        <h1 className="mr-auto min-w-0 truncate text-2xl font-semibold">{info?.title ?? ''}</h1>
-        <div ref={shell.setActions} className="contents" />
+      <div className="flex flex-wrap items-center gap-2 px-1">
+        <h1 className="mr-auto max-w-full min-w-0 truncate text-2xl font-semibold">{info?.title ?? ''}</h1>
+        <div ref={shell.setActions} className="ml-auto flex items-center gap-2 empty:hidden" />
       </div>
       {info?.hasList ? (
         <div

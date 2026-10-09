@@ -56,6 +56,13 @@ describe('ReminderProvider', () => {
     expect(calls[calls.length - 1]?.map((entry) => entry.id)).toEqual([2, 3, 1]);
   });
 
+  it('passes the buttons and data of a reminder on to the platform', () => {
+    const { calls, mount } = setup();
+    const withButtons = { ...item(1, 100), actionTypeId: 'dish-reminder', data: { recipeId: 'r1' } };
+    render(mount([{ name: 'a', items: [withButtons] }]));
+    expect(calls[calls.length - 1]).toEqual([withButtons]);
+  });
+
   it('keeps the other sources when one source changes', () => {
     const { calls, mount } = setup();
     const view = render(mount([{ name: 'a', items: [item(1, 100)] }, { name: 'b', items: [item(2, 200)] }]));

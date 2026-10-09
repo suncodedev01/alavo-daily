@@ -73,7 +73,7 @@ function DaySection({ group, lookups, today, month, selectedId }: DaySectionProp
       <Eyebrow as="h3" className="px-3 pt-3">
         {relativeDayLabel(group.date, today, language)}
       </Eyebrow>
-      {layout === 'narrow' ? <Card padding="none"><div className="grid gap-1 p-1">{rows}</div></Card> : rows}
+      {layout === 'narrow' ? <Card padding="none"><div className="grid grid-cols-1 gap-1 p-1">{rows}</div></Card> : rows}
     </section>
   );
 }

@@ -4,6 +4,8 @@ import { SpendingBackground } from './reminders';
 import { spendingRoutes } from './routes';
 import { WalletsSidebar } from './wallets';
 
+export { rememberKeptBudget } from './overview';
+
 export const spendingManifest: ModuleManifest = {
   id: 'spending',
   name: 'Chi tiêu',

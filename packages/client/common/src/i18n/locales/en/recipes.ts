@@ -153,6 +153,7 @@ export const EN_RECIPES: Record<string, string> = {
   'Thời gian và calo không được âm.': 'Time and calories cannot be negative.',
   'Thực đơn cả tuần': 'Whole week\'s menu',
   'Thực đơn tuần': 'Weekly menu',
+  'Thực đơn': 'Meal plan',
   'Tiếp tục': 'Resume',
   'Trong thực đơn tuần ({{count}})': 'In the weekly menu ({{count}})',
   'Tuần này': 'This week',

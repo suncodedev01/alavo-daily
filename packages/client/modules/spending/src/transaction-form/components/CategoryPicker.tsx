@@ -11,7 +11,7 @@ export interface CategoryPickerProps {
 }
 
 const GRID_CLASS = 'grid grid-cols-4 gap-2';
-const CHIPS_CLASS = 'scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4';
+const CHIPS_CLASS = 'scrollbar-none -mx-4 -my-1 flex gap-2 overflow-x-auto px-4 py-1';
 
 const TILE_CLASS =
   'focus-ring grid min-w-0 justify-items-center gap-1 rounded-lg p-2 text-xs text-text-secondary hover:bg-surface-tint aria-pressed:bg-accent aria-pressed:text-accent-fg';

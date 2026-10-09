@@ -94,7 +94,7 @@ function ExpenseCard({ summary }: { summary: MonthSummary }) {
   return (
     <Card aria-label={t('Chi tiêu')} className="lg:col-span-4">
       <Eyebrow>{t('Chi tiêu tháng {{month}}', { month: monthNumber(summary.month) })}</Eyebrow>
-      <p className="mt-2 text-2xl font-semibold max-lg:text-title">{formatVnd(summary.expenseVnd)}</p>
+      <p className="mt-2 text-2xl font-semibold text-expense-fg max-lg:text-title">{formatVnd(summary.expenseVnd)}</p>
       <DeltaLine delta={summary.expenseDeltaPct} month={summary.month} />
     </Card>
   );

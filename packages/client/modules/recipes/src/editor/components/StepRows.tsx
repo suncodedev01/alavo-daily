@@ -51,7 +51,7 @@ interface StepRowProps {
 function StepRow({ step, number, isFirst, isLast, dispatch }: StepRowProps) {
   const t = useT();
   return (
-    <div className="flex gap-3">
+    <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 lg:flex">
       <span className="grid size-7 shrink-0 place-items-center rounded-full bg-surface-tint text-xs font-semibold">
         {number}
       </span>
@@ -66,7 +66,7 @@ function StepRow({ step, number, isFirst, isLast, dispatch }: StepRowProps) {
         />
         <StepTimer step={step} dispatch={dispatch} />
       </div>
-      <div className="flex shrink-0 flex-col gap-1">
+      <div className="flex shrink-0 gap-1 max-lg:col-start-2 max-lg:justify-end lg:flex-col">
         <IconButton
           icon="caret-up"
           label={t('Chuyển bước {{number}} lên', { number })}

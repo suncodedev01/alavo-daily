@@ -107,7 +107,7 @@ export function RecentTransactionsCard({ month }: { month: string }) {
               }
             />
           ) : (
-            <div className="-mx-3 grid gap-1">
+            <div className="-mx-3 grid grid-cols-1 gap-1">
               {items.map((item) => (
                 <TransactionRow key={item.id} transaction={item} lookups={lookups} to={transactionPath(item.id, month)} />
               ))}

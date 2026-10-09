@@ -19,12 +19,12 @@
 
 1. **Không viết mã hex hay giá trị tuỳ ý `[...]`** trong code ứng dụng. Chỉ dùng token (`bg-accent`, `text-click-700`, `bg-surface-tint`). Thiếu token thì đặt tên token mới trong `index.css`, đừng viết hai lần.
 2. **Năm dải màu, mỗi dải một việc:**
-   - `click`: mọi thứ người dùng bấm hoặc được báo trạng thái. Nút chính tô `click-600` với chữ **trắng**, hover **đậm hơn** (`click-700`). Chữ và link dùng `click-700`. `click-500` là màu nhận diện, không dùng làm nền nút hay chữ thân bài.
-   - `ozone`: nền và nhận diện, không bao giờ vẽ hành động hay trạng thái.
+   - `click` (vàng kim): thương hiệu và mọi thứ người dùng bấm hoặc được báo trạng thái. Nút chính tô `brand` (nền vàng) với chữ `on-brand` (nâu đậm), hover `brand-hover`. Chữ và link dùng `click-700`. Dùng token `brand`, `on-brand`, `brand-hover`, `brand-edge`, không viết thẳng bậc `click-*` cho nút.
+   - `ozone`: màu phụ cho biểu đồ và nền, không bao giờ vẽ hành động hay trạng thái.
    - `yellow`: trạng thái đang chờ người dùng quyết định, và cảnh báo.
-   - `red`: lỗi, huỷ, nút phá huỷ.
-   - `mint`: đã xong, đã xác minh, đã kết nối. **Không bao giờ dùng cho thứ bấm được.**
-3. **Mỗi màn hình chỉ có một phần tử màu ấm** (chip "Cần bạn" màu vàng). Không có nút gradient, không có màu nhấn thứ hai. Thanh tiến độ ngân sách màu vàng khi từ 85%, màu đỏ khi vượt, được xem là dữ liệu chứ không phải chrome.
+   - `red`: lỗi, huỷ, nút phá huỷ, số chi tiêu (`expense-fg`).
+   - `mint`: đã xong, đã xác minh, đã kết nối, số thu nhập (`income-fg`). **Không bao giờ dùng cho thứ bấm được.**
+3. **Màn hình có thể có nhiều nút vàng** (người dùng đã chọn theo mockup, bỏ quy tắc "một phần tử màu ấm mỗi màn"). Vẫn không có nút gradient. Thanh tiến độ ngân sách dùng `meter-ok` (xanh) khi dưới 85%, `meter-warn` (vàng) từ 85%, `meter-over` (đỏ) khi vượt. Số tiền chi luôn đỏ, số thu luôn xanh, có dấu.
 4. **Trạng thái thể hiện bằng nền, không bằng viền.** Hàng đang chọn dùng `bg-accent`, hover dùng `bg-surface-tint`. Viền chỉ dùng cho bảng dày đặc và vòng mảnh quanh thẻ nổi.
 5. **Bóng đổ chỉ dùng năm bậc đặt tên** (`shadow-hairline`, `shadow-raised`, `shadow-card`, `shadow-frame`, `shadow-overlay`). Cấm `shadow-md`, `shadow-lg` của Tailwind.
 6. **Font là font giao diện của hệ điều hành** (`--font-sans`), không tải font web cho giao diện sản phẩm. Chỉ bốn độ đậm: 400, 500, 600, 700. Cấm `font-light`. Nhãn viết hoa dùng cỡ 11px, đậm 600, giãn chữ `0.1em`.

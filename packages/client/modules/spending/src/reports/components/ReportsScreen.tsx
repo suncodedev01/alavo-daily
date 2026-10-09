@@ -48,7 +48,7 @@ function ReportBody({ report }: { report: SpendingReport }) {
   return (
     <>
       <ReportStats report={report} />
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <CategoryShareCard categories={report.categories} kind={kind} onKindChange={setKind} />
         <MonthlyCard months={report.months} />
       </div>

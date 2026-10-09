@@ -15,6 +15,6 @@ export function suggestedRaiseVnd(line: BudgetLine): number {
   return Math.ceil(wanted / RAISE_STEP_VND) * RAISE_STEP_VND;
 }
 
-export function dismissalKey(line: BudgetLine, month: string): string {
+export function dismissalKey(line: Pick<BudgetLine, 'categoryId' | 'budgetVnd'>, month: string): string {
   return `spending.keep-budget.${month}.${line.categoryId}.${line.budgetVnd}`;
 }

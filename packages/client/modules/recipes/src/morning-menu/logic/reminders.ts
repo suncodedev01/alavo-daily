@@ -1,4 +1,9 @@
-import { notificationId, type MorningMenu, type ScheduledNotification } from '@alavo-daily/common';
+import {
+  DISH_REMINDER_ACTIONS,
+  notificationId,
+  type MorningMenu,
+  type ScheduledNotification,
+} from '@alavo-daily/common';
 
 export const MORNING_MENU_RULE_ID = 'recipes.morning_menu';
 export const REMINDERS_PER_MORNING = 4;
@@ -43,11 +48,16 @@ export function buildReminders({ menus, startTime, now, describe }: ReminderInpu
   return menus.flatMap((menu) => {
     const first = localTimeOf(menu.date, startTime);
     if (first === null || menu.source === 'empty') return [];
-    const text = describe(menu);
+    const content = { ...describe(menu), ...dishActions(menu) };
     return Array.from({ length: REMINDERS_PER_MORNING }, (_, index) => ({
       id: reminderId(menu.date, index),
       at: first + index * HOUR_MS,
-      ...text,
+      ...content,
     })).filter((reminder) => reminder.at > now);
   });
+}
+
+function dishActions(menu: MorningMenu): Pick<ScheduledNotification, 'actionTypeId' | 'data'> {
+  const recipeId = menu.dishes[0]?.recipeId;
+  return recipeId ? { actionTypeId: DISH_REMINDER_ACTIONS, data: { recipeId } } : {};
 }

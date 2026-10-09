@@ -10,6 +10,7 @@ import { isGoogleConfigured } from './buildConfig';
 import { isMobileDevice, scheduleOnDevice, showNow } from './deviceNotifications';
 import { fetchPage } from './fetchPage';
 import { createGoogleAuth } from './googleAuth';
+import { listenForActions, registerActions } from './notificationActions';
 import { readPermission, requestPermission } from './notificationPermission';
 import { saveTextFile } from './saveTextFile';
 
@@ -23,12 +24,20 @@ export function createNativePlatform(): PlatformServices {
   const googleSync = isGoogleConfigured();
   const reminders = createReminderScheduling(mobile);
   return {
-    capabilities: { backgroundReminders: mobile, keepAwake: true, importFromUrl: true, googleSync },
+    capabilities: {
+      backgroundReminders: mobile,
+      keepAwake: true,
+      importFromUrl: true,
+      googleSync,
+      notificationActions: mobile,
+    },
     keepAwake: async () => () => undefined,
     saveTextFile,
     openLink: openUrl,
     notify: showNow,
     scheduleNotifications: reminders.schedule,
+    registerNotificationActions: mobile ? registerActions : async () => undefined,
+    onNotificationAction: mobile ? listenForActions : () => () => undefined,
     notificationPermission: readPermission,
     requestNotificationPermission: async () => reminders.rescheduleOnGrant(await requestPermission()),
     fetchPage,

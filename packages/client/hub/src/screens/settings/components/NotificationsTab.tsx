@@ -69,14 +69,14 @@ function RuleRow({ rule }: { rule: NotificationRule }) {
   const update = useEngineMutation('hub.update_notification_rule');
   const label = t(rule.label);
   return (
-    <li className="flex items-center gap-3 py-3">
-      <div className="min-w-0 flex-1">
+    <li className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 py-3 lg:flex">
+      <div className="min-w-0 flex-1 max-lg:order-1">
         <p className="text-sm font-medium">{label}</p>
         <p className="text-xs text-text-muted">{t(rule.description)}</p>
       </div>
       {rule.kind === 'time' && rule.time ? (
         <OptionPicker
-          className="w-28 shrink-0"
+          className="w-28 shrink-0 max-lg:order-3 max-lg:col-span-2 max-lg:mt-3 max-lg:w-full"
           align="end"
           label={t('Giờ nhắc {{rule}}', { rule: label })}
           value={rule.time}
@@ -84,12 +84,13 @@ function RuleRow({ rule }: { rule: NotificationRule }) {
           onChange={(time) => update.mutate({ id: rule.id, time })}
         />
       ) : (
-        <span className="text-xs text-text-muted">
+        <span className="text-xs text-text-muted max-lg:order-3 max-lg:col-span-2 max-lg:mt-1">
           {rule.kind === 'always' ? t('Luôn bật') : t('Ngay khi xảy ra')}
         </span>
       )}
       <Switch
         label={label}
+        className="max-lg:order-2"
         checked={rule.enabled}
         onCheckedChange={(enabled) => update.mutate({ id: rule.id, enabled })}
       />

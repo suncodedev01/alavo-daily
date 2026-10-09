@@ -315,7 +315,13 @@ describe('keep awake', () => {
     renderCooking('/recipes/cook/ga-kho', {
       platform: createFakePlatform({
         keepAwake,
-        capabilities: { backgroundReminders: false, keepAwake: false, importFromUrl: false, googleSync: true },
+        capabilities: {
+          backgroundReminders: false,
+          keepAwake: false,
+          importFromUrl: false,
+          googleSync: true,
+          notificationActions: false,
+        },
       }),
     });
     expect(await screen.findByText(/Không giữ được màn hình sáng/)).toBeInTheDocument();

@@ -75,6 +75,7 @@ export interface SpendingRenderOptions {
   data?: FakeData;
   handlers?: Handlers;
   platform?: PlatformServices;
+  language?: string;
 }
 
 export interface SpendingRender extends RenderResult {
@@ -93,7 +94,7 @@ export function renderInSpendingShell(ui: ReactElement, options: SpendingRenderO
       <FakeShell infoRef={infoRef}>{ui}</FakeShell>
       <LocationProbe />
     </MemoryRouter>,
-    { engine, platform: options.platform },
+    { engine, platform: options.platform, language: options.language },
   );
   return Object.assign(result, { engine, data, screenInfo: infoRef });
 }

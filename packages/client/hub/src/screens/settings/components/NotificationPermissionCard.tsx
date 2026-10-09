@@ -29,7 +29,7 @@ export function NotificationPermissionCard() {
 
   if (permission === null) return null;
   return (
-    <Card padding="lg" className="flex items-center gap-3">
+    <Card padding="lg" className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 lg:flex">
       <IconTile icon="bell-ringing" />
       <div className="min-w-0 flex-1">
         <h2 className="text-title font-semibold">{t('Cho phép thông báo')}</h2>
@@ -52,14 +52,14 @@ function PermissionAction({
   const t = useT();
   if (permission === 'prompt') {
     return (
-      <Button className="shrink-0" disabled={asking} onClick={onAllow}>
+      <Button className="shrink-0 max-lg:col-span-2 max-lg:w-full" disabled={asking} onClick={onAllow}>
         {t('Cho phép')}
       </Button>
     );
   }
   if (permission !== 'granted') return null;
   return (
-    <span className="flex shrink-0 items-center gap-1.5 text-sm text-text-muted">
+    <span className="flex shrink-0 items-center gap-1.5 text-sm text-text-muted max-lg:col-span-2">
       <Icon name="check-circle" />
       {t('Đã bật')}
     </span>

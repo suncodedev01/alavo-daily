@@ -26,7 +26,7 @@ export function BudgetImpact({ line, extraVnd, logged, onRaise }: BudgetImpactPr
       <Meter value={projection.ratio} label={t('Mức dùng ngân sách Ăn uống')} />
       {needsDecision ? (
         <div className="grid gap-3">
-          <StatusChip status="needs_you" label={t('Cần bạn')} />
+          <StatusChip className="justify-self-start" status="needs_you" label={t('Cần bạn')} />
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={() => onRaise(raiseAmountFor(projection.overVnd))}>
               {t('Tăng thêm {{amount}}', { amount: formatVnd(raiseAmountFor(projection.overVnd)) })}

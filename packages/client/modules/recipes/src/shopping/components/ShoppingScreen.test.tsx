@@ -178,7 +178,7 @@ describe('log shopping expense', () => {
 
   it('defaults to the first wallet and the food category', async () => {
     const { dialog } = await openDialog();
-    expect(within(dialog).getByRole('button', { name: 'Ví: Tiền mặt' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Thanh toán bằng: Tiền mặt' })).toBeInTheDocument();
     expect(await within(dialog).findByRole('button', { name: 'Danh mục: Ăn uống' })).toBeInTheDocument();
     expect(within(dialog).getByText(/Ghi 203\.000 ₫ tiền đi chợ từ 9\/10 đến 11\/10/)).toBeInTheDocument();
   });
@@ -205,7 +205,7 @@ describe('log shopping expense', () => {
   it('lets the person choose another wallet and category', async () => {
     const { view, user, dialog } = await openDialog();
     await within(dialog).findByRole('button', { name: 'Danh mục: Ăn uống' });
-    await user.click(within(dialog).getByRole('button', { name: 'Ví: Tiền mặt' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Thanh toán bằng: Tiền mặt' }));
     await user.click(await screen.findByRole('menuitemradio', { name: 'Ngân hàng' }));
     await user.click(within(dialog).getByRole('button', { name: 'Danh mục: Ăn uống' }));
     await user.click(await screen.findByRole('menuitemradio', { name: 'Khác' }));

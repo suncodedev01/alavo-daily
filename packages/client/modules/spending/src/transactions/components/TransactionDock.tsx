@@ -80,7 +80,7 @@ function SameCategory({ transaction, lookups }: { transaction: Transaction; look
           others.length === 0 ? (
             <p className="text-sm text-text-muted">{t('Chưa có giao dịch khác.')}</p>
           ) : (
-            <div className="-mx-3 grid gap-1">
+            <div className="-mx-3 grid grid-cols-1 gap-1">
               {others.map((item) => (
                 <TransactionRow key={item.id} transaction={item} lookups={lookups} to={transactionPath(item.id, params.get('month'))} />
               ))}

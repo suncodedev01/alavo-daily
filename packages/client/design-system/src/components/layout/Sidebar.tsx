@@ -21,7 +21,7 @@ export function Sidebar({ header, footer, label, children, className }: SidebarP
       className={cn('mr-0 flex w-64 flex-none flex-col max-compact:w-14', className)}
     >
       {header}
-      <nav aria-label={label ?? texts.navigation} className="flex-1 overflow-y-auto px-2 pt-1 pb-2">
+      <nav aria-label={label ?? texts.navigation} className="min-h-0 flex-1 overflow-y-auto px-2 pt-1 pb-2">
         {children}
       </nav>
       {footer}

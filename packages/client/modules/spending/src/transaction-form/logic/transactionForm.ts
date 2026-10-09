@@ -62,7 +62,7 @@ export function validateDraft(draft: TransactionDraft): DraftErrors {
   const errors: DraftErrors = {};
   if (parseVndInput(draft.amount) <= 0) errors.amount = 'Nhập số tiền lớn hơn 0.';
   if (draft.categoryId === '') errors.category = 'Chọn một hạng mục.';
-  if (draft.walletId === '') errors.wallet = 'Chọn ví để ghi giao dịch.';
+  if (draft.walletId === '') errors.wallet = 'Hãy chọn hình thức thanh toán.';
   if (!isValidDateText(draft.occurredOn)) errors.date = 'Chọn ngày hợp lệ.';
   return errors;
 }

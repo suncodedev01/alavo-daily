@@ -22,7 +22,7 @@ export function Card({ padding = 'md', className, ...rest }: CardProps) {
 }
 
 export function CardHeader({ className, ...rest }: ComponentProps<'div'>) {
-  return <div className={cn('mb-4 flex items-center justify-between gap-2', className)} {...rest} />;
+  return <div className={cn('mb-4 flex flex-wrap items-center justify-between gap-x-2 gap-y-3', className)} {...rest} />;
 }
 
 export function CardTitle({ className, ...rest }: ComponentProps<'h2'>) {

@@ -36,6 +36,25 @@ function DialogHarness({ onOpenChange }: { onOpenChange?: (open: boolean) => voi
   );
 }
 
+describe('Dialog layout on short screens', () => {
+  it('scrolls the body while the footer stays outside the scrolling area', async () => {
+    render(<DialogHarness />);
+    await userEvent.click(screen.getByRole('button', { name: 'Mở' }));
+    const body = screen.getByRole('textbox', { name: 'Ghi chú' }).closest('.overflow-y-auto') as HTMLElement;
+    expect(body).not.toBeNull();
+    expect(body).not.toContainElement(screen.getByRole('button', { name: 'Lưu' }));
+  });
+
+  it('limits a sheet to the dynamic viewport height', async () => {
+    render(
+      <Sheet open title="Chuyển ứng dụng">
+        <p>Nội dung</p>
+      </Sheet>,
+    );
+    expect(screen.getByRole('dialog').className).toContain('max-h-[92dvh]');
+  });
+});
+
 describe('Dialog', () => {
   it('is closed until opened and then exposes title and description', async () => {
     render(<DialogHarness />);

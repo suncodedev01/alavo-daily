@@ -12,7 +12,7 @@ export type SegmentedProps = {
 };
 
 const ITEM_CLASS =
-  'focus-ring h-8 rounded-4xl px-4 text-sm font-medium text-text-secondary aria-checked:bg-surface aria-checked:text-text-primary aria-checked:shadow-raised max-lg:h-10';
+  'focus-ring h-8 rounded-4xl px-4 text-sm font-medium whitespace-nowrap text-text-secondary aria-checked:bg-surface aria-checked:text-text-primary aria-checked:shadow-raised max-lg:h-11 max-lg:px-2';
 
 function nextIndex(key: string, current: number, count: number): number | null {
   if (key === 'ArrowRight' || key === 'ArrowDown') return (current + 1) % count;

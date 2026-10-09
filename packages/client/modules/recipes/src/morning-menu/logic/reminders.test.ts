@@ -1,4 +1,4 @@
-import type { MorningMenu } from '@alavo-daily/common';
+import type { MenuDish, MorningMenu } from '@alavo-daily/common';
 import { describe, expect, it } from 'vitest';
 
 import { buildReminders, localTimeOf, reminderId } from './reminders';
@@ -88,6 +88,28 @@ describe('buildReminders', () => {
   it('carries the text of the menu', () => {
     const [first] = buildReminders({ ...input, menus: [menu('2026-10-10')], now: 0 });
     expect(first).toMatchObject({ title: 'Hôm nay ăn gì?', body: 'Bún chả' });
+  });
+
+  it('offers the buttons for the first dish, so one tap starts cooking it', () => {
+    const dishes: MenuDish[] = [
+      { recipeId: 'recipe-1', name: 'Bún chả', icon: 'cooking-pot', slot: 'dinner' },
+      { recipeId: 'recipe-2', name: 'Canh', icon: 'cooking-pot', slot: 'dinner' },
+    ];
+    const reminders = buildReminders({
+      ...input,
+      menus: [{ date: '2026-10-10', source: 'planned', dishes }],
+      now: 0,
+    });
+    expect(reminders).toHaveLength(4);
+    reminders.forEach((reminder) =>
+      expect(reminder).toMatchObject({ actionTypeId: 'dish-reminder', data: { recipeId: 'recipe-1' } }),
+    );
+  });
+
+  it('offers no buttons when the menu has no dish to cook', () => {
+    const [first] = buildReminders({ ...input, menus: [menu('2026-10-10')], now: 0 });
+    expect(first).not.toHaveProperty('actionTypeId');
+    expect(first).not.toHaveProperty('data');
   });
 
   it('schedules nothing when the rule time is not valid', () => {

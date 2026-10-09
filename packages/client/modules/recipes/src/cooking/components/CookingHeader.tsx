@@ -21,11 +21,11 @@ export function CookingHeader(props: CookingHeaderProps) {
   const t = useT();
   const { name, servings, awake, stepNumber, stepCount, bank, stepIndex, onClose } = props;
   return (
-    <header className="flex items-center gap-3 px-4 py-3 lg:px-6 lg:py-4">
+    <header className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 lg:px-6 lg:py-4">
       <IconButton icon="x" variant="outline" size="lg" label={t('Thoát chế độ nấu')} onClick={onClose} />
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-title font-semibold">{name}</h1>
-        <p className="truncate text-xs text-text-muted">
+        <p className="line-clamp-2 text-xs text-text-muted">
           {`${awakeText(awake, t)} · ${t('{{count}} người', { count: servings })}`}
         </p>
       </div>
@@ -46,7 +46,7 @@ function RunningChips({ bank, stepIndex }: { bank: TimerBank; stepIndex: number 
   const t = useT();
   const running = useRunningTimers(bank, stepIndex);
   return (
-    <ul data-timer-readout aria-label={t('Hẹn giờ đang chạy')} className="flex shrink-0 gap-2 empty:hidden">
+    <ul data-timer-readout aria-label={t('Hẹn giờ đang chạy')} className="flex shrink-0 gap-2 empty:hidden max-lg:order-last max-lg:basis-full max-lg:flex-wrap">
       {running.map(({ step, seconds }) => (
         <li
           key={step}

@@ -11,8 +11,8 @@ export function ThemeCard() {
   const settings = useSettings();
   const update = useUpdateSettings();
   const labels: Record<ThemeSetting, string> = {
-    light: t('Giao diện sáng'),
-    dark: t('Giao diện tối'),
+    light: t('Nền sáng'),
+    dark: t('Nền tối'),
     system: t('Theo thiết bị'),
   };
   return (
@@ -29,7 +29,7 @@ export function ThemeCard() {
         value={settings.data?.theme ?? 'light'}
         onChange={(theme) => update.mutate({ theme: theme as ThemeSetting })}
         options={THEMES.map((theme) => ({ value: theme, label: labels[theme] }))}
-        className="justify-self-start"
+        className="justify-self-start max-lg:justify-self-stretch"
       />
     </Card>
   );

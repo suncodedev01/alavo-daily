@@ -43,7 +43,7 @@ function ConflictItem({ conflict, disabled, onChoose }: ConflictItemProps) {
   return (
     <section aria-label={conflictTitle(conflict, t)} className="grid gap-3 rounded-lg bg-surface-tint p-4">
       <h3 className="text-sm font-semibold">{conflictTitle(conflict, t)}</h3>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Version
           heading={t('Bản trên máy này')}
           text={describeVersion(conflict.entityType, conflict.local, t)}

@@ -21,6 +21,6 @@ export function useLookups(): Lookups {
     category: (id) => categoryMap.get(id),
     categoryName: (id) => t(categoryMap.get(id)?.name ?? ''),
     categoryIcon: (id) => categoryMap.get(id)?.icon ?? UNKNOWN_ICON,
-    walletName: (id) => walletMap.get(id)?.name ?? '',
+    walletName: (id) => t(walletMap.get(id)?.name ?? ''),
   };
 }

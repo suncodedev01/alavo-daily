@@ -107,7 +107,15 @@ describe('dock sections', () => {
     renderHub('/today', {
       state: {
         notifications: [
-          { id: 'n1', module: 'alpha', title: 'Đến giờ nấu', body: '', createdAt: NOW, read: false },
+          {
+            id: 'n1',
+            module: 'alpha',
+            title: 'Đến giờ nấu',
+            body: '',
+            subjectId: null,
+            createdAt: NOW,
+            read: false,
+          },
         ],
       },
       handlers: {

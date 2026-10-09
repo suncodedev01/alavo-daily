@@ -34,7 +34,7 @@ describe('TransactionDialog layout', () => {
     const categories = await screen.findByRole('group', { name: 'Hạng mục' });
     const names = within(categories).getAllByRole('button').map((button) => button.textContent);
     expect(names).toEqual(['Ăn uống', 'Đi lại', 'Mua sắm', 'Nhà ở', 'Hoá đơn', 'Hạng mục mới']);
-    expect(screen.getByRole('button', { name: /^Ví: Techcombank/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Techcombank', pressed: true })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Ngày: Hôm nay · 9/10' })).toBeInTheDocument();
     expect(screen.getByRole('switch', { name: 'Lặp lại hằng tháng' })).not.toBeChecked();
   });
@@ -68,13 +68,13 @@ describe('validation', () => {
     expect(engine.callsTo('spending.record_transaction')).toHaveLength(0);
   });
 
-  it('asks for a wallet when the person has none', async () => {
+  it('asks how the person paid when there is no payment method', async () => {
     const data = createDemoData();
     data.wallets = [];
     const { engine } = openDialog({ data });
     await typeAmount('5000');
     await save();
-    expect(await screen.findByText('Chọn ví để ghi giao dịch.')).toBeInTheDocument();
+    expect(await screen.findByText('Hãy chọn hình thức thanh toán.')).toBeInTheDocument();
     expect(engine.callsTo('spending.record_transaction')).toHaveLength(0);
   });
 
@@ -143,17 +143,6 @@ describe('saving', () => {
       amountVnd: 5_000_000,
       categoryId: 'category-income',
     });
-  });
-
-  it('picks another wallet from the wallet picker', async () => {
-    const { engine } = openDialog();
-    await typeAmount('1000');
-    await userEvent.click(await screen.findByRole('button', { name: /^Ví: Techcombank/ }));
-    await userEvent.click(await screen.findByRole('menuitemradio', { name: /Ví MoMo/ }));
-    expect(screen.getByRole('button', { name: /^Ví: Ví MoMo/ })).toBeInTheDocument();
-    await save();
-    await waitFor(() => expect(engine.callsTo('spending.record_transaction')).toHaveLength(1));
-    expect(engine.callsTo('spending.record_transaction')[0]).toMatchObject({ walletId: 'wallet-momo' });
   });
 
   it('writes a monthly rule on the chosen day when the recurring switch is on', async () => {

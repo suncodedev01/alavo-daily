@@ -18,6 +18,8 @@ export interface AppNotification {
   module: string;
   title: string;
   body: string;
+  /** What the notice is about: the category id of a budget alert, otherwise null. */
+  subjectId: string | null;
   /** Unix milliseconds. */
   createdAt: number;
   read: boolean;

@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const plugin = vi.hoisted(() => ({
+  registerActionTypes: vi.fn(),
+  onAction: vi.fn(),
   isPermissionGranted: vi.fn(),
   requestPermission: vi.fn(),
   pending: vi.fn(),
@@ -49,6 +51,34 @@ describe('background reminders', () => {
   it('are not promised on desktop', () => {
     useUserAgent(WINDOWS);
     expect(createNativePlatform().capabilities.backgroundReminders).toBe(false);
+  });
+});
+
+describe('notification buttons', () => {
+  it('are available on a phone', () => {
+    useUserAgent(ANDROID);
+    expect(createNativePlatform().capabilities.notificationActions).toBe(true);
+  });
+
+  it('are not available on desktop, which registers and listens to nothing', async () => {
+    useUserAgent(WINDOWS);
+    const platform = createNativePlatform();
+    expect(platform.capabilities.notificationActions).toBe(false);
+    await platform.registerNotificationActions([{ id: 'x', actions: [] }]);
+    platform.onNotificationAction(vi.fn())();
+    expect(plugin.registerActionTypes).not.toHaveBeenCalled();
+    expect(plugin.onAction).not.toHaveBeenCalled();
+  });
+
+  it('are registered with the plugin on a phone', async () => {
+    useUserAgent(ANDROID);
+    plugin.registerActionTypes.mockResolvedValue(undefined);
+    await createNativePlatform().registerNotificationActions([
+      { id: 'dish-reminder', actions: [{ id: 'snooze-10', label: 'Nhắc lại sau 10 phút' }] },
+    ]);
+    expect(plugin.registerActionTypes).toHaveBeenCalledWith([
+      { id: 'dish-reminder', actions: [{ id: 'snooze-10', title: 'Nhắc lại sau 10 phút' }] },
+    ]);
   });
 });
 

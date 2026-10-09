@@ -86,7 +86,7 @@ function PickerBody({ target, recipes, servings, onDone }: PickerBodyProps) {
           {recipes.length === 0 ? t('Chưa có công thức nào để thêm.') : t('Không có công thức khớp.')}
         </p>
       ) : (
-        <ul aria-label={t('Danh sách công thức')} className="grid max-h-80 gap-0.5 overflow-y-auto">
+        <ul aria-label={t('Danh sách công thức')} className="grid max-h-80 gap-0.5 overflow-y-auto max-lg:max-h-none max-lg:overflow-visible">
           {shown.map((recipe) => (
             <li key={recipe.id}>
               <button

@@ -9,5 +9,6 @@ export interface MoneyAmountProps {
 
 export function MoneyAmount({ amountVnd, signed = true, className }: MoneyAmountProps) {
   const text = signed ? formatSignedVnd(amountVnd) : formatVnd(amountVnd);
-  return <span className={cn('whitespace-nowrap', amountVnd > 0 && 'text-income-fg', className)}>{text}</span>;
+  const tone = amountVnd > 0 ? 'text-income-fg' : amountVnd < 0 ? 'text-expense-fg' : undefined;
+  return <span className={cn('whitespace-nowrap', tone, className)}>{text}</span>;
 }

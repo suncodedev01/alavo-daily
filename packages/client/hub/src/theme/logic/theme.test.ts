@@ -8,12 +8,15 @@ describe('theme helpers', () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it('writes an explicit theme and clears it for system', () => {
+  it('writes an explicit theme and resolves system to what the device prefers', () => {
     const root = document.createElement('html');
     applyTheme('dark', root);
     expect(root.getAttribute('data-theme')).toBe('dark');
     applyTheme('system', root);
-    expect(root.hasAttribute('data-theme')).toBe(false);
+    expect(root.getAttribute('data-theme')).toBe('dark');
+    vi.stubGlobal('matchMedia', () => ({ matches: false }));
+    applyTheme('system', root);
+    expect(root.getAttribute('data-theme')).toBe('light');
   });
 
   it('follows the system preference only for the system theme', () => {

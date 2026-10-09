@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { EngineCallError, type EngineClient } from '@alavo-daily/common';
-import { createFakePlatform } from '@alavo-daily/common/testing';
+import { createActionablePlatform, createFakePlatform } from '@alavo-daily/common/testing';
 
 import { createHubEngine } from '../../testing/hubEngine';
 import { TEST_MODULES, setViewportWidth } from '../../testing/renderHub';
@@ -27,6 +27,15 @@ function failingEngine(message: string): EngineClient {
   const { engine } = createHubEngine();
   return Object.assign(engine, { ready: Promise.reject(new Error(message)) });
 }
+
+describe('notification buttons', () => {
+  it('are registered once the app is ready, on a platform that supports them', async () => {
+    const actions = createActionablePlatform();
+    const { engine } = createHubEngine();
+    render(<AlavoApp engine={engine} platform={actions.platform} modules={TEST_MODULES} />);
+    await waitFor(() => expect(actions.registered.map((type) => type.id)).toContain('dish-reminder'));
+  });
+});
 
 describe('engine gate', () => {
   it('shows a loading skeleton until the database is open', async () => {
@@ -109,7 +118,7 @@ describe('theme', () => {
     document.documentElement.setAttribute('data-theme', 'dark');
     renderApp(createHubEngine(withTheme('system')).engine);
     await screen.findByRole('heading', { name: 'Chào bạn' });
-    expect(document.documentElement).not.toHaveAttribute('data-theme');
+    expect(document.documentElement).toHaveAttribute('data-theme', 'light');
   });
 
   it('switches the theme from the sidebar toggle and saves it', async () => {

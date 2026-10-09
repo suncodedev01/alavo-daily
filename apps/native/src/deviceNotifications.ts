@@ -1,14 +1,27 @@
-import type { ScheduledNotification } from '@alavo-daily/common';
+import type { NotifyOptions, ScheduledNotification } from '@alavo-daily/common';
 import { Schedule, cancel, isPermissionGranted, pending, sendNotification } from '@tauri-apps/plugin-notification';
 
 export function isMobileDevice(): boolean {
   return /Android|iPhone|iPad/i.test(navigator.userAgent);
 }
 
-export async function showNow(title: string, body: string): Promise<boolean> {
+export async function showNow(
+  title: string,
+  body: string,
+  options?: NotifyOptions,
+): Promise<boolean> {
   if (!(await isPermissionGranted())) return false;
-  sendNotification({ title, body });
+  sendNotification({ title, body, ...actionFields(options) });
   return true;
+}
+
+interface ActionFields {
+  actionTypeId?: string;
+  extra?: Record<string, string>;
+}
+
+function actionFields({ actionTypeId, data }: NotifyOptions = {}): ActionFields {
+  return { ...(actionTypeId && { actionTypeId }), ...(data && { extra: data }) };
 }
 
 let lastSchedule: Promise<void> = Promise.resolve();
@@ -29,7 +42,9 @@ async function replaceSchedule(items: ScheduledNotification[]): Promise<void> {
   const now = Date.now();
   items
     .filter((item) => item.at > now)
-    .forEach(({ id, at, title, body }) =>
-      sendNotification({ id, title, body, schedule: Schedule.at(new Date(at), false, true) }),
-    );
+    .forEach((item) => {
+      const { id, at, title, body } = item;
+      const schedule = Schedule.at(new Date(at), false, true);
+      sendNotification({ id, title, body, schedule, ...actionFields(item) });
+    });
 }

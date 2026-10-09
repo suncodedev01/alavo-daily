@@ -8,6 +8,7 @@ export {
 
 export { Icon, resolveIcon, type IconProps, type IconSize, type IconWeight } from './components/foundations/Icon';
 export { ICON_REGISTRY, iconNames, MOCKUP_ICON_NAMES } from './components/foundations/iconRegistry';
+export { useKeyboardOpen } from './hooks/useKeyboardOpen';
 export { useLayout, WIDE_BREAKPOINT_PX, type Layout } from './hooks/useLayout';
 export { Toaster, useToast, TOAST_DURATION_MS } from './components/foundations/Toaster';
 

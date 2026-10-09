@@ -44,7 +44,7 @@ export function TransactionListPane({ month, selectedId, criteria, onCriteriaCha
         value={criteria.query}
         onValueChange={(value) => onCriteriaChange({ ...criteria, query: value })}
       />
-      <div role="group" aria-label={t('Lọc giao dịch')} className="scrollbar-none flex shrink-0 gap-1 overflow-x-auto">
+      <div role="group" aria-label={t('Lọc giao dịch')} className="scrollbar-none -my-1 flex shrink-0 gap-1 overflow-x-auto py-1">
         {FILTERS.map((option) => (
           <Pill
             key={option.value}

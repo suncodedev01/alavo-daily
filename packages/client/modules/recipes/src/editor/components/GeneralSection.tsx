@@ -24,7 +24,7 @@ export function GeneralSection({ draft, dispatch }: SectionProps) {
         value={draft.name}
         onChange={(event) => dispatch({ type: 'set_field', field: 'name', value: event.target.value })}
       />
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <MinutesField
           label={t('Phút chuẩn bị')}
           icon="timer"

@@ -40,7 +40,7 @@ function RecipeView({ recipe, servings, onServingsChange }: RecipeViewProps) {
       <RecipeHeading recipe={recipe} />
       <RecipeMeta recipe={recipe} servings={servings} onServingsChange={onServingsChange} />
       <RecipeActions recipe={recipe} servings={servings} />
-      <div className="@container"><div className="grid items-start gap-4 @2xl:grid-cols-2">
+      <div className="@container"><div className="grid grid-cols-1 items-start gap-4 @2xl:grid-cols-2">
         <IngredientList recipe={recipe} servings={servings} />
         <StepList recipe={recipe} />
       </div></div>

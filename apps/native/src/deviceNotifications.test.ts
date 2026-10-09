@@ -63,6 +63,22 @@ describe('scheduleOnDevice', () => {
     expect(order).toEqual(['pending', 'cancel', 'send', 'pending', 'cancel', 'send']);
   });
 
+  it('sends the button set and what the notification is about along with it', async () => {
+    await scheduleOnDevice([
+      {
+        id: 7,
+        at: NOW + HOUR,
+        title: 'a',
+        body: 'b',
+        actionTypeId: 'dish-reminder',
+        data: { recipeId: 'recipe-1' },
+      },
+    ]);
+    expect(plugin.sendNotification).toHaveBeenCalledWith(
+      expect.objectContaining({ actionTypeId: 'dish-reminder', extra: { recipeId: 'recipe-1' } }),
+    );
+  });
+
   it('schedules nothing while permission is not granted', async () => {
     plugin.isPermissionGranted.mockResolvedValue(false);
     await scheduleOnDevice([{ id: 3, at: NOW + HOUR, title: 'a', body: 'b' }]);
@@ -75,6 +91,16 @@ describe('showNow', () => {
   it('shows the notification and reports success', async () => {
     expect(await showNow('Tiêu đề', 'Nội dung')).toBe(true);
     expect(plugin.sendNotification).toHaveBeenCalledWith({ title: 'Tiêu đề', body: 'Nội dung' });
+  });
+
+  it('shows the buttons and the extra data when asked to', async () => {
+    await showNow('a', 'b', { actionTypeId: 'budget-warning', data: { categoryId: 'category-food' } });
+    expect(plugin.sendNotification).toHaveBeenCalledWith({
+      title: 'a',
+      body: 'b',
+      actionTypeId: 'budget-warning',
+      extra: { categoryId: 'category-food' },
+    });
   });
 
   it('reports false without showing when permission is not granted', async () => {

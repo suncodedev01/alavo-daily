@@ -24,7 +24,7 @@ export function RangeBar({ state, today }: { state: ReportRangeState; today: str
         className="max-w-full"
       />
       {state.preset === 'custom' ? (
-        <div className="grid max-w-md grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 max-w-md gap-2 lg:grid-cols-2">
           <DatePicker label={t('Từ ngày')} value={state.range.from} today={today} onChange={state.setFrom} />
           <DatePicker label={t('Đến ngày')} value={state.range.to} today={today} onChange={state.setTo} />
         </div>

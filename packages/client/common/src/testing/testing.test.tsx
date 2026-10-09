@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { useEngineMutation, useEngineQuery, EngineGate, EngineProvider } from '../engine';
-import { createFakePlatform, FakeEngineClient, renderWithProviders } from './index';
+import { createActionablePlatform, createFakePlatform, FakeEngineClient, renderWithProviders } from './index';
 
 function Settings() {
   const settings = useEngineQuery('hub.get_settings');
@@ -78,7 +78,34 @@ describe('EngineGate', () => {
   });
 });
 
+describe('createActionablePlatform', () => {
+  it('supports notification buttons and records what it is asked to do', async () => {
+    const actions = createActionablePlatform();
+    expect(actions.platform.capabilities.notificationActions).toBe(true);
+    await actions.platform.registerNotificationActions([{ id: 'x', actions: [] }]);
+    await actions.platform.notify('a', 'b', { actionTypeId: 'x', data: { id: '1' } });
+    expect(actions.registered).toEqual([{ id: 'x', actions: [] }]);
+    expect(actions.shown).toEqual([{ title: 'a', body: 'b', options: { actionTypeId: 'x', data: { id: '1' } } }]);
+  });
+
+  it('delivers a pressed button to every listener until it stops listening', () => {
+    const actions = createActionablePlatform();
+    const heard = vi.fn();
+    const stop = actions.platform.onNotificationAction(heard);
+    actions.press('snooze-10', { data: { recipeId: 'r1' } });
+    expect(heard).toHaveBeenCalledWith(expect.objectContaining({ actionId: 'snooze-10', data: { recipeId: 'r1' } }));
+    stop();
+    actions.press('snooze-10');
+    expect(heard).toHaveBeenCalledTimes(1);
+    expect(actions.listenerCount()).toBe(0);
+  });
+});
+
 describe('createFakePlatform', () => {
+  it('has no notification buttons unless asked', () => {
+    expect(createFakePlatform().capabilities.notificationActions).toBe(false);
+  });
+
   it('lets a test override one service', async () => {
     const notify = vi.fn(async () => false);
     const platform = createFakePlatform({ notify });

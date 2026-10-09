@@ -28,7 +28,7 @@ export function StatementReview({ draft }: { draft: StatementDraft }) {
   const canConfirm = walletId !== null && summary.selected > 0 && !importer.pending;
   return (
     <Card className="mx-auto grid w-full max-w-240 gap-4">
-      <div className="grid gap-3 lg:grid-cols-2 lg:items-end">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 lg:items-end">
         <div className="grid gap-1">
           <h2 className="text-title font-semibold">{t('Kiểm tra trước khi nhập')}</h2>
           <p className="text-sm text-text-secondary">
@@ -48,6 +48,8 @@ export function StatementReview({ draft }: { draft: StatementDraft }) {
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line-hairline pb-2 text-sm">
         <Checkbox
+          plain
+          className="w-auto min-h-11 max-lg:min-h-11"
           checked={summary.selected === summary.importable && summary.importable > 0}
           disabled={summary.importable === 0}
           onCheckedChange={draft.setAllIncluded}

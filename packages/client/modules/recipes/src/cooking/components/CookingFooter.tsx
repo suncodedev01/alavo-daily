@@ -33,7 +33,7 @@ export function CookingFooter(props: CookingFooterProps) {
           icon="arrow-left"
           variant="outline"
           size="lg"
-          className="size-14"
+          className="size-14 max-lg:size-14"
           label={t('Bước trước')}
           disabled={stepIndex === 0}
           onClick={onPrevious}
@@ -46,7 +46,7 @@ export function CookingFooter(props: CookingFooterProps) {
           icon="list-checks"
           variant="outline"
           size="lg"
-          className="size-14"
+          className="size-14 max-lg:size-14"
           label={t('Nguyên liệu')}
           onClick={onOpenIngredients}
         />

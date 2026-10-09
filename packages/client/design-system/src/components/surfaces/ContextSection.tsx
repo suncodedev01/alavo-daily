@@ -14,7 +14,7 @@ export type ContextSectionProps = {
 };
 
 const TRIGGER_CLASS =
-  'focus-ring-inset group/trigger flex h-10 w-full items-center gap-2 px-4 text-left text-sm font-semibold text-text-primary';
+  'focus-ring-inset group/trigger flex h-10 w-full max-lg:h-11 items-center gap-2 px-4 text-left text-sm font-semibold text-text-primary';
 
 export function ContextSection({
   title,

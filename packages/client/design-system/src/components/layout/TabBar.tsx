@@ -30,7 +30,7 @@ export function TabBarItem({ icon, label, active = false, className, ...rest }: 
       type="button"
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'focus-ring group grid min-h-12 justify-items-center gap-0.5 py-1.5 text-meta font-medium',
+        'focus-ring group grid min-h-12 min-w-0 justify-items-center gap-0.5 py-1.5 text-meta font-medium',
         active ? 'text-accent-fg' : 'text-text-muted',
         className,
       )}
@@ -44,7 +44,7 @@ export function TabBarItem({ icon, label, active = false, className, ...rest }: 
       >
         <Icon name={icon} size={24} />
       </span>
-      <span>{label}</span>
+      <span className="max-w-full truncate">{label}</span>
     </button>
   );
 }

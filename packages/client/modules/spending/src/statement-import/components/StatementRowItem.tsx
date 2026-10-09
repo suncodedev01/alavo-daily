@@ -28,7 +28,7 @@ export function StatementRowItem({ row, lookups, onChange }: StatementRowItemPro
         onCheckedChange={(include) => onChange(row.line, { include })}
       />
       <div className="min-w-0 flex-1 basis-40">
-        <p className="truncate text-sm font-medium">{row.title}</p>
+        <p className="line-clamp-2 text-sm font-medium break-words">{row.title}</p>
         <p className="text-xs text-text-muted">{row.occurredOn ? dateText(row.occurredOn) : '—'}</p>
         {row.problems.map((problem) => (
           <p key={problem} className="text-xs text-destructive-fg">

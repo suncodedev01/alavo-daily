@@ -13,7 +13,7 @@ export type ProgressRingProps = {
 };
 
 const STROKE_CLASS: Record<MeterTone, string> = {
-  normal: 'stroke-chart-1',
+  normal: 'stroke-meter-ok',
   warn: 'stroke-meter-warn',
   over: 'stroke-meter-over',
 };

@@ -1,4 +1,5 @@
 import type { Ref } from 'react';
+import { cn } from '@/lib/utils';
 import { Field } from './Field';
 import { useDesignSystemTexts } from '../../lib/texts';
 import { IconButton } from './IconButton';
@@ -41,7 +42,7 @@ export function SearchField({
       placeholder={placeholder}
       value={value}
       trailing={clear}
-      className={className}
+      className={cn('shrink-0', className)}
       onChange={(event) => onValueChange(event.target.value)}
       onKeyDown={(event) => {
         if (event.key === 'Escape' && value) onValueChange('');

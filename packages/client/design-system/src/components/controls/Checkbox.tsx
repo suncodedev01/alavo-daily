@@ -9,12 +9,13 @@ export type CheckboxProps = {
   onCheckedChange?: (checked: boolean) => void;
   disabled?: boolean;
   label?: string;
+  plain?: boolean;
   children?: ReactNode;
   className?: string;
 };
 
 const BOX_CLASS =
-  'focus-ring grid size-5 shrink-0 place-items-center rounded-md text-primary-fg inset-ring-2 inset-ring-line-strong transition-colors data-checked:bg-primary data-checked:inset-ring-0 data-disabled:opacity-50 max-lg:size-6';
+  'focus-ring grid size-5 shrink-0 place-items-center rounded-md text-primary-fg inset-ring-2 inset-ring-line-strong transition-colors data-checked:bg-primary data-checked:inset-ring-0 data-disabled:opacity-50 max-lg:relative max-lg:size-6 max-lg:after:absolute max-lg:after:-inset-2.5 max-lg:after:content-[""]';
 
 export function Checkbox({
   checked,
@@ -22,6 +23,7 @@ export function Checkbox({
   onCheckedChange,
   disabled,
   label,
+  plain = false,
   children,
   className,
 }: CheckboxProps) {
@@ -51,7 +53,7 @@ export function Checkbox({
       <span
         className={cn(
           'min-w-0 flex-1 text-sm font-medium max-lg:text-base',
-          isChecked && 'text-text-muted line-through',
+          isChecked && !plain && 'text-text-muted line-through',
         )}
       >
         {children}

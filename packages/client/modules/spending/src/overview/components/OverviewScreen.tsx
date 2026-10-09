@@ -35,11 +35,11 @@ export function OverviewScreen() {
           <DecisionSection decision={decision} />
         </Card>
       ) : null}
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <DailySpendingCard month={month} today={today} isCurrentMonth={scope.isCurrentMonth} />
         <BudgetsSummaryCard month={month} today={today} />
       </div>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <RecentTransactionsCard month={month} />
         <GoalsSummaryCard />
       </div>

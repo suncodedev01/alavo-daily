@@ -10,6 +10,8 @@ export interface Capabilities {
   importFromUrl: boolean;
   /** Can sign in to Google Drive for sync. */
   googleSync: boolean;
+  /** Notifications can carry buttons the person taps without opening the app first. */
+  notificationActions: boolean;
 }
 
 /** A notification to show at a set time. The id lets a later schedule replace this one. */
@@ -19,7 +21,35 @@ export interface ScheduledNotification {
   at: number;
   title: string;
   body: string;
+  /** Which set of buttons the notification shows. Ignored where `notificationActions` is false. */
+  actionTypeId?: string;
+  /** What the notification is about, such as a recipe id. It comes back with the button press. */
+  data?: Record<string, string>;
 }
+
+/** Extra options for a notification shown right away. */
+export interface NotifyOptions {
+  actionTypeId?: string;
+  data?: Record<string, string>;
+}
+
+/** A set of buttons that notifications can show. */
+export interface NotificationActionType {
+  id: string;
+  actions: { id: string; label: string }[];
+}
+
+/** A button press on a notification. */
+export interface NotificationActionEvent {
+  actionId: string;
+  actionTypeId: string | null;
+  notificationId: number | null;
+  title: string;
+  body: string;
+  data: Record<string, string>;
+}
+
+export type NotificationActionHandler = (event: NotificationActionEvent) => void;
 
 export type NotificationPermissionState = 'granted' | 'denied' | 'prompt' | 'unsupported';
 
@@ -45,13 +75,17 @@ export interface PlatformServices {
   /** Hands a text file to the user (the data export). */
   saveTextFile(filename: string, content: string): Promise<void>;
   openLink(url: string): Promise<void>;
-  /** Shows a notification now. Scheduling for later is added per platform. */
-  notify(title: string, body: string): Promise<boolean>;
+  /** Shows a notification now. Buttons are shown only where `notificationActions` is true. */
+  notify(title: string, body: string, options?: NotifyOptions): Promise<boolean>;
   /**
    * Replaces every notification scheduled earlier with `items`. With `backgroundReminders` they
    * also show while the app is closed; without it only while the app is open.
    */
   scheduleNotifications(items: ScheduledNotification[]): Promise<void>;
+  /** Sets which buttons each `actionTypeId` shows. Does nothing where `notificationActions` is false. */
+  registerNotificationActions(types: NotificationActionType[]): Promise<void>;
+  /** Calls `handler` when a button is pressed. Returns the function that stops listening. */
+  onNotificationAction(handler: NotificationActionHandler): () => void;
   notificationPermission(): Promise<NotificationPermissionState>;
   /** Asks the person for permission. Call it from a button press, never on load. */
   requestNotificationPermission(): Promise<NotificationPermissionState>;
@@ -79,6 +113,7 @@ export function usePlatform(): PlatformServices {
   return platform;
 }
 
+export { BUDGET_WARNING_ACTIONS, DISH_REMINDER_ACTIONS } from './notificationActionTypes';
 export { createInPageScheduler } from './inPageScheduler';
 export { createWebPlatform, type WebPlatformOptions } from './web';
 export {

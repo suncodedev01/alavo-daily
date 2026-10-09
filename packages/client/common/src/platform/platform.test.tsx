@@ -34,6 +34,27 @@ describe('createWebPlatform', () => {
     expect(createWebPlatform().capabilities.importFromUrl).toBe(false);
   });
 
+  it('has no notification buttons, and registering or listening does nothing', async () => {
+    const platform = createWebPlatform();
+    expect(platform.capabilities.notificationActions).toBe(false);
+    await expect(platform.registerNotificationActions([{ id: 'x', actions: [] }])).resolves.toBeUndefined();
+    expect(() => platform.onNotificationAction(() => undefined)()).not.toThrow();
+  });
+
+  it('shows a notification that asks for buttons as a plain one', async () => {
+    const created = vi.fn();
+    class FakeNotification {
+      static permission = 'granted';
+      constructor(title: string, options: { body: string }) {
+        created(title, options.body);
+      }
+    }
+    vi.stubGlobal('Notification', FakeNotification);
+    const options = { actionTypeId: 'dish-reminder', data: { id: '1' } };
+    expect(await createWebPlatform().notify('a', 'b', options)).toBe(true);
+    expect(created).toHaveBeenCalledWith('a', 'b');
+  });
+
   it('keepAwake is a no-op release when the browser has no wake lock', async () => {
     vi.stubGlobal('navigator', {});
     const release = await createWebPlatform().keepAwake();

@@ -66,7 +66,7 @@ function TodayCards({ data, narrowDecision }: { data: TodayData; narrowDecision:
   const foodLine = foodBudgetLine(data.budget.data?.lines ?? []);
   return (
     <>
-      <div className="grid gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         <div className="grid lg:col-span-3">
           <DinnerCard plan={plan} shopping={data.shopping.data} />
         </div>
@@ -79,7 +79,7 @@ function TodayCards({ data, narrowDecision }: { data: TodayData; narrowDecision:
           />
         </div>
       </div>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <MealsCard plan={plan} />
         <ShoppingCard shopping={data.shopping.data} />
       </div>
@@ -104,7 +104,7 @@ function useSideSections(data: TodayData) {
 
 function TodaySkeleton() {
   return (
-    <div role="status" className="grid gap-4 lg:grid-cols-2">
+    <div role="status" className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <Skeleton className="h-48" />
       <Skeleton className="h-48" />
     </div>

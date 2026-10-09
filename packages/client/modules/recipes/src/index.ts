@@ -16,7 +16,7 @@ export const recipesManifest: ModuleManifest = {
   description: 'Công thức, thực đơn, đi chợ',
   views: [
     { id: 'list', label: 'Công thức', icon: 'book-open', path: '/recipes/list', tab: true },
-    { id: 'plan', label: 'Thực đơn tuần', icon: 'calendar-blank', path: '/recipes/plan', tab: true },
+    { id: 'plan', label: 'Thực đơn', icon: 'calendar-blank', path: '/recipes/plan', tab: true },
     { id: 'shopping', label: 'Đi chợ', icon: 'shopping-bag', path: '/recipes/shopping', tab: true },
     {
       id: 'favorites',

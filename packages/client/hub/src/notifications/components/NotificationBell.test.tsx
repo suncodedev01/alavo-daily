@@ -13,6 +13,7 @@ function notification(id: string, overrides: Partial<AppNotification> = {}): App
     module: 'alpha',
     title: `Thông báo ${id}`,
     body: `Nội dung ${id}`,
+    subjectId: null,
     createdAt: NOW,
     read: false,
     ...overrides,

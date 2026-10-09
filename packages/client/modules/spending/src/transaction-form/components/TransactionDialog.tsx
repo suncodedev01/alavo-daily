@@ -1,9 +1,8 @@
 import type { Transaction } from '@alavo-daily/common/engine';
 import { useT } from '@alavo-daily/common';
-import { Field, OptionPicker, ResponsiveDialog, Skeleton, useLayout } from '@alavo-daily/design-system';
+import { Field, ResponsiveDialog, Skeleton, useLayout } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
-import { formatBalance } from '../../money';
 import { CategoryDialog } from '../../categories';
 import { useLookups, type Lookups } from '../../lookups';
 import { DatePicker } from '../../datepicker';
@@ -14,6 +13,7 @@ import { AmountInput } from './AmountInput';
 import { CategoryPicker } from './CategoryPicker';
 import { KindSwitch, RecurringRow } from './FormRows';
 import { MoneyKeypad } from './MoneyKeypad';
+import { PaymentMethodPicker } from './PaymentMethodPicker';
 import { applyKeypadKey, categoriesOfKind } from '../logic/transactionForm';
 import { useTransactionForm } from '../hooks/useTransactionForm';
 
@@ -70,12 +70,6 @@ function TransactionForm({ onOpenChange, editing, lookups, onSaved, title }: For
     },
   });
   const { draft, errors, patch } = form;
-  const walletOptions = lookups.wallets.map((wallet) => ({
-    value: wallet.id,
-    label: wallet.name,
-    hint: formatBalance(wallet.balanceVnd),
-    icon: 'wallet',
-  }));
 
   return (
     <>
@@ -105,28 +99,19 @@ function TransactionForm({ onOpenChange, editing, lookups, onSaved, title }: For
           value={draft.title}
           onChange={(event) => patch({ title: event.target.value })}
         />
-        <div className="grid gap-2 lg:grid-cols-2">
-          <OptionPicker
-            label={t('Ví')}
-            value={draft.walletId || null}
-            options={walletOptions}
-            placeholder={t('Chọn ví')}
-            leadingIcon="wallet"
-            onChange={(walletId) => patch({ walletId })}
-          />
-          <DatePicker
-            label={t('Ngày')}
-            value={draft.occurredOn}
-            today={today}
-            onChange={(occurredOn) => patch({ occurredOn })}
-            invalid={Boolean(errors.date)}
-          />
-        </div>
-        {errors.wallet ? (
-          <p role="alert" className="text-sm text-destructive-fg">
-            {t(errors.wallet)}
-          </p>
-        ) : null}
+        <PaymentMethodPicker
+          wallets={lookups.wallets}
+          selectedId={draft.walletId}
+          onSelect={(walletId) => patch({ walletId })}
+          error={errors.wallet}
+        />
+        <DatePicker
+          label={t('Ngày')}
+          value={draft.occurredOn}
+          today={today}
+          onChange={(occurredOn) => patch({ occurredOn })}
+          invalid={Boolean(errors.date)}
+        />
         {editing?.recurringSourceId ? null : (
           <RecurringRow checked={draft.recurring} onChange={(recurring) => patch({ recurring })} />
         )}

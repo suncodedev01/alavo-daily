@@ -16,7 +16,7 @@ export type PopoverProps = {
 };
 
 const CONTENT_CLASS =
-  'w-auto min-w-60 gap-0 rounded-lg bg-surface p-1 text-sm text-text-primary shadow-overlay ring-0 dark:ring-0';
+  'max-h-(--available-height) w-auto min-w-60 gap-0 overflow-y-auto rounded-lg bg-surface p-1 text-sm text-text-primary shadow-overlay ring-0 dark:ring-0';
 
 export function Popover({
   trigger,

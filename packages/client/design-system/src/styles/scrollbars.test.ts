@@ -14,3 +14,14 @@ describe('scrollbars', () => {
     expect(css).toMatch(/@utility scrollbar-visible/);
   });
 });
+
+describe('page scrolling', () => {
+  it('is locked for the app shell so only the content inside scrolls', () => {
+    expect(css).toMatch(/html\[data-shell\],\s*html\[data-shell\] body\s*\{[^}]*overflow:\s*hidden/);
+    expect(css).toMatch(/html\[data-shell\] #root\s*\{[^}]*position:\s*fixed/);
+  });
+
+  it('does not touch pages that are not the app shell', () => {
+    expect(css).not.toMatch(/(^|\n)\s*(html|body)\s*\{[^}]*overflow:\s*hidden/);
+  });
+});

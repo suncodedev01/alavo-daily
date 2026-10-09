@@ -1,20 +1,6 @@
 import { useReducer, useRef } from 'react';
 
-function readFlag(key: string): boolean {
-  try {
-    return window.localStorage.getItem(key) === '1';
-  } catch {
-    return false;
-  }
-}
-
-function writeFlag(key: string): void {
-  try {
-    window.localStorage.setItem(key, '1');
-  } catch {
-    return;
-  }
-}
+import { readFlag, writeFlag } from '../logic/dismissalFlag';
 
 export function useDismissal(key: string): { dismissed: boolean; dismiss: () => void } {
   const [, rerender] = useReducer((count: number) => count + 1, 0);

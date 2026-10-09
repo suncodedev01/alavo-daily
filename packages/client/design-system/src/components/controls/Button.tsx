@@ -51,8 +51,8 @@ const VARIANT_CLASS: Record<ButtonVariant, string> = {
 };
 
 const SIZE_CLASS: Record<ButtonSize, string> = {
-  sm: 'h-8 gap-1.5 px-3 has-data-[icon=inline-start]:pl-3 has-data-[icon=inline-end]:pr-3',
-  md: 'h-9 gap-1.5 px-4 has-data-[icon=inline-start]:pl-4 has-data-[icon=inline-end]:pr-4',
+  sm: 'h-8 max-lg:h-11 gap-1.5 px-3 has-data-[icon=inline-start]:pl-3 has-data-[icon=inline-end]:pr-3',
+  md: 'h-9 max-lg:h-11 gap-1.5 px-4 has-data-[icon=inline-start]:pl-4 has-data-[icon=inline-end]:pr-4',
   lg: 'h-11 gap-2 px-5 text-base has-data-[icon=inline-start]:pl-5 has-data-[icon=inline-end]:pr-5',
   icon: 'size-9 px-0 max-lg:size-11',
 };

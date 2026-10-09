@@ -26,7 +26,7 @@ function LinkImport({ onFill }: { onFill: (draft: Draft) => void }) {
           value={url}
           onChange={(event) => setUrl(event.target.value)}
         />
-        <Button disabled={importer.busy || url.trim() === ''} onClick={() => void importer.fromUrl(url.trim())}>
+        <Button className="max-lg:w-full" disabled={importer.busy || url.trim() === ''} onClick={() => void importer.fromUrl(url.trim())}>
           {t('Nhập công thức')}
         </Button>
       </div>
