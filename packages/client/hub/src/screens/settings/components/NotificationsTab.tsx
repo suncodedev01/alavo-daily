@@ -10,6 +10,7 @@ import { Card, CardHeader, CardTitle, Icon, IconTile, OptionPicker, Switch } fro
 
 import { useModules } from '../../../module-registry';
 import { groupRulesByModule, timeOptions, type RuleGroup } from '../logic/notificationRules';
+import { NotificationPermissionCard } from './NotificationPermissionCard';
 
 export function NotificationsTab() {
   const t = useT();
@@ -19,6 +20,7 @@ export function NotificationsTab() {
   const groups = groupRulesByModule(rules.data ?? [], modules);
   return (
     <>
+      <NotificationPermissionCard />
       {capabilities.backgroundReminders ? null : <ReminderLimitNote />}
       {groups.map((group) => (
         <RuleGroupCard key={group.moduleId} group={group} />

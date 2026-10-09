@@ -7,6 +7,7 @@ import type {
   RecipeSummary,
   Settings,
   ShoppingList,
+  SyncConflict,
   SyncStatus,
   Transaction,
 } from '@alavo-daily/common';
@@ -16,6 +17,7 @@ export interface HubState {
   notifications: AppNotification[];
   rules: NotificationRule[];
   sync: SyncStatus;
+  conflicts: SyncConflict[];
   plan: PlanEntry[];
   shopping: ShoppingList;
   budget: BudgetStatus;
@@ -112,6 +114,19 @@ export function aShoppingList(costVnd: number, itemNames: string[] = []): Shoppi
   };
 }
 
+export function aSyncStatus(overrides: Partial<SyncStatus> = {}): SyncStatus {
+  return {
+    state: 'off',
+    pendingEvents: 0,
+    lastSyncedAt: null,
+    deviceId: 'device-1',
+    accountEmail: null,
+    error: null,
+    conflictCount: 0,
+    ...overrides,
+  };
+}
+
 export function defaultState(): HubState {
   return {
     settings: {
@@ -123,7 +138,8 @@ export function defaultState(): HubState {
     },
     notifications: [],
     rules: [],
-    sync: { state: 'off', pendingEvents: 0, lastSyncedAt: null, deviceId: 'device-1' },
+    sync: aSyncStatus(),
+    conflicts: [],
     plan: [],
     shopping: aShoppingList(0),
     budget: { ...aFoodBudget(0), lines: [] },
@@ -161,9 +177,14 @@ function hubHandlers(state: HubState): Handlers {
       state.rules = state.rules.map((rule) => (rule.id === payload.id ? { ...rule, ...payload } : rule));
       return state.rules.find((rule) => rule.id === payload.id) as NotificationRule;
     },
-    'hub.export_data': () => ({ version: 1, exportedAt: NOW, deviceId: 'device-1', tables: {} }),
+    'hub.export_data': () => ({ format: 'alavo-daily-export', version: 1, exportedAt: NOW, deviceId: 'device-1', tables: {} }),
     'hub.load_demo_data': () => ({}),
-    'sync.status': () => ({ ...state.sync }),
+    'sync.status': () => ({ ...state.sync, conflictCount: state.conflicts.length }),
+    'sync.list_conflicts': () => state.conflicts.map((conflict) => ({ ...conflict })),
+    'sync.resolve_conflict': (payload) => {
+      state.conflicts = state.conflicts.filter((conflict) => conflict.id !== payload.id);
+      return {};
+    },
     'recipes.get_plan': () => state.plan,
     'recipes.get_shopping_list': () => state.shopping,
     'recipes.list': () => state.recipes,

@@ -88,7 +88,7 @@ describe('tab bar on the home module', () => {
     const user = userEvent.setup();
     renderHub('/today');
     await user.click(within(await tabBar()).getByRole('button', { name: 'Cài đặt' }));
-    expect(await screen.findByText('Dữ liệu đang chỉ nằm trên máy này')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Dữ liệu trên máy này' })).toBeInTheDocument();
     expect(within(await tabBar()).getByRole('button', { name: 'Cài đặt' })).toHaveAttribute('aria-current', 'page');
   });
 });

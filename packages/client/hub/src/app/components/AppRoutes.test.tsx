@@ -21,7 +21,7 @@ describe('routes', () => {
 
   it('opens the sync tab of settings by default', async () => {
     renderHub('/settings');
-    expect(await screen.findByText('Dữ liệu đang chỉ nằm trên máy này')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Dữ liệu trên máy này' })).toBeInTheDocument();
   });
 
   it('opens the notifications tab of settings', async () => {
@@ -31,7 +31,7 @@ describe('routes', () => {
 
   it('falls back to the sync tab for an unknown settings tab', async () => {
     renderHub('/settings/khong-co');
-    expect(await screen.findByText('Dữ liệu đang chỉ nằm trên máy này')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Dữ liệu trên máy này' })).toBeInTheDocument();
   });
 
   it('renders a module route inside the frame', async () => {

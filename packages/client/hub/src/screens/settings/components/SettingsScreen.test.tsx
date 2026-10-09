@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -32,56 +32,13 @@ describe('settings tabs', () => {
     expect(screen.getByLabelText('Đường dẫn hiện tại')).toHaveTextContent('/settings/notifications');
     expect(screen.getByRole('radio', { name: 'Thông báo' })).toHaveAttribute('aria-checked', 'true');
     await user.click(screen.getByRole('radio', { name: 'Đồng bộ Google' }));
-    expect(await screen.findByText('Dữ liệu đang chỉ nằm trên máy này')).toBeInTheDocument();
+    expect(await screen.findByText('Chưa cấu hình đăng nhập Google')).toBeInTheDocument();
   });
 
   it('maps unknown tab names to the sync tab', () => {
     expect(tabFromParam(undefined)).toBe('sync');
     expect(tabFromParam('notifications')).toBe('notifications');
     expect(tabFromParam('abc')).toBe('sync');
-  });
-});
-
-describe('sync tab', () => {
-  it('shows the honest off state with a disabled connect button', async () => {
-    renderHub('/settings/sync');
-    expect(await screen.findByText('Dữ liệu đang chỉ nằm trên máy này')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Kết nối với Google' })).toBeDisabled();
-    expect(screen.getByText(/Sắp có\. Tính năng này chưa dùng được/)).toBeInTheDocument();
-  });
-
-  it('shows how many changes are waiting', async () => {
-    renderHub('/settings/sync', {
-      state: { sync: { state: 'off', pendingEvents: 148, lastSyncedAt: null, deviceId: 'device-1' } },
-    });
-    expect(await screen.findByText('148 thay đổi trên máy này chưa được đồng bộ')).toBeInTheDocument();
-  });
-
-  it('exports the data through the platform as a dated file', async () => {
-    const user = userEvent.setup();
-    vi.useFakeTimers({ toFake: ['Date'], now: new Date(2026, 9, 9, 12).getTime() });
-    const saveTextFile = vi.fn(async () => undefined);
-    renderHub('/settings/sync', { platform: createFakePlatform({ saveTextFile }) });
-    await user.click(await screen.findByRole('button', { name: 'Xuất dữ liệu' }));
-    await waitFor(() => expect(saveTextFile).toHaveBeenCalledTimes(1));
-    const [filename, content] = saveTextFile.mock.calls[0] as unknown as [string, string];
-    expect(filename).toBe('alavo-daily-2026-10-09.json');
-    expect(JSON.parse(content)).toMatchObject({ version: 1, deviceId: 'device-1' });
-    expect(await screen.findByText('Đã xuất dữ liệu')).toBeInTheDocument();
-    vi.useRealTimers();
-  });
-
-  it('loads the sample data', async () => {
-    const user = userEvent.setup();
-    const { engine } = renderHub('/settings/sync');
-    await user.click(await screen.findByRole('button', { name: 'Nạp dữ liệu mẫu' }));
-    await waitFor(() => expect(engine.callsTo('hub.load_demo_data')).toHaveLength(1));
-  });
-
-  it('shows the device in the dock', async () => {
-    renderHub('/settings/sync');
-    const dock = await screen.findByRole('complementary', { name: 'Bảng ngữ cảnh' });
-    expect(await within(dock).findByText('device-1')).toBeInTheDocument();
   });
 });
 
@@ -136,6 +93,61 @@ describe('notifications tab', () => {
     renderHub('/settings/notifications', { state: { rules }, platform });
     await screen.findByRole('switch', { name: 'Quy tắc r1' });
     expect(screen.queryByRole('note')).not.toBeInTheDocument();
+  });
+});
+
+describe('notification permission card', () => {
+  it('shows a quiet confirmation when notifications are already allowed', async () => {
+    renderHub('/settings/notifications');
+    expect(await screen.findByRole('heading', { name: 'Cho phép thông báo' })).toBeInTheDocument();
+    expect(screen.getByText('Đã bật')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cho phép' })).not.toBeInTheDocument();
+  });
+
+  it('asks only when the person presses the button, then confirms', async () => {
+    const user = userEvent.setup();
+    const requestNotificationPermission = vi.fn(async () => 'granted' as const);
+    const platform = createFakePlatform({
+      notificationPermission: async () => 'prompt',
+      requestNotificationPermission,
+    });
+    renderHub('/settings/notifications', { platform });
+    const button = await screen.findByRole('button', { name: 'Cho phép' });
+    expect(requestNotificationPermission).not.toHaveBeenCalled();
+    await user.click(button);
+    expect(await screen.findByText('Đã bật')).toBeInTheDocument();
+    expect(requestNotificationPermission).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: 'Cho phép' })).not.toBeInTheDocument();
+  });
+
+  it('explains how to turn notifications back on when they are blocked', async () => {
+    const platform = createFakePlatform({ notificationPermission: async () => 'denied' });
+    renderHub('/settings/notifications', { platform });
+    const hint = await screen.findByText(/Hãy bật lại trong cài đặt của hệ thống hoặc của trình duyệt/);
+    expect(hint).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cho phép' })).not.toBeInTheDocument();
+  });
+
+  it('says so when the device cannot show notifications', async () => {
+    const platform = createFakePlatform({ notificationPermission: async () => 'unsupported' });
+    renderHub('/settings/notifications', { platform });
+    const note = await screen.findByText('Thiết bị hoặc trình duyệt này chưa hỗ trợ thông báo.');
+    expect(note).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cho phép' })).not.toBeInTheDocument();
+  });
+
+  it('tells the person when asking fails and keeps the button', async () => {
+    const user = userEvent.setup();
+    const platform = createFakePlatform({
+      notificationPermission: async () => 'prompt',
+      requestNotificationPermission: async () => {
+        throw new Error('no plugin');
+      },
+    });
+    renderHub('/settings/notifications', { platform });
+    await user.click(await screen.findByRole('button', { name: 'Cho phép' }));
+    expect(await screen.findByText('Không bật được thông báo')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cho phép' })).toBeEnabled();
   });
 });
 

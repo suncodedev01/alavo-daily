@@ -3,10 +3,11 @@ import { Screen, type ModuleManifest } from '@alavo-daily/common';
 import { renderWithProviders, type FakeEngineClient } from '@alavo-daily/common/testing';
 import { Toaster } from '@alavo-daily/design-system';
 import type { Handlers } from '@alavo-daily/common/testing';
-import type { PlatformServices } from '@alavo-daily/common';
+import type { PlatformServices, SyncController } from '@alavo-daily/common';
 
 import { AppRoutes } from '../app';
 import { ModulesProvider } from '../module-registry';
+import { SyncProvider } from '../sync-status';
 import { createHubEngine, type HubState } from './hubEngine';
 
 function AlphaOne() {
@@ -83,16 +84,20 @@ export interface RenderHubOptions {
   state?: Partial<HubState>;
   handlers?: Handlers;
   platform?: PlatformServices;
+  /** What the sync buttons talk to. Without one, the device cannot sync. */
+  sync?: SyncController | null;
 }
 
 export function renderHub(path = '/today', options: RenderHubOptions = {}) {
   const { engine, state } = createHubEngine(options.state, options.handlers);
   const result = renderWithProviders(
     <ModulesProvider modules={options.modules ?? TEST_MODULES}>
-      <MemoryRouter initialEntries={[path]}>
-        <AppRoutes />
-        <LocationProbe />
-      </MemoryRouter>
+      <SyncProvider controller={options.sync ?? null}>
+        <MemoryRouter initialEntries={[path]}>
+          <AppRoutes />
+          <LocationProbe />
+        </MemoryRouter>
+      </SyncProvider>
       <Toaster />
     </ModulesProvider>,
     { engine, platform: options.platform },

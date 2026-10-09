@@ -1,6 +1,6 @@
 import type { SyncStatus } from '@alavo-daily/common';
 
-import { formatTimeOfDay } from '../../clock';
+import { formatLastSync } from './formatLastSync';
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;
 
@@ -10,36 +10,46 @@ export interface SyncDescription {
   subtitle: string;
 }
 
-export function describeSync(status: SyncStatus | undefined, t: Translate): SyncDescription {
-  const pending = status?.pendingEvents ?? 0;
-  switch (status?.state) {
-    case 'connecting':
-      return { icon: 'arrows-clockwise', title: t('Đang kết nối…'), subtitle: t('Chờ đăng nhập Google') };
+/** One description of sync for every place that shows it: the sidebar row and the settings page. */
+export function describeSync(
+  status: SyncStatus | undefined,
+  t: Translate,
+  now: number = Date.now(),
+): SyncDescription {
+  if (!status || status.state === 'off') return describeOff(t);
+  if (status.conflictCount > 0) return describeConflict(t);
+  switch (status.state) {
     case 'syncing':
-      return {
-        icon: 'arrows-clockwise',
-        title: t('Đang đồng bộ…'),
-        subtitle: t('Đừng đóng ứng dụng'),
-      };
-    case 'connected':
-      return { icon: 'cloud-check', title: t('Đã đồng bộ'), subtitle: lastSyncedText(status.lastSyncedAt, t) };
+      return describe('arrows-clockwise', t('Đang đồng bộ…'), t('Đừng đóng ứng dụng'));
+    case 'needs_login':
+      return describe('cloud-slash', t('Cần đăng nhập lại Google'), t('Bấm để đăng nhập lại'));
     case 'offline':
-      return {
-        icon: 'cloud-slash',
-        title: t('Chưa đồng bộ'),
-        subtitle: t('{{count}} thay đổi đang chờ', { count: pending }),
-      };
-    case 'conflict':
-      return { icon: 'cloud', title: t('Cần chọn bản dữ liệu'), subtitle: t('Hai thiết bị cùng sửa') };
+      return describe('cloud-slash', t('Chưa đồng bộ'), describeWaiting(status.pendingEvents, t));
+    case 'error':
+      return describe('warning', t('Đồng bộ chưa thành công'), t('Bấm để xem và thử lại'));
     default:
-      return {
-        icon: 'cloud-slash',
-        title: t('Chưa kết nối Google'),
-        subtitle: t('Dữ liệu chỉ ở máy này'),
-      };
+      return describe('cloud-check', t('Đã đồng bộ'), describeLastSync(status, t, now));
   }
 }
 
-function lastSyncedText(lastSyncedAt: number | null, t: Translate): string {
-  return lastSyncedAt === null ? t('Vừa xong') : t('Lúc {{time}}', { time: formatTimeOfDay(lastSyncedAt) });
+function describe(icon: string, title: string, subtitle: string): SyncDescription {
+  return { icon, title, subtitle };
+}
+
+function describeOff(t: Translate): SyncDescription {
+  return describe('cloud-slash', t('Chưa kết nối Google'), t('Dữ liệu chỉ ở máy này'));
+}
+
+function describeConflict(t: Translate): SyncDescription {
+  return describe('cloud', t('Cần chọn bản dữ liệu'), t('Hai thiết bị cùng sửa'));
+}
+
+function describeWaiting(pending: number, t: Translate): string {
+  return pending > 0 ? t('{{count}} thay đổi đang chờ', { count: pending }) : t('Đang ngoại tuyến');
+}
+
+function describeLastSync(status: SyncStatus, t: Translate, now: number): string {
+  if (status.pendingEvents > 0) return t('{{count}} thay đổi đang chờ', { count: status.pendingEvents });
+  if (status.lastSyncedAt === null) return t('Vừa xong');
+  return formatLastSync(status.lastSyncedAt, t, now);
 }
