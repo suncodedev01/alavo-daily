@@ -11,7 +11,7 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test hoặc đã ki�
 - [x] Chính sách gộp dữ liệu theo từng bảng (theo trường, cả dòng), có test giao hoán và lặp lại được
 - [x] Design system dựa trên shadcn (`base-maia`, Base UI), có trang showcase
 - [x] Giao diện React dùng chung cho mọi vỏ: bố cục chọn theo chiều rộng, khác biệt nền tảng đi qua cổng `PlatformServices`
-- [x] Test: engine 630, giao diện 849 (common, design system, hub, chi tiêu, công thức)
+- [x] Test: engine 630, giao diện 894 (common, design system, hub, chi tiêu, công thức, native)
 - [x] Workflow build bản phát hành: chọn mức bump version, chọn bản build (web, Windows, macOS, Linux, Android), chọn môi trường, đẩy file vào GitHub Releases, không dùng artifact. Đã viết, chưa chạy thử trên GitHub
 - [ ] Lint giới hạn kích thước hàm, file, tham số trong CI (rule đã ghi, chưa cấu hình ESLint và clippy)
 - [ ] Test end to end bằng Playwright trên bản web thật
@@ -69,8 +69,10 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test hoặc đã ki�
 
 - [x] Danh sách quy tắc thông báo trong Cài đặt
 - [x] Engine: lệnh `recipes.morning_menus` trả món đã lên thực đơn của từng ngày, hoặc một món gợi ý cố định theo ngày khi chưa có món; quy tắc `recipes.morning_menu` mặc định 06:00
-- [ ] Nhắc món ăn buổi sáng lúc 6, 7, 8, 9 giờ, hiện trên màn hình khoá (đang làm: phần giao diện và lên lịch)
-- [ ] Lên lịch thông báo khi đã đóng ứng dụng trên điện thoại (plugin thông báo của Tauri)
-- [ ] Thông báo khi ứng dụng đang mở trên web và desktop (đặt hẹn giờ trong trang)
+- [x] Nhắc món ăn buổi sáng: lên lịch 4 lần mỗi sáng (giờ đặt trong Cài đặt rồi mỗi giờ một lần, mặc định 6, 7, 8, 9 giờ) cho 3 ngày tới, tự lên lịch lại mỗi khi đổi thực đơn hoặc công thức
+- [x] Cổng `scheduleNotifications`: hẹn giờ trong trang cho web và desktop (chỉ hiện khi ứng dụng đang mở), plugin thông báo của Tauri cho điện thoại
+- [ ] Kiểm tra thông báo hiện trên màn hình khoá của điện thoại thật (code và test có rồi, chưa chạy trên thiết bị)
+- [ ] Web: nút bấm xin quyền thông báo (hiện chỉ hỏi lúc thông báo sắp hiện)
+- [ ] Làm mới lịch nhắc khi ứng dụng mở qua đêm (lịch chỉ tính lại khi mở ứng dụng hoặc khi dữ liệu đổi)
 - [ ] Nhắc nấu bữa tối, nhắc đi chợ, nhắc rã đông (quy tắc đã có nhưng chưa có gì kích hoạt)
 - [ ] Nhắc hoá đơn trước 2 ngày, tóm tắt chi tiêu cuối tuần (quy tắc đã có nhưng chưa có gì kích hoạt)

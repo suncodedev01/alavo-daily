@@ -8,6 +8,7 @@ import type {
 } from './types/hub';
 import type {
   LogShoppingExpense,
+  MorningMenu,
   NewPlanEntry,
   NewShoppingItem,
   PlanEntry,
@@ -99,6 +100,8 @@ export interface CommandMap {
   'recipes.parse_json_ld': { payload: { json: string }; result: RecipeInput | null };
   /** Entries from `from` for `days` days (default 7). */
   'recipes.get_plan': { payload: { from: string; days?: number }; result: PlanEntry[] };
+  /** The menu of each of `days` mornings (default 3) from `from`: planned dishes, or one suggestion. */
+  'recipes.morning_menus': { payload: { from: string; days?: number }; result: MorningMenu[] };
   'recipes.add_to_plan': { payload: NewPlanEntry; result: PlanEntry };
   'recipes.remove_from_plan': { payload: { id: string }; result: Empty };
   /** Plan entries with `from <= date <= to`, merged by `name|unit`, plus hand-added items. */
@@ -123,7 +126,7 @@ export type CallArgs<K extends CommandName> = [CommandPayload<K>] extends [void]
       ? [payload?: CommandPayload<K>]
       : [payload: CommandPayload<K>];
 
-const READ_PREFIXES = ['list', 'get', 'status', 'month', 'budget', 'export', 'parse', 'device'];
+const READ_PREFIXES = ['list', 'get', 'status', 'month', 'budget', 'export', 'parse', 'device', 'morning'];
 
 /** Reads leave the data alone, so they never invalidate cached queries. */
 export function isReadCommand(command: string): boolean {

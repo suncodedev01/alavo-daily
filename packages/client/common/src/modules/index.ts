@@ -48,4 +48,9 @@ export interface ModuleManifest {
   quickActions?: QuickAction[];
   /** Extra content under the module's navigation in the wide sidebar (wallets, today's meals). */
   sidebarExtra?: ComponentType;
+  /**
+   * Drawn once for the whole session, outside any screen, and should render nothing. A module
+   * uses it to keep its reminders scheduled while the app is open.
+   */
+  background?: ComponentType;
 }

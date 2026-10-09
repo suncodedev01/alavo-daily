@@ -1,3 +1,4 @@
+import { createInPageScheduler } from './inPageScheduler';
 import type { PlatformServices } from './index';
 
 interface WakeLockSentinelLike {
@@ -17,6 +18,7 @@ export function createWebPlatform(): PlatformServices {
     saveTextFile: downloadTextFile,
     openLink: async (url) => void window.open(url, '_blank', 'noopener,noreferrer'),
     notify: showNotification,
+    scheduleNotifications: createInPageScheduler(showNotification),
   };
 }
 

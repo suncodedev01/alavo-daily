@@ -4,6 +4,7 @@ import { createElement } from 'react';
 import { CookingScreen } from './cooking';
 import { RecipeEditorScreen } from './editor';
 import { RecipeListScreen } from './list';
+import { MorningMenuReminders } from './morning-menu';
 import { PlanScreen } from './plan';
 import { ShoppingScreen } from './shopping';
 import { TodayMealsGroup } from './sidebar';
@@ -37,4 +38,5 @@ export const recipesManifest: ModuleManifest = {
     { path: '/recipes/cook/:id', element: createElement(CookingScreen), fullscreen: true },
   ],
   sidebarExtra: TodayMealsGroup,
+  background: MorningMenuReminders,
 };

@@ -129,3 +129,15 @@ describe('describeFailure', () => {
     expect(describeFailure('boom')).toMatchObject({ detail: 'boom' });
   });
 });
+
+describe('module backgrounds', () => {
+  it('mounts the background of a module once the engine is ready', async () => {
+    const { engine } = createHubEngine();
+    const modules = [
+      ...TEST_MODULES,
+      { id: 'quiet', name: 'Quiet', icon: 'star', description: '', views: [], routes: [], background: () => <p>background is running</p> },
+    ];
+    render(<AlavoApp engine={engine} platform={createFakePlatform()} modules={modules} />);
+    expect(await screen.findByText('background is running')).toBeInTheDocument();
+  });
+});

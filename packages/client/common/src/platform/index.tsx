@@ -12,6 +12,15 @@ export interface Capabilities {
   googleSync: boolean;
 }
 
+/** A notification to show at a set time. The id lets a later schedule replace this one. */
+export interface ScheduledNotification {
+  id: number;
+  /** Unix time in milliseconds. */
+  at: number;
+  title: string;
+  body: string;
+}
+
 export interface PlatformServices {
   capabilities: Capabilities;
   /** Keeps the screen on until the returned function is called. */
@@ -21,6 +30,11 @@ export interface PlatformServices {
   openLink(url: string): Promise<void>;
   /** Shows a notification now. Scheduling for later is added per platform. */
   notify(title: string, body: string): Promise<boolean>;
+  /**
+   * Replaces every notification scheduled earlier with `items`. With `backgroundReminders` they
+   * also show while the app is closed; without it only while the app is open.
+   */
+  scheduleNotifications(items: ScheduledNotification[]): Promise<void>;
 }
 
 const PlatformContext = createContext<PlatformServices | null>(null);
@@ -41,4 +55,5 @@ export function usePlatform(): PlatformServices {
   return platform;
 }
 
+export { createInPageScheduler } from './inPageScheduler';
 export { createWebPlatform } from './web';

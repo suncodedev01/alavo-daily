@@ -98,6 +98,23 @@ export interface PlanEntry {
   servings: number;
 }
 
+export type MenuSource = 'planned' | 'suggested' | 'empty';
+
+export interface MenuDish {
+  recipeId: string;
+  name: string;
+  icon: string;
+  /** The planned meal; null for a suggestion. */
+  slot: MealSlot | null;
+}
+
+/** What to tell the person on the morning of `date`. */
+export interface MorningMenu {
+  date: string;
+  source: MenuSource;
+  dishes: MenuDish[];
+}
+
 export interface NewPlanEntry {
   date: string;
   slot: MealSlot;

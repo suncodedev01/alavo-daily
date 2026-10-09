@@ -34,6 +34,7 @@ fn open_engine(app: &tauri::App) -> Result<AppEngine, Box<dyn std::error::Error>
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_notification::init())
         .setup(|app| {
             let engine = open_engine(app)?;
             app.manage(engine);

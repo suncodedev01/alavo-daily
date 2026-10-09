@@ -1,10 +1,17 @@
-import type { PlatformServices } from '@alavo-daily/common';
+import { createInPageScheduler, type PlatformServices } from '@alavo-daily/common';
 
-/** Native implementation, used by the Tauri app. Reminders while closed need OS scheduling that is not built yet. */
+import { isMobileDevice, scheduleOnDevice, showNow } from './deviceNotifications';
+
+/**
+ * Native implementation, used by the Tauri app. Phones hand reminders to the operating system so
+ * they show while the app is closed. Desktop has no such scheduling, so reminders show only while
+ * the app is open.
+ */
 export function createNativePlatform(): PlatformServices {
+  const mobile = isMobileDevice();
   return {
     capabilities: {
-      backgroundReminders: false,
+      backgroundReminders: mobile,
       keepAwake: true,
       importFromUrl: false,
       googleSync: false,
@@ -12,7 +19,8 @@ export function createNativePlatform(): PlatformServices {
     keepAwake: async () => () => undefined,
     saveTextFile: downloadTextFile,
     openLink: async (url) => void window.open(url, '_blank', 'noopener,noreferrer'),
-    notify: async () => false,
+    notify: showNow,
+    scheduleNotifications: mobile ? scheduleOnDevice : createInPageScheduler(showNow),
   };
 }
 

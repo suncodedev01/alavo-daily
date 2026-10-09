@@ -63,6 +63,7 @@ export function createFakePlatform(overrides: Partial<PlatformServices> = {}): P
     saveTextFile: async () => undefined,
     openLink: async () => undefined,
     notify: async () => true,
+    scheduleNotifications: async () => undefined,
     ...overrides,
   };
 }

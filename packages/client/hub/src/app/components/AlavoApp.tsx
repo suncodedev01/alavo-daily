@@ -17,7 +17,7 @@ import { Toaster } from '@alavo-daily/design-system';
 import { useSettings } from '../../hub-settings';
 import { AppLoading, EngineFailure } from './EngineFailure';
 import { AppRoutes } from './AppRoutes';
-import { DEFAULT_MODULES, ModulesProvider } from '../../module-registry';
+import { DEFAULT_MODULES, ModuleBackgrounds, ModulesProvider } from '../../module-registry';
 import { useDocumentSettings } from '../../theme';
 
 export interface AlavoAppProps {
@@ -54,6 +54,7 @@ function ReadyApp({ settings, modules }: { settings: Settings; modules: readonly
   return (
     <I18nProvider i18n={i18n}>
       <ModulesProvider modules={modules}>
+        <ModuleBackgrounds />
         <HashRouter>
           <AppRoutes />
         </HashRouter>

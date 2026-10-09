@@ -2,6 +2,9 @@ import type { ModuleManifest, NotificationRule } from '@alavo-daily/common';
 import type { PickerOption } from '@alavo-daily/design-system';
 
 export const REMINDER_TIMES = [
+  '05:00',
+  '05:30',
+  '06:00',
   '06:30',
   '07:00',
   '08:00',
