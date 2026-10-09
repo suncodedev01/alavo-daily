@@ -4,6 +4,7 @@ import {
   formatVnd,
   relativeDayLabel,
   useEngineMutation,
+  useLanguage,
   useT,
   type AppNotification,
   type BudgetLine,
@@ -116,6 +117,7 @@ interface RecentNotificationsProps {
 
 export function RecentNotificationsSection({ notifications, today }: RecentNotificationsProps) {
   const t = useT();
+  const language = useLanguage();
   const modules = useModules();
   const recent = [...notifications].sort((a, b) => b.createdAt - a.createdAt).slice(0, 3);
   return (
@@ -131,7 +133,7 @@ export function RecentNotificationsSection({ notifications, today }: RecentNotif
                 <IconTile icon={owner?.icon ?? 'bell'} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">{item.title}</p>
-                  <p className="text-xs text-text-muted">{formatNotificationTime(item.createdAt, today)}</p>
+                  <p className="text-xs text-text-muted">{formatNotificationTime(item.createdAt, today, language)}</p>
                 </div>
               </li>
             );
@@ -144,6 +146,7 @@ export function RecentNotificationsSection({ notifications, today }: RecentNotif
 
 export function UpcomingBillsSection({ upcoming, today }: { upcoming: UpcomingBill[]; today: string }) {
   const t = useT();
+  const language = useLanguage();
   return (
     <SectionFrame title={t('Sắp đến hạn')}>
       {upcoming.length === 0 ? (
@@ -155,7 +158,7 @@ export function UpcomingBillsSection({ upcoming, today }: { upcoming: UpcomingBi
               <IconTile icon={bill.icon} size="sm" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{bill.title}</p>
-                <p className="text-xs text-text-muted">{relativeDayLabel(dueOn, today)}</p>
+                <p className="text-xs text-text-muted">{relativeDayLabel(dueOn, today, language)}</p>
               </div>
               <span className="text-sm font-medium">{formatVnd(bill.amountVnd)}</span>
             </li>

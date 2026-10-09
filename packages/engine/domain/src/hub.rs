@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+pub const SUPPORTED_LANGUAGES: [&str; 2] = ["vi", "en"];
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Settings {
@@ -32,9 +34,13 @@ pub struct UpdateSettings {
     pub recent_modules: Option<Vec<String>>,
 }
 
+fn is_supported_language(language: &String) -> bool {
+    SUPPORTED_LANGUAGES.contains(&language.as_str())
+}
+
 impl Settings {
     pub fn apply(mut self, update: UpdateSettings) -> Settings {
-        if let Some(value) = update.language {
+        if let Some(value) = update.language.filter(is_supported_language) {
             self.language = value;
         }
         if let Some(value) = update.theme {
@@ -107,5 +113,20 @@ mod tests {
             .apply(UpdateSettings { household_size: Some(99), ..Default::default() });
         assert_eq!(updated.household_size, 20);
         assert_eq!(updated.language, "vi");
+    }
+
+    #[test]
+    fn apply_switches_to_a_supported_language() {
+        let updated = Settings::default()
+            .apply(UpdateSettings { language: Some("en".into()), ..Default::default() });
+        assert_eq!(updated.language, "en");
+    }
+
+    #[test]
+    fn apply_ignores_a_language_the_app_does_not_ship() {
+        let english = Settings { language: "en".into(), ..Settings::default() };
+        let updated =
+            english.apply(UpdateSettings { language: Some("fr".into()), ..Default::default() });
+        assert_eq!(updated.language, "en");
     }
 }

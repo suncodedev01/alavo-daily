@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   addDays,
+  dateWithYear,
+  dayAndMonthLong,
+  dayRange,
   addMonths,
   dayAndMonth,
   daysInMonth,
@@ -67,5 +70,39 @@ describe('labels', () => {
     expect(relativeDayLabel('2026-10-09', '2026-10-09')).toBe('Hôm nay · 9/10');
     expect(relativeDayLabel('2026-10-08', '2026-10-09')).toBe('Hôm qua · 8/10');
     expect(relativeDayLabel('2026-10-07', '2026-10-09')).toBe('Thứ Tư · 7/10');
+  });
+});
+
+describe('English names', () => {
+  it('names weekdays in English', () => {
+    expect(weekdayName('2026-10-09', 'en')).toBe('Friday');
+    expect(weekdayName('2026-10-11', 'en')).toBe('Sunday');
+    expect(weekdayShort('2026-10-05', 'en')).toBe('Mon');
+  });
+
+  it('writes the month name before the day', () => {
+    expect(dayAndMonth('2026-10-09', 'en')).toBe('Oct 9');
+    expect(dayAndMonthLong('2026-10-09', 'en')).toBe('October 9');
+    expect(dayAndMonthLong('2026-10-09')).toBe('9 tháng 10');
+    expect(dateWithYear('2026-10-09', 'en')).toBe('October 9, 2026');
+    expect(dateWithYear('2026-10-09')).toBe('9 tháng 10, 2026');
+  });
+
+  it('titles a month', () => {
+    expect(monthTitle('2026-10', 'en')).toBe('October 2026');
+    expect(monthTitle('2026-01', 'en')).toBe('January 2026');
+  });
+
+  it('says today and yesterday, and otherwise the weekday', () => {
+    expect(relativeDayLabel('2026-10-09', '2026-10-09', 'en')).toBe('Today · Oct 9');
+    expect(relativeDayLabel('2026-10-08', '2026-10-09', 'en')).toBe('Yesterday · Oct 8');
+    expect(relativeDayLabel('2026-10-07', '2026-10-09', 'en')).toBe('Wednesday · Oct 7');
+  });
+
+  it('writes a range inside one month and across two months', () => {
+    expect(dayRange('2026-10-05', '2026-10-11')).toBe('5 – 11 tháng 10');
+    expect(dayRange('2026-10-05', '2026-10-11', 'en')).toBe('Oct 5 – 11');
+    expect(dayRange('2026-10-28', '2026-11-03')).toBe('28/10 – 3/11');
+    expect(dayRange('2026-10-28', '2026-11-03', 'en')).toBe('Oct 28 – Nov 3');
   });
 });

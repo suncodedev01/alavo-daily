@@ -1,10 +1,10 @@
 import { monthTitle } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { IconButton } from '@alavo-daily/design-system';
 import { useEffect, useRef, type KeyboardEvent } from 'react';
 
 import { CalendarDay } from './CalendarDay';
-import { monthGrid, moveByKey, shiftMonthKeepingDay, WEEKDAY_LABELS } from '../logic/calendarGrid';
+import { monthGrid, moveByKey, shiftMonthKeepingDay, weekdayLabels } from '../logic/calendarGrid';
 
 export interface CalendarMonthProps {
   cursor: string;
@@ -15,6 +15,7 @@ export interface CalendarMonthProps {
 }
 
 export function CalendarMonth({ cursor, selected, today, onCursorChange, onSelect }: CalendarMonthProps) {
+  const language = useLanguage();
   const t = useT();
   const gridRef = useRef<HTMLDivElement>(null);
   const keyboardMoved = useRef(true);
@@ -43,19 +44,19 @@ export function CalendarMonth({ cursor, selected, today, onCursorChange, onSelec
       <div className="flex items-center justify-between gap-1">
         <IconButton icon="caret-left" label={t('Tháng trước')} size="sm" onClick={() => shiftMonth(-1)} />
         <span aria-live="polite" className="text-sm font-semibold">
-          {monthTitle(month)}
+          {monthTitle(month, language)}
         </span>
         <IconButton icon="caret-right" label={t('Tháng sau')} size="sm" onClick={() => shiftMonth(1)} />
       </div>
       <div
         ref={gridRef}
         role="grid"
-        aria-label={monthTitle(month)}
+        aria-label={monthTitle(month, language)}
         onKeyDown={handleKeyDown}
         className="grid gap-1"
       >
         <div role="row" className="grid grid-cols-7 text-center">
-          {WEEKDAY_LABELS.map((label) => (
+          {weekdayLabels(language).map((label) => (
             <span key={label} role="columnheader" className="py-1 text-meta font-semibold text-text-muted">
               {label}
             </span>

@@ -1,3 +1,4 @@
+import { useDesignSystemTexts } from '../../lib/texts';
 import { Button } from '../controls/Button';
 import { ModalPanel } from './ModalPanel';
 
@@ -18,10 +19,11 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
-  cancelLabel = 'Huỷ',
+  cancelLabel,
   onConfirm,
   destructive = false,
 }: ConfirmDialogProps) {
+  const texts = useDesignSystemTexts();
   const confirm = () => {
     onConfirm();
     onOpenChange(false);
@@ -29,7 +31,7 @@ export function ConfirmDialog({
   const footer = (
     <>
       <Button variant="outline" onClick={() => onOpenChange(false)}>
-        {cancelLabel}
+        {cancelLabel ?? texts.cancel}
       </Button>
       <Button variant={destructive ? 'destructive' : 'primary'} onClick={confirm}>
         {confirmLabel}

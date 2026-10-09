@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 import { Dialog as DialogRoot, DialogOverlay, DialogPortal } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { useDesignSystemTexts } from '../../lib/texts';
 import { IconButton } from '../controls/IconButton';
 
 export type ModalVariant = 'dialog' | 'sheet';
@@ -41,10 +42,11 @@ export function ModalPanel({
   description,
   footer,
   children,
-  closeLabel = 'Đóng',
+  closeLabel,
   variant = 'dialog',
   role,
 }: ModalPanelProps) {
+  const texts = useDesignSystemTexts();
   return (
     <DialogRoot open={open} onOpenChange={(next) => onOpenChange?.(next)}>
       <DialogPortal>
@@ -54,7 +56,7 @@ export function ModalPanel({
           <div className="flex items-center justify-between gap-2">
             <DialogPrimitive.Title className="min-w-0 text-title font-semibold">{title}</DialogPrimitive.Title>
             <DialogPrimitive.Close
-              render={<IconButton icon="x" label={closeLabel} size="sm" variant={variant === 'sheet' ? 'surface' : 'ghost'} />}
+              render={<IconButton icon="x" label={closeLabel ?? texts.close} size="sm" variant={variant === 'sheet' ? 'surface' : 'ghost'} />}
             />
           </div>
           {description ? (

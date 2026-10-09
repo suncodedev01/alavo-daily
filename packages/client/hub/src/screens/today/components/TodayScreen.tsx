@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { Screen, useT } from '@alavo-daily/common';
+import { Screen, useLanguage, useT } from '@alavo-daily/common';
 import { PageColumn, Skeleton, useLayout } from '@alavo-daily/design-system';
 
 import { useModules } from '../../../module-registry';
@@ -43,12 +43,13 @@ export function TodayScreen() {
 
 function Greeting({ today }: { today: string }) {
   const t = useT();
+  const language = useLanguage();
   const appCount = useModules().length;
   return (
     <div>
       <h2 className="text-2xl font-semibold">{t('Chào bạn')}</h2>
       <p className="mt-1 text-sm text-text-muted">
-        {`${longDateLabel(today)} · ${t('{{count}} ứng dụng đang theo dõi', { count: appCount })}`}
+        {`${longDateLabel(today, language)} · ${t('{{count}} ứng dụng đang theo dõi', { count: appCount })}`}
       </p>
     </div>
   );

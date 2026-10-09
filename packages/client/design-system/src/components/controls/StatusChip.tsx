@@ -1,15 +1,10 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { DEFAULT_TEXTS, useDesignSystemTexts } from '../../lib/texts';
 
 export type Status = 'open' | 'working' | 'needs_you' | 'your_call' | 'resolved';
 
-export const DEFAULT_STATUS_LABELS: Record<Status, string> = {
-  open: 'Đang mở',
-  working: 'Đang xử lý',
-  needs_you: 'Cần bạn',
-  your_call: 'Bạn quyết định',
-  resolved: 'Đã xong',
-};
+export const DEFAULT_STATUS_LABELS: Record<Status, string> = DEFAULT_TEXTS.status;
 
 export type StatusChipProps = {
   status: Status;
@@ -28,7 +23,8 @@ const STATUS_CLASS: Record<Status, string> = {
 };
 
 export function StatusChip({ status, label, labels, children, className }: StatusChipProps) {
-  const text = children ?? label ?? labels?.[status] ?? DEFAULT_STATUS_LABELS[status];
+  const texts = useDesignSystemTexts();
+  const text = children ?? label ?? labels?.[status] ?? texts.status[status];
   return (
     <span
       data-status={status}

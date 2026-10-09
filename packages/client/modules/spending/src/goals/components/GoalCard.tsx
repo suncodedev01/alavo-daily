@@ -1,6 +1,6 @@
 import type { Goal } from '@alavo-daily/common/engine';
 import { formatPercent, formatVnd } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { Button, Card, IconButton, IconTile, Menu, MenuItem, Meter, StatusChip } from '@alavo-daily/design-system';
 
 import { useToday } from '../../today';
@@ -15,6 +15,7 @@ export interface GoalCardProps {
 }
 
 export function GoalCard({ goal, onContribute, onEdit, onDelete }: GoalCardProps) {
+  const language = useLanguage();
   const t = useT();
   const today = useToday();
   const ratio = goal.savedVnd / goal.targetVnd;
@@ -25,7 +26,7 @@ export function GoalCard({ goal, onContribute, onEdit, onDelete }: GoalCardProps
         <IconTile icon={goal.icon} size="md" />
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-sm font-semibold">{goal.name}</h3>
-          <p className="text-xs text-text-muted">{dueText(dueLabelOf(goal, today), t)}</p>
+          <p className="text-xs text-text-muted">{dueText(dueLabelOf(goal, today, language), t)}</p>
         </div>
         {reached ? <StatusChip status="resolved" label={t('Đã đạt')} /> : null}
         <Menu align="end" trigger={<IconButton icon="dots-three" label={t('Tuỳ chọn {{name}}', { name: goal.name })} size="sm" />}>

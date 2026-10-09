@@ -1,6 +1,6 @@
 import type { Transaction } from '@alavo-daily/common/engine';
 import { relativeDayLabel } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { Button, Card, EmptyState, Eyebrow, useLayout } from '@alavo-daily/design-system';
 
 import type { Lookups } from '../../lookups';
@@ -57,6 +57,7 @@ interface DaySectionProps {
 }
 
 function DaySection({ group, lookups, today, month, selectedId }: DaySectionProps) {
+  const language = useLanguage();
   const layout = useLayout();
   const rows = group.items.map((item) => (
     <TransactionRow
@@ -68,9 +69,9 @@ function DaySection({ group, lookups, today, month, selectedId }: DaySectionProp
     />
   ));
   return (
-    <section aria-label={relativeDayLabel(group.date, today)} className="grid grid-cols-1 gap-1">
+    <section aria-label={relativeDayLabel(group.date, today, language)} className="grid grid-cols-1 gap-1">
       <Eyebrow as="h3" className="px-3 pt-3">
-        {relativeDayLabel(group.date, today)}
+        {relativeDayLabel(group.date, today, language)}
       </Eyebrow>
       {layout === 'narrow' ? <Card padding="none"><div className="grid gap-1 p-1">{rows}</div></Card> : rows}
     </section>

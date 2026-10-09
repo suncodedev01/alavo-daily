@@ -1,6 +1,6 @@
 import type { ShoppingList } from '@alavo-daily/common/engine';
 import { dayAndMonth } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { Screen } from '@alavo-daily/common/shell';
 import { Button, Card, EmptyState, PageColumn, useLayout } from '@alavo-daily/design-system';
 import { useState } from 'react';
@@ -75,12 +75,13 @@ export function ShoppingScreen() {
 }
 
 function ShoppingHeader({ list }: { list: ShoppingList }) {
+  const language = useLanguage();
   const t = useT();
   const dishes = sourceRecipeNames(list.items).length;
   return (
     <div>
       <h2 className="text-title font-semibold">
-        {t('Cần mua từ {{from}} đến {{to}}', { from: dayAndMonth(list.from), to: dayAndMonth(list.to) })}
+        {t('Cần mua từ {{from}} đến {{to}}', { from: dayAndMonth(list.from, language), to: dayAndMonth(list.to, language) })}
       </h2>
       <p className="mt-1 text-sm text-text-muted">
         {t('Gộp từ {{count}} món trong thực đơn. Món trùng nguyên liệu đã được cộng dồn.', { count: dishes })}

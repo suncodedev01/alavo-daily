@@ -50,6 +50,15 @@ mod tests {
     }
 
     #[test]
+    fn language_choice_is_saved_and_read_back() {
+        with_ctx(|ctx| {
+            update(ctx, UpdateSettings { language: Some("en".into()), ..Default::default() })
+                .unwrap();
+            assert_eq!(get(ctx).unwrap().language, "en");
+        });
+    }
+
+    #[test]
     fn recent_modules_keep_at_most_four() {
         with_ctx(|ctx| {
             let many = (0..9).map(|n| format!("m{n}")).collect();

@@ -1,6 +1,18 @@
-import { addDays, daysInMonth, monthOf, parseDateText, toDateText } from '@alavo-daily/common/format';
+import type { Language } from '@alavo-daily/common';
+import {
+  addDays,
+  daysInMonth,
+  monthOf,
+  parseDateText,
+  toDateText,
+  weekdayShort,
+} from '@alavo-daily/common/format';
 
-export const WEEKDAY_LABELS = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'] as const;
+const A_MONDAY = '2024-01-01';
+
+export function weekdayLabels(language: Language): string[] {
+  return Array.from({ length: 7 }, (_, offset) => weekdayShort(addDays(A_MONDAY, offset), language));
+}
 
 const DAYS_PER_WEEK = 7;
 

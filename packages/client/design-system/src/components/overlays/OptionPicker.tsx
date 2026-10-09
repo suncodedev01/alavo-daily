@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { useDesignSystemTexts } from '../../lib/texts';
 import { Icon } from '../foundations/Icon';
 import { Menu, MenuItem, type Alignment, type Placement } from './Menu';
 
@@ -26,12 +27,13 @@ export function OptionPicker({
   placement = 'bottom',
   align = 'start',
   label,
-  placeholder = 'Chọn',
+  placeholder,
   leadingIcon,
   className,
 }: OptionPickerProps) {
+  const texts = useDesignSystemTexts();
   const selected = options.find((option) => option.value === value);
-  const shownLabel = selected?.label ?? placeholder;
+  const shownLabel = selected?.label ?? placeholder ?? texts.choose;
   const icon = selected?.icon ?? leadingIcon;
   const trigger = (
     <button

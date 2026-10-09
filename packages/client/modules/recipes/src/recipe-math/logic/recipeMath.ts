@@ -1,3 +1,4 @@
+import type { Language } from '@alavo-daily/common';
 import { formatMinutes } from '@alavo-daily/common/format';
 
 import type { Costed, Timed } from '../types';
@@ -11,8 +12,8 @@ export function totalMinutes(recipe: Timed): number {
   return recipe.prepMin + recipe.cookMin;
 }
 
-export function totalTimeText(recipe: Timed): string {
-  return formatMinutes(totalMinutes(recipe));
+export function totalTimeText(recipe: Timed, language: Language = 'vi'): string {
+  return formatMinutes(totalMinutes(recipe), language);
 }
 
 export function sharePercent(part: number, whole: number): number {

@@ -1,4 +1,10 @@
 export { cn } from './lib/utils';
+export {
+  DEFAULT_TEXTS,
+  DesignSystemTextsProvider,
+  useDesignSystemTexts,
+  type DesignSystemTexts,
+} from './lib/texts';
 
 export { Icon, resolveIcon, type IconProps, type IconSize, type IconWeight } from './components/foundations/Icon';
 export { ICON_REGISTRY, iconNames, MOCKUP_ICON_NAMES } from './components/foundations/iconRegistry';

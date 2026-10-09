@@ -1,5 +1,5 @@
 import { addDays, startOfWeek } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { Button, IconButton } from '@alavo-daily/design-system';
 
 import { PLAN_DAYS } from '../../vocabulary';
@@ -12,6 +12,7 @@ export interface WeekNavigatorProps {
 }
 
 export function WeekNavigator({ week, today, onChange }: WeekNavigatorProps) {
+  const language = useLanguage();
   const t = useT();
   const isThisWeek = week === startOfWeek(today);
   return (
@@ -21,7 +22,7 @@ export function WeekNavigator({ week, today, onChange }: WeekNavigatorProps) {
         label={t('Tuần trước')}
         onClick={() => onChange(addDays(week, -PLAN_DAYS))}
       />
-      <h2 className="text-title font-semibold">{t('Tuần {{range}}', { range: weekRangeText(week) })}</h2>
+      <h2 className="text-title font-semibold">{t('Tuần {{range}}', { range: weekRangeText(week, language) })}</h2>
       <IconButton icon="caret-right" label={t('Tuần sau')} onClick={() => onChange(addDays(week, PLAN_DAYS))} />
       {isThisWeek ? null : (
         <Button variant="ghost" size="sm" onClick={() => onChange(startOfWeek(today))}>

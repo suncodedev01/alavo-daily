@@ -1,5 +1,5 @@
 import { formatMinutes } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { ContextSection, Icon } from '@alavo-daily/design-system';
 
 import { checklistOf, parseMinutes } from '../logic/draft';
@@ -27,6 +27,7 @@ export function EditorChecklist({ draft }: { draft: Draft }) {
 }
 
 export function EditorDock({ draft }: { draft: Draft }) {
+  const language = useLanguage();
   const t = useT();
   const minutes = parseMinutes(draft.prepMin) + parseMinutes(draft.cookMin);
   const ingredients = draft.ingredients.filter((item) => item.name.trim() !== '').length;
@@ -41,7 +42,7 @@ export function EditorDock({ draft }: { draft: Draft }) {
         <CostSummary draft={draft} />
       </ContextSection>
       <ContextSection title={t('Tóm tắt')} defaultOpen>
-        <p className="text-title font-semibold">{minutes > 0 ? formatMinutes(minutes) : '—'}</p>
+        <p className="text-title font-semibold">{minutes > 0 ? formatMinutes(minutes, language) : '—'}</p>
         <p className="mt-1 text-sm text-text-muted">{t('tổng thời gian')}</p>
         <p className="mt-3 text-sm text-text-secondary">
           {t('{{ingredients}} nguyên liệu · {{steps}} bước · {{timers}} bước có hẹn giờ', {

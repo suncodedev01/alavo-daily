@@ -1,6 +1,6 @@
 import { useEngineMutation, type Recipe } from '@alavo-daily/common/engine';
 import { formatAmount, formatMinutes, scaleQuantity } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { Card, Eyebrow, Icon, IconButton, Stepper } from '@alavo-daily/design-system';
 import type { ReactNode } from 'react';
 
@@ -64,11 +64,12 @@ export interface RecipeMetaProps {
 }
 
 export function RecipeMeta({ recipe, servings, onServingsChange }: RecipeMetaProps) {
+  const language = useLanguage();
   const t = useT();
   return (
     <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-      <MetaCell label={t('Chuẩn bị')}>{formatMinutes(recipe.prepMin)}</MetaCell>
-      <MetaCell label={t('Nấu')}>{formatMinutes(recipe.cookMin)}</MetaCell>
+      <MetaCell label={t('Chuẩn bị')}>{formatMinutes(recipe.prepMin, language)}</MetaCell>
+      <MetaCell label={t('Nấu')}>{formatMinutes(recipe.cookMin, language)}</MetaCell>
       <MetaCell label={t('Khẩu phần')}>
         <Stepper
           value={servings}
@@ -97,6 +98,7 @@ function MetaCell({ label, children }: { label: string; children: ReactNode }) {
 }
 
 export function IngredientList({ recipe, servings }: { recipe: Recipe; servings: number }) {
+  const language = useLanguage();
   const t = useT();
   return (
     <Card padding="md">
@@ -106,7 +108,7 @@ export function IngredientList({ recipe, servings }: { recipe: Recipe; servings:
           <li key={item.id} className="flex items-baseline justify-between gap-3 py-2 text-sm">
             <span className="min-w-0">{item.name}</span>
             <span className="shrink-0 font-medium">
-              {formatAmount(scaleQuantity(item.quantity, recipe.servings, servings), item.unit)}
+              {formatAmount(scaleQuantity(item.quantity, recipe.servings, servings), item.unit, language)}
             </span>
           </li>
         ))}
@@ -138,10 +140,11 @@ export function StepList({ recipe }: { recipe: Recipe }) {
 }
 
 function TimerBadge({ minutes }: { minutes: number }) {
+  const language = useLanguage();
   return (
     <span className="inline-flex w-fit items-center gap-1 rounded-4xl bg-accent px-2.5 py-0.5 text-xs font-medium text-accent-fg">
       <Icon name="timer" />
-      {formatMinutes(minutes)}
+      {formatMinutes(minutes, language)}
     </span>
   );
 }

@@ -1,4 +1,4 @@
-import { useReminderSource, useT } from '@alavo-daily/common';
+import { useLanguage, useReminderSource, useT } from '@alavo-daily/common';
 import { useEngineQuery } from '@alavo-daily/common/engine';
 import { dayAndMonth, formatVnd } from '@alavo-daily/common/format';
 import { useMemo } from 'react';
@@ -15,6 +15,7 @@ const SOURCE = BILL_REMINDER_RULE_ID;
  */
 export function useBillReminders(): void {
   const t = useT();
+  const language = useLanguage();
   const today = useToday();
   const bills = useEngineQuery('spending.list_bills');
   const rule = useNotificationRule(BILL_REMINDER_RULE_ID);
@@ -32,11 +33,11 @@ export function useBillReminders(): void {
         body: t('{{title}} sắp đến hạn: {{amount}} vào {{date}}', {
           title: bill.title,
           amount: formatVnd(bill.amountVnd),
-          date: dayAndMonth(dueOn),
+          date: dayAndMonth(dueOn, language),
         }),
       }),
     });
-  }, [bills.data, rule.ready, rule.enabled, rule.time, today, t]);
+  }, [bills.data, rule.ready, rule.enabled, rule.time, today, language, t]);
 
   useReminderSource(SOURCE, reminders);
 }

@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { useDesignSystemTexts } from '../../lib/texts';
 import { Eyebrow } from '../surfaces/Eyebrow';
 import { FloatingCard } from '../surfaces/FloatingCard';
 
@@ -11,7 +12,8 @@ export type SidebarProps = {
   className?: string;
 };
 
-export function Sidebar({ header, footer, label = 'Điều hướng', children, className }: SidebarProps) {
+export function Sidebar({ header, footer, label, children, className }: SidebarProps) {
+  const texts = useDesignSystemTexts();
   return (
     <FloatingCard
       as="aside"
@@ -19,7 +21,7 @@ export function Sidebar({ header, footer, label = 'Điều hướng', children, 
       className={cn('mr-0 flex w-64 flex-none flex-col max-compact:w-14', className)}
     >
       {header}
-      <nav aria-label={label} className="flex-1 overflow-y-auto px-2 pt-1 pb-2">
+      <nav aria-label={label ?? texts.navigation} className="flex-1 overflow-y-auto px-2 pt-1 pb-2">
         {children}
       </nav>
       {footer}

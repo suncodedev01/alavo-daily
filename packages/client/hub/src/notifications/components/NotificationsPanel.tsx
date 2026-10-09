@@ -1,4 +1,4 @@
-import { useEngineMutation, useT, type AppNotification } from '@alavo-daily/common';
+import { useEngineMutation, useLanguage, useT, type AppNotification } from '@alavo-daily/common';
 import { Button, EmptyState, IconTile, cn } from '@alavo-daily/design-system';
 
 import { useModules } from '../../module-registry';
@@ -56,9 +56,10 @@ function NotificationList({ notifications }: { notifications: AppNotification[] 
 
 function NotificationRow({ item }: { item: AppNotification }) {
   const t = useT();
+  const language = useLanguage();
   const modules = useModules();
   const owner = modules.find((manifest) => manifest.id === item.module);
-  const meta = [owner ? t(owner.name) : null, formatNotificationTime(item.createdAt, todayText())];
+  const meta = [owner ? t(owner.name) : null, formatNotificationTime(item.createdAt, todayText(), language)];
   return (
     <li className={cn('flex gap-3 rounded-lg p-3', !item.read && 'bg-accent')}>
       <IconTile icon={owner?.icon ?? 'bell'} size="sm" />

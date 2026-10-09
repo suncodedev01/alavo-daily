@@ -1,6 +1,6 @@
 import { useEngineMutation, useEngineQuery, type Goal } from '@alavo-daily/common/engine';
 import { formatVnd } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { Button, Card, ContextSection, EmptyState, useLayout } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
@@ -91,6 +91,7 @@ function GoalsContent({ goals, onCreate, onEdit }: GoalsContentProps) {
 }
 
 function GoalSuggestion({ goal }: { goal: Goal }) {
+  const language = useLanguage();
   const t = useT();
   const today = useToday();
   const need = monthlyNeedVnd(goal, today) ?? 0;
@@ -99,7 +100,7 @@ function GoalSuggestion({ goal }: { goal: Goal }) {
       <p className="text-sm text-text-secondary">
         {t('Để đủ {{target}} ({{due}}), bạn cần để dành khoảng {{need}} mỗi tháng.', {
           target: formatVnd(goal.targetVnd),
-          due: dueText(dueLabelOf(goal, today), t).toLowerCase(),
+          due: dueText(dueLabelOf(goal, today, language), t).toLowerCase(),
           need: formatVnd(need),
         })}
       </p>

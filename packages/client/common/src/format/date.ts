@@ -1,5 +1,5 @@
-const WEEKDAYS = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-const WEEKDAYS_SHORT = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+import { DEFAULT_LANGUAGE, type Language } from '../i18n/language';
+import { dateNamesOf } from './dateNames';
 
 /** A local calendar date as `YYYY-MM-DD`. The engine never reads a timezone, so callers do. */
 export function toDateText(date: Date): string {
@@ -36,31 +36,74 @@ export function startOfWeek(dateText: string): string {
   return addDays(dateText, -sinceMonday);
 }
 
-export function weekdayName(dateText: string): string {
-  return WEEKDAYS[parseDateText(dateText).getDay()] ?? '';
+export function weekdayName(dateText: string, language: Language = DEFAULT_LANGUAGE): string {
+  return dateNamesOf(language).weekdays[parseDateText(dateText).getDay()] ?? '';
 }
 
-export function weekdayShort(dateText: string): string {
-  return WEEKDAYS_SHORT[parseDateText(dateText).getDay()] ?? '';
+export function weekdayShort(dateText: string, language: Language = DEFAULT_LANGUAGE): string {
+  return dateNamesOf(language).weekdaysShort[parseDateText(dateText).getDay()] ?? '';
 }
 
-/** `2026-10-09` → `9/10`. */
-export function dayAndMonth(dateText: string): string {
-  const [, month = '', day = ''] = dateText.split('-');
-  return `${Number(day)}/${Number(month)}`;
+function monthNumberOf(dateText: string): number {
+  return Number(dateText.split('-')[1]);
 }
 
-/** `2026-10` → `Tháng 10, 2026`. */
-export function monthTitle(month: string): string {
+function dayNumberOf(dateText: string): number {
+  return Number(dateText.split('-')[2]);
+}
+
+/** `2026-10-09` → `9/10`, in English `Oct 9`. */
+export function dayAndMonth(dateText: string, language: Language = DEFAULT_LANGUAGE): string {
+  if (language === 'en') {
+    const month = dateNamesOf(language).monthsShort[monthNumberOf(dateText) - 1] ?? '';
+    return `${month} ${dayNumberOf(dateText)}`;
+  }
+  return `${dayNumberOf(dateText)}/${monthNumberOf(dateText)}`;
+}
+
+/** `2026-10-09` → `9 tháng 10`, in English `October 9`. */
+export function dayAndMonthLong(dateText: string, language: Language = DEFAULT_LANGUAGE): string {
+  if (language === 'en') {
+    const month = dateNamesOf(language).months[monthNumberOf(dateText) - 1] ?? '';
+    return `${month} ${dayNumberOf(dateText)}`;
+  }
+  return `${dayNumberOf(dateText)} tháng ${monthNumberOf(dateText)}`;
+}
+
+/** `2026-10-09` → `9 tháng 10, 2026`, in English `October 9, 2026`. */
+export function dateWithYear(dateText: string, language: Language = DEFAULT_LANGUAGE): string {
+  return `${dayAndMonthLong(dateText, language)}, ${dateText.slice(0, 4)}`;
+}
+
+/** `2026-10-05`, `2026-10-11` → `5 – 11 tháng 10`, in English `Oct 5 – 11`. */
+export function dayRange(from: string, to: string, language: Language = DEFAULT_LANGUAGE): string {
+  const sameMonth = monthOf(from) === monthOf(to);
+  if (!sameMonth) return `${dayAndMonth(from, language)} – ${dayAndMonth(to, language)}`;
+  if (language === 'en') return `${dayAndMonth(from, language)} – ${dayNumberOf(to)}`;
+  return `${dayNumberOf(from)} – ${dayNumberOf(to)} tháng ${monthNumberOf(to)}`;
+}
+
+/** `2026-10` → `Tháng 10, 2026`, in English `October 2026`. */
+export function monthTitle(month: string, language: Language = DEFAULT_LANGUAGE): string {
   const [year, number] = month.split('-');
+  if (language === 'en') return `${dateNamesOf(language).months[Number(number) - 1] ?? ''} ${year}`;
   return `Tháng ${Number(number)}, ${year}`;
 }
 
 /** `Hôm nay · 9/10`, `Hôm qua · 8/10`, otherwise `Thứ Tư · 7/10`. */
-export function relativeDayLabel(dateText: string, today: string): string {
-  const prefix =
-    dateText === today ? 'Hôm nay' : dateText === addDays(today, -1) ? 'Hôm qua' : weekdayName(dateText);
-  return `${prefix} · ${dayAndMonth(dateText)}`;
+export function relativeDayLabel(
+  dateText: string,
+  today: string,
+  language: Language = DEFAULT_LANGUAGE,
+): string {
+  return `${relativeDayName(dateText, today, language)} · ${dayAndMonth(dateText, language)}`;
+}
+
+function relativeDayName(dateText: string, today: string, language: Language): string {
+  const names = dateNamesOf(language);
+  if (dateText === today) return names.today;
+  if (dateText === addDays(today, -1)) return names.yesterday;
+  return weekdayName(dateText, language);
 }
 
 export function daysInMonth(month: string): number {

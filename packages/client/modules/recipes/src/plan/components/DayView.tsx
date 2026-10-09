@@ -1,6 +1,6 @@
 import type { PlanEntry, RecipeSummary } from '@alavo-daily/common/engine';
 import { formatMinutes, formatVnd, weekdayShort } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { Button, Card, cn, Eyebrow, Icon, IconTile } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
@@ -57,6 +57,7 @@ interface DayButtonProps {
 }
 
 function DayButton({ date, selected, isToday, onChoose }: DayButtonProps) {
+  const language = useLanguage();
   return (
     <button
       type="button"
@@ -68,16 +69,17 @@ function DayButton({ date, selected, isToday, onChoose }: DayButtonProps) {
         isToday && 'inset-ring-2 inset-ring-ring',
       )}
     >
-      {weekdayShort(date)}
+      {weekdayShort(date, language)}
       <span className="text-base">{dayOfMonth(date)}</span>
     </button>
   );
 }
 
 function DishRow({ entry, recipes }: { entry: PlanEntry; recipes: readonly RecipeSummary[] }) {
+  const language = useLanguage();
   const recipe = recipes.find((own) => own.id === entry.recipeId);
   const cost = entryCost(entry, recipes);
-  const meta = [recipe ? formatMinutes(totalMinutes(recipe)) : null, cost > 0 ? formatVnd(cost) : null]
+  const meta = [recipe ? formatMinutes(totalMinutes(recipe), language) : null, cost > 0 ? formatVnd(cost) : null]
     .filter((part) => part !== null)
     .join(' · ');
   return (

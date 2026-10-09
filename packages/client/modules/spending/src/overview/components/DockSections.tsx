@@ -1,6 +1,6 @@
 import { useEngineQuery } from '@alavo-daily/common/engine';
 import { dayAndMonth, formatPercent, formatVnd, weekdayName } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { Button, ContextSection, IconTile } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
@@ -32,6 +32,7 @@ export function UpcomingBillsSection({ today }: { today: string }) {
 }
 
 function UpcomingList({ items }: { items: UpcomingBill[] }) {
+  const language = useLanguage();
   const t = useT();
   if (items.length === 0) {
     return <p className="text-sm text-text-muted">{t('Chưa có khoản định kỳ nào sắp đến hạn.')}</p>;
@@ -43,7 +44,7 @@ function UpcomingList({ items }: { items: UpcomingBill[] }) {
           <IconTile icon={bill.icon} size="sm" />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium">{bill.title}</span>
-            <span className="block text-xs text-text-muted">{`${weekdayName(dueOn)}, ${dayAndMonth(dueOn)}`}</span>
+            <span className="block text-xs text-text-muted">{`${weekdayName(dueOn, language)}, ${dayAndMonth(dueOn, language)}`}</span>
           </span>
           <span className="text-sm font-medium whitespace-nowrap">{formatVnd(bill.amountVnd)}</span>
         </li>

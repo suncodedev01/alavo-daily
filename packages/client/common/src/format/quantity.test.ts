@@ -33,6 +33,10 @@ describe('formatAmount', () => {
     expect(formatAmount(1000, 'ml')).toBe('1 lít');
   });
 
+  it('writes litres as L in English', () => {
+    expect(formatAmount(2500, 'ml', 'en')).toBe('2,5 L');
+  });
+
   it('keeps small amounts and other units as they are', () => {
     expect(formatAmount(300, 'g')).toBe('300 g');
     expect(formatAmount(1.5, 'củ')).toBe('1,5 củ');
@@ -44,6 +48,12 @@ describe('formatMinutes', () => {
     expect(formatMinutes(45)).toBe('45 phút');
     expect(formatMinutes(120)).toBe('2 giờ');
     expect(formatMinutes(190)).toBe('3 giờ 10 phút');
+  });
+
+  it('abbreviates the units in English', () => {
+    expect(formatMinutes(45, 'en')).toBe('45 min');
+    expect(formatMinutes(120, 'en')).toBe('2 h');
+    expect(formatMinutes(190, 'en')).toBe('3 h 10 min');
   });
 });
 

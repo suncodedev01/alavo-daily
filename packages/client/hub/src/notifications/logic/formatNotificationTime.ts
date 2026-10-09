@@ -1,12 +1,16 @@
-import { addDays, dayAndMonth, toDateText } from '@alavo-daily/common';
+import { addDays, dateNamesOf, dayAndMonth, toDateText, type Language } from '@alavo-daily/common';
 
 import { formatTimeOfDay } from '../../clock';
 
 /** `17:30` today, `Hôm qua · 16:00` yesterday, otherwise `7/10 · 19:40`. */
-export function formatNotificationTime(unixMs: number, today: string): string {
+export function formatNotificationTime(
+  unixMs: number,
+  today: string,
+  language: Language = 'vi',
+): string {
   const day = toDateText(new Date(unixMs));
   const time = formatTimeOfDay(unixMs);
   if (day === today) return time;
-  if (day === addDays(today, -1)) return `Hôm qua · ${time}`;
-  return `${dayAndMonth(day)} · ${time}`;
+  if (day === addDays(today, -1)) return `${dateNamesOf(language).yesterday} · ${time}`;
+  return `${dayAndMonth(day, language)} · ${time}`;
 }

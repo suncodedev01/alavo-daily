@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { useDesignSystemTexts } from '../../lib/texts';
 import { Icon } from '../foundations/Icon';
 
 export type TabBarProps = {
@@ -8,9 +9,10 @@ export type TabBarProps = {
   className?: string;
 };
 
-export function TabBar({ label = 'Điều hướng', children, className }: TabBarProps) {
+export function TabBar({ label, children, className }: TabBarProps) {
+  const texts = useDesignSystemTexts();
   return (
-    <nav aria-label={label} className={cn('pb-safe shrink-0 border-t border-line-hairline bg-surface', className)}>
+    <nav aria-label={label ?? texts.navigation} className={cn('pb-safe shrink-0 border-t border-line-hairline bg-surface', className)}>
       <div className="grid auto-cols-fr grid-flow-col items-start px-2 pt-2 pb-2">{children}</div>
     </nav>
   );

@@ -1,6 +1,6 @@
 import type { RecipeSummary } from '@alavo-daily/common/engine';
 import { formatVnd } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import {
   Button,
   cn,
@@ -100,9 +100,10 @@ interface RecipeRowProps {
 }
 
 function RecipeRow({ recipe, selected, search, householdSize }: RecipeRowProps) {
+  const language = useLanguage();
   const t = useT();
   const cost = costForServings(recipe, householdSize);
-  const meta = [totalTimeText(recipe), t(LEVEL_LABELS[recipe.level]), cost > 0 ? formatVnd(cost) : null]
+  const meta = [totalTimeText(recipe, language), t(LEVEL_LABELS[recipe.level]), cost > 0 ? formatVnd(cost) : null]
     .filter((part) => part !== null)
     .join(' · ');
   return (

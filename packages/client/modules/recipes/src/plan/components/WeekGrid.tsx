@@ -1,6 +1,6 @@
 import type { PlanEntry } from '@alavo-daily/common/engine';
 import { weekdayShort } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { cn, IconButton } from '@alavo-daily/design-system';
 
 import { MEAL_SLOTS, SLOT_LABELS } from '../../vocabulary';
@@ -59,13 +59,14 @@ export function WeekGrid({ dates, entries, today, onAdd }: WeekGridProps) {
 }
 
 function DayHeader({ date, isToday }: { date: string; isToday: boolean }) {
+  const language = useLanguage();
   return (
     <th
       scope="col"
       aria-current={isToday ? 'date' : undefined}
       className={cn('rounded-lg py-1.5 text-center', isToday && 'bg-accent text-accent-fg')}
     >
-      <div className="text-xs font-semibold">{weekdayShort(date)}</div>
+      <div className="text-xs font-semibold">{weekdayShort(date, language)}</div>
       <div className="text-base font-semibold">{dayOfMonth(date)}</div>
     </th>
   );
@@ -79,6 +80,7 @@ interface SlotCellProps {
 }
 
 function SlotCell({ target, entries, isPast, onAdd }: SlotCellProps) {
+  const language = useLanguage();
   const t = useT();
   return (
     <td className="overflow-hidden rounded-lg bg-surface-raised p-1 align-top">
@@ -93,7 +95,7 @@ function SlotCell({ target, entries, isPast, onAdd }: SlotCellProps) {
         icon="plus"
         size="sm"
         label={t('Thêm món {{day}}, bữa {{slot}}', {
-          day: `${weekdayShort(target.date)} ${dayOfMonth(target.date)}`,
+          day: `${weekdayShort(target.date, language)} ${dayOfMonth(target.date)}`,
           slot: t(SLOT_LABELS[target.slot]),
         })}
         onClick={() => onAdd(target)}

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 import { Screen, useT } from '@alavo-daily/common';
 import { PageColumn, Segmented } from '@alavo-daily/design-system';
 
+import { LanguageCard } from './LanguageCard';
 import { NotificationsTab } from './NotificationsTab';
 import { SyncDock, SyncTab } from './SyncTab';
 
@@ -30,6 +31,7 @@ export function SettingsScreen() {
           className="justify-self-start"
         />
         {tab === 'sync' ? <SyncTab /> : <NotificationsTab />}
+        <LanguageCard />
       </PageColumn>
     </Screen>
   );

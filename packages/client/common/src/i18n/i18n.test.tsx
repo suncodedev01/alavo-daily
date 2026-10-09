@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { I18nProvider, createI18n, useT } from './index';
+import { I18nProvider, createI18n, toLanguage, useLanguage, useT } from './index';
 
 function Greeting({ count }: { count: number }) {
   const t = useT();
@@ -30,6 +30,40 @@ describe('i18n', () => {
       </I18nProvider>,
     );
     expect(screen.getByText('Overview / 3 left')).toBeInTheDocument();
+  });
+
+  it('ships an English dictionary that createI18n uses by default', () => {
+    const i18n = createI18n('en');
+    expect(i18n.t('Tổng quan')).toBe('Overview');
+    expect(i18n.t('Còn {{amount}}', { amount: '50.000 ₫' })).toBe('50.000 ₫ left');
+  });
+
+  it('falls back to the Vietnamese key when English has no translation', () => {
+    const i18n = createI18n('en');
+    expect(i18n.t('Câu chưa có bản dịch {{name}}', { name: 'Lan' })).toBe('Câu chưa có bản dịch Lan');
+  });
+
+  it('interpolates counts without picking a plural form', () => {
+    const i18n = createI18n('en');
+    expect(i18n.t('{{count}} món', { count: 1 })).toBe('1 dishes');
+    expect(i18n.t('{{count}} món', { count: 3 })).toBe('3 dishes');
+  });
+
+  it('reports the active language to components', () => {
+    function Probe() {
+      return <p>{useLanguage()}</p>;
+    }
+    render(
+      <I18nProvider i18n={createI18n('en')}>
+        <Probe />
+      </I18nProvider>,
+    );
+    expect(screen.getByText('en')).toBeInTheDocument();
+  });
+
+  it('treats an unknown language code as Vietnamese', () => {
+    expect(toLanguage('en')).toBe('en');
+    expect(toLanguage('fr')).toBe('vi');
   });
 
   it('keeps a key with dots and colons whole', () => {

@@ -19,6 +19,7 @@ import { useSettings } from '../../hub-settings';
 import { SyncProvider } from '../../sync-status';
 import { AppLoading, EngineFailure } from './EngineFailure';
 import { AppRoutes } from './AppRoutes';
+import { TranslatedDesignSystem } from './TranslatedDesignSystem';
 import { DEFAULT_MODULES, ModuleBackgrounds, ModulesProvider } from '../../module-registry';
 import { useDocumentSettings } from '../../theme';
 
@@ -55,17 +56,19 @@ function ReadyApp({ settings, modules }: { settings: Settings; modules: readonly
   useDocumentSettings(settings);
   return (
     <I18nProvider i18n={i18n}>
-      <ModulesProvider modules={modules}>
-        <ReminderProvider>
-          <SyncProvider>
-            <ModuleBackgrounds />
-            <HashRouter>
-              <AppRoutes />
-            </HashRouter>
-          </SyncProvider>
-        </ReminderProvider>
-      </ModulesProvider>
-      <Toaster />
+      <TranslatedDesignSystem>
+        <ModulesProvider modules={modules}>
+          <ReminderProvider>
+            <SyncProvider>
+              <ModuleBackgrounds />
+              <HashRouter>
+                <AppRoutes />
+              </HashRouter>
+            </SyncProvider>
+          </ReminderProvider>
+        </ModulesProvider>
+        <Toaster />
+      </TranslatedDesignSystem>
     </I18nProvider>
   );
 }

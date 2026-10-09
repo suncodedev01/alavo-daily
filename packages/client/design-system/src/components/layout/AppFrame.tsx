@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { useDesignSystemTexts } from '../../lib/texts';
 import { FloatingCard } from '../surfaces/FloatingCard';
 
 export type AppFrameProps = {
@@ -22,9 +23,10 @@ export function AppFrame({
   list,
   dock,
   dockOpen = false,
-  dockLabel = 'Bảng ngữ cảnh',
+  dockLabel,
   children,
 }: AppFrameProps) {
+  const texts = useDesignSystemTexts();
   return (
     <div className="flex h-dvh overflow-hidden bg-paper text-text-primary">
       {sidebar}
@@ -32,7 +34,7 @@ export function AppFrame({
         <FloatingCard
           as="aside"
           tone="raised"
-          aria-label="Danh sách"
+          aria-label={texts.list}
           className="mr-0 flex w-85 flex-none flex-col max-compact:w-70"
         >
           {list}
@@ -42,7 +44,7 @@ export function AppFrame({
       {dock ? (
         <FloatingCard
           as="aside"
-          aria-label={dockLabel}
+          aria-label={dockLabel ?? texts.contextPanel}
           aria-hidden={!dockOpen}
           inert={!dockOpen}
           data-open={dockOpen ? '' : undefined}

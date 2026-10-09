@@ -1,3 +1,4 @@
+import type { Language } from '@alavo-daily/common';
 import { dayAndMonth, parseDateText } from '@alavo-daily/common/format';
 import type { Goal } from '@alavo-daily/common/engine';
 
@@ -17,14 +18,18 @@ function monthAndYear(date: string): string {
   return `${month}/${year}`;
 }
 
-export function dueLabelOf(goal: Pick<Goal, 'dueOn'>, today: string): DueLabel {
+export function dueLabelOf(
+  goal: Pick<Goal, 'dueOn'>,
+  today: string,
+  language: Language = 'vi',
+): DueLabel {
   if (goal.dueOn === null) return { kind: 'none' };
   const days = daysBetween(today, goal.dueOn);
-  if (days < 0) return { kind: 'overdue', date: dayAndMonth(goal.dueOn) };
+  if (days < 0) return { kind: 'overdue', date: dayAndMonth(goal.dueOn, language) };
   if (days === 0) return { kind: 'today' };
-  if (days < 2 * DAYS_PER_WEEK) return { kind: 'days', count: days, date: dayAndMonth(goal.dueOn) };
+  if (days < 2 * DAYS_PER_WEEK) return { kind: 'days', count: days, date: dayAndMonth(goal.dueOn, language) };
   if (days < WEEKS_SHOWN_UNTIL_DAYS) {
-    return { kind: 'weeks', count: Math.round(days / DAYS_PER_WEEK), date: dayAndMonth(goal.dueOn) };
+    return { kind: 'weeks', count: Math.round(days / DAYS_PER_WEEK), date: dayAndMonth(goal.dueOn, language) };
   }
   return { kind: 'months', count: Math.round(days / DAYS_PER_MONTH), date: monthAndYear(goal.dueOn) };
 }

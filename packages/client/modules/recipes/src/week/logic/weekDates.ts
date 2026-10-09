@@ -1,4 +1,5 @@
-import { addDays, dayAndMonth, parseDateText, startOfWeek, toDateText } from '@alavo-daily/common/format';
+import { addDays, dayRange, parseDateText, startOfWeek, toDateText } from '@alavo-daily/common/format';
+import type { Language } from '@alavo-daily/common';
 
 import { PLAN_DAYS } from '../../vocabulary';
 
@@ -13,12 +14,8 @@ export function weekDates(weekStart: string): string[] {
   return Array.from({ length: PLAN_DAYS }, (_, offset) => addDays(weekStart, offset));
 }
 
-export function weekRangeText(weekStart: string): string {
-  const last = addDays(weekStart, PLAN_DAYS - 1);
-  const [, firstMonth = '', firstDay = ''] = weekStart.split('-');
-  const [, lastMonth = '', lastDay = ''] = last.split('-');
-  if (firstMonth === lastMonth) return `${Number(firstDay)} – ${Number(lastDay)} tháng ${Number(lastMonth)}`;
-  return `${dayAndMonth(weekStart)} – ${dayAndMonth(last)}`;
+export function weekRangeText(weekStart: string, language: Language = 'vi'): string {
+  return dayRange(weekStart, addDays(weekStart, PLAN_DAYS - 1), language);
 }
 
 export function dayOfMonth(date: string): number {

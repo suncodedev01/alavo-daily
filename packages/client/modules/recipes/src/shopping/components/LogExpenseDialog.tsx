@@ -1,6 +1,6 @@
 import { useEngineMutation, useEngineQuery } from '@alavo-daily/common/engine';
 import { dayAndMonth, formatVnd } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { Button, OptionPicker, ResponsiveDialog, useToast } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
@@ -18,6 +18,7 @@ export interface LogExpenseDialogProps {
 }
 
 export function LogExpenseDialog({ open, onOpenChange, range, today, amountVnd }: LogExpenseDialogProps) {
+  const language = useLanguage();
   const t = useT();
   return (
     <ResponsiveDialog
@@ -26,8 +27,8 @@ export function LogExpenseDialog({ open, onOpenChange, range, today, amountVnd }
       title={t('Ghi vào Chi tiêu')}
       description={t('Ghi {{amount}} tiền đi chợ từ {{from}} đến {{to}} thành một khoản chi.', {
         amount: formatVnd(amountVnd),
-        from: dayAndMonth(range.from),
-        to: dayAndMonth(range.to),
+        from: dayAndMonth(range.from, language),
+        to: dayAndMonth(range.to, language),
       })}
       closeLabel={t('Đóng')}
     >

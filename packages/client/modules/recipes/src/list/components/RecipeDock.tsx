@@ -5,7 +5,7 @@ import {
   startOfWeek,
   weekdayShort,
 } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { Button, ConfirmDialog, ContextSection, useToast } from '@alavo-daily/design-system';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -97,6 +97,7 @@ function NutritionSection({ recipe }: { recipe: Recipe }) {
 }
 
 function WeekPlanSection({ recipe }: { recipe: Recipe }) {
+  const language = useLanguage();
   const t = useT();
   const today = useToday();
   const plan = useEngineQuery('recipes.get_plan', { from: startOfWeek(today), days: PLAN_DAYS });
@@ -109,7 +110,7 @@ function WeekPlanSection({ recipe }: { recipe: Recipe }) {
         <ul>
           {entries.map((entry) => (
             <li key={entry.id} className="py-1 text-sm">
-              {`${weekdayShort(entry.date)} ${dayAndMonth(entry.date)} · ${t(SLOT_LABELS[entry.slot])}`}
+              {`${weekdayShort(entry.date, language)} ${dayAndMonth(entry.date, language)} · ${t(SLOT_LABELS[entry.slot])}`}
             </li>
           ))}
         </ul>

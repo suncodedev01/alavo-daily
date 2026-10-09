@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { useDesignSystemTexts } from '../../lib/texts';
 import { Icon } from '../foundations/Icon';
 
 export type StepperProps = {
@@ -24,17 +25,18 @@ export function Stepper({
   max = Number.POSITIVE_INFINITY,
   step = 1,
   label,
-  decrementLabel = 'Giảm',
-  incrementLabel = 'Tăng',
+  decrementLabel,
+  incrementLabel,
   format = String,
   className,
 }: StepperProps) {
+  const texts = useDesignSystemTexts();
   const clamp = (next: number) => Math.min(max, Math.max(min, next));
   return (
     <div role="group" aria-label={label} className={cn('inline-flex items-center gap-1', className)}>
       <button
         type="button"
-        aria-label={decrementLabel}
+        aria-label={decrementLabel ?? texts.decrease}
         disabled={value <= min}
         className={BUTTON_CLASS}
         onClick={() => onChange(clamp(value - step))}
@@ -46,7 +48,7 @@ export function Stepper({
       </output>
       <button
         type="button"
-        aria-label={incrementLabel}
+        aria-label={incrementLabel ?? texts.increase}
         disabled={value >= max}
         className={BUTTON_CLASS}
         onClick={() => onChange(clamp(value + step))}

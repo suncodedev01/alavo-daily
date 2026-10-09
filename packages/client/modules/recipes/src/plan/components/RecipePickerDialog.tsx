@@ -1,6 +1,6 @@
 import { useEngineMutation, type RecipeSummary } from '@alavo-daily/common/engine';
 import { formatMinutes, relativeDayLabel } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import {
   IconTile,
   ResponsiveDialog,
@@ -24,10 +24,11 @@ export interface RecipePickerDialogProps {
 }
 
 export function RecipePickerDialog({ target, today, recipes, servings, onClose }: RecipePickerDialogProps) {
+  const language = useLanguage();
   const t = useT();
   const title = target
     ? t('Thêm món vào {{day}}, bữa {{slot}}', {
-        day: relativeDayLabel(target.date, today),
+        day: relativeDayLabel(target.date, today, language),
         slot: t(SLOT_LABELS[target.slot]),
       })
     : t('Thêm món');
@@ -53,6 +54,7 @@ interface PickerBodyProps {
 }
 
 function PickerBody({ target, recipes, servings, onDone }: PickerBodyProps) {
+  const language = useLanguage();
   const t = useT();
   const { toast } = useToast();
   const reportError = useReportError();
@@ -95,7 +97,7 @@ function PickerBody({ target, recipes, servings, onDone }: PickerBodyProps) {
                 <IconTile icon={recipe.icon} size="sm" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-medium">{recipe.name}</span>
-                  <span className="block text-xs text-text-muted">{formatMinutes(totalMinutes(recipe))}</span>
+                  <span className="block text-xs text-text-muted">{formatMinutes(totalMinutes(recipe), language)}</span>
                 </span>
               </button>
             </li>

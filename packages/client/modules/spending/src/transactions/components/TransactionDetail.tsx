@@ -1,6 +1,6 @@
 import { useEngineMutation, useEngineQuery, type Transaction } from '@alavo-daily/common/engine';
 import { parseDateText, relativeDayLabel } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { Button, Card, EmptyState, IconTile, Skeleton, useToast } from '@alavo-daily/design-system';
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
@@ -47,6 +47,7 @@ export function TransactionDetail({ id }: { id: string }) {
 }
 
 function DetailCard({ transaction, lookups }: { transaction: Transaction; lookups: Lookups }) {
+  const language = useLanguage();
   const t = useT();
   const today = useToday();
   const categoryName = lookups.categoryName(transaction.categoryId);
@@ -56,7 +57,7 @@ function DetailCard({ transaction, lookups }: { transaction: Transaction; lookup
         <IconTile icon={lookups.categoryIcon(transaction.categoryId)} size="lg" />
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-title font-semibold">{transaction.title}</h2>
-          <p className="truncate text-xs text-text-muted">{`${relativeDayLabel(transaction.occurredOn, today)} · ${categoryName}`}</p>
+          <p className="truncate text-xs text-text-muted">{`${relativeDayLabel(transaction.occurredOn, today, language)} · ${categoryName}`}</p>
         </div>
       </div>
       <MoneyAmount amountVnd={transaction.amountVnd} className="text-display font-semibold" />

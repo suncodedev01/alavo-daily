@@ -84,6 +84,7 @@ export interface RenderHubOptions {
   state?: Partial<HubState>;
   handlers?: Handlers;
   platform?: PlatformServices;
+  language?: string;
   /** What the sync buttons talk to. Without one, the device cannot sync. */
   sync?: SyncController | null;
 }
@@ -100,7 +101,7 @@ export function renderHub(path = '/today', options: RenderHubOptions = {}) {
       </SyncProvider>
       <Toaster />
     </ModulesProvider>,
-    { engine, platform: options.platform },
+    { engine, platform: options.platform, language: options.language },
   );
   return Object.assign(result, { engine: engine as FakeEngineClient, state });
 }

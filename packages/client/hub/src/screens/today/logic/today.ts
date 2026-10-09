@@ -1,10 +1,12 @@
 import {
   addDays,
+  dayAndMonthLong,
   daysInMonth,
   monthOf,
   weekdayName,
   type Bill,
   type BudgetLine,
+  type Language,
   type PlanEntry,
   type ShoppingList,
 } from '@alavo-daily/common';
@@ -71,10 +73,9 @@ export function shoppingRangeEnd(today: string): string {
   return addDays(today, SHOPPING_DAYS - 1);
 }
 
-/** `2026-10-09` → `Thứ Sáu, 9 tháng 10`. */
-export function longDateLabel(dateText: string): string {
-  const [, month = '', day = ''] = dateText.split('-');
-  return `${weekdayName(dateText)}, ${Number(day)} tháng ${Number(month)}`;
+/** `2026-10-09` → `Thứ Sáu, 9 tháng 10`, in English `Friday, October 9`. */
+export function longDateLabel(dateText: string, language: Language = 'vi'): string {
+  return `${weekdayName(dateText, language)}, ${dayAndMonthLong(dateText, language)}`;
 }
 
 export function nextDueDate(dayOfMonth: number, today: string): string {

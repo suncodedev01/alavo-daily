@@ -79,6 +79,7 @@ export interface ProviderOptions {
   handlers?: Handlers;
   engine?: FakeEngineClient;
   platform?: PlatformServices;
+  language?: string;
 }
 
 /** Renders `ui` inside the engine, platform and i18n providers every screen needs. */
@@ -88,7 +89,7 @@ export function renderWithProviders(
 ): RenderResult & { engine: FakeEngineClient } {
   const engine = options.engine ?? new FakeEngineClient(options.handlers);
   const platform = options.platform ?? createFakePlatform();
-  const i18n = createI18n('vi');
+  const i18n = createI18n(options.language ?? 'vi');
   const result = render(
     <EngineProvider client={engine}>
       <PlatformProvider platform={platform}>

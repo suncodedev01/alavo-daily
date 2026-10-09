@@ -1,5 +1,6 @@
 import type { Ref } from 'react';
 import { Field } from './Field';
+import { useDesignSystemTexts } from '../../lib/texts';
 import { IconButton } from './IconButton';
 
 export type SearchFieldProps = {
@@ -16,15 +17,16 @@ export function SearchField({
   value,
   onValueChange,
   placeholder,
-  label = 'Tìm kiếm',
-  clearLabel = 'Xoá tìm kiếm',
+  label,
+  clearLabel,
   className,
   ref,
 }: SearchFieldProps) {
+  const texts = useDesignSystemTexts();
   const clear = value ? (
     <IconButton
       icon="x"
-      label={clearLabel}
+      label={clearLabel ?? texts.clearSearch}
       size="sm"
       className="-mr-2"
       onClick={() => onValueChange('')}
@@ -34,7 +36,7 @@ export function SearchField({
     <Field
       ref={ref}
       role="searchbox"
-      aria-label={label}
+      aria-label={label ?? texts.searchLabel}
       leadingIcon="magnifying-glass"
       placeholder={placeholder}
       value={value}

@@ -1,6 +1,6 @@
 import { useEngineMutation, type MealSlot } from '@alavo-daily/common/engine';
 import { addDays, relativeDayLabel } from '@alavo-daily/common/format';
-import { useT } from '@alavo-daily/common';
+import { useLanguage, useT } from '@alavo-daily/common';
 import { Button, Pill, Popover, useToast } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
@@ -15,6 +15,7 @@ export interface AddToPlanMenuProps {
 }
 
 export function AddToPlanMenu({ recipeId, recipeName, servings }: AddToPlanMenuProps) {
+  const language = useLanguage();
   const t = useT();
   const today = useToday();
   const { toast } = useToast();
@@ -30,7 +31,7 @@ export function AddToPlanMenu({ recipeId, recipeName, servings }: AddToPlanMenuP
           toast(
             t('Đã thêm {{name}} vào {{day}}, bữa {{slot}}', {
               name: recipeName,
-              day: relativeDayLabel(date, today),
+              day: relativeDayLabel(date, today, language),
               slot: t(SLOT_LABELS[slot]),
             }),
           );
@@ -53,11 +54,11 @@ export function AddToPlanMenu({ recipeId, recipeName, servings }: AddToPlanMenuP
       <ul className="grid gap-1 p-1">
         {days.map((date) => (
           <li key={date} className="flex items-center gap-2">
-            <span className="min-w-0 flex-1 text-sm">{relativeDayLabel(date, today)}</span>
+            <span className="min-w-0 flex-1 text-sm">{relativeDayLabel(date, today, language)}</span>
             {MEAL_SLOTS.map((slot) => (
               <Pill
                 key={slot}
-                aria-label={`${relativeDayLabel(date, today)}, ${t(SLOT_LABELS[slot])}`}
+                aria-label={`${relativeDayLabel(date, today, language)}, ${t(SLOT_LABELS[slot])}`}
                 onClick={() => choose(date, slot)}
               >
                 {t(SLOT_LABELS[slot])}
