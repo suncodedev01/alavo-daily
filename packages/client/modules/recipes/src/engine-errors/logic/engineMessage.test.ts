@@ -14,13 +14,6 @@ describe('describeEngineError', () => {
     expect(describeEngineError(validation('recipe name must not be empty'), t)).toBe('Công thức cần có tên.');
   });
 
-  it('explains the ingredient rule', () => {
-    const message = 'a recipe needs at least one named ingredient';
-    expect(describeEngineError(validation(message), t)).toBe(
-      'Công thức cần ít nhất một nguyên liệu có tên.',
-    );
-  });
-
   it('puts the ingredient name into the sentence', () => {
     expect(describeEngineError(validation('quantity of Gừng must be above 0'), t)).toBe(
       'Số lượng của Gừng phải lớn hơn 0.',

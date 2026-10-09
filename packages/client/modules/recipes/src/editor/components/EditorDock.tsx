@@ -3,27 +3,37 @@ import { useLanguage, useT } from '@alavo-daily/common';
 import { ContextSection, Icon } from '@alavo-daily/design-system';
 
 import { checklistOf, parseMinutes } from '../logic/draft';
-import type { Draft } from '../types';
+import type { ChecklistItem, Draft } from '../types';
 import { CostSummary } from './CostSummary';
 
 export function EditorChecklist({ draft }: { draft: Draft }) {
   const t = useT();
   return (
-    <ul aria-label={t('Kiểm tra trước khi lưu')} className="grid gap-1">
-      {checklistOf(draft).map((item) => (
-        <li key={item.label} className="flex items-center gap-3 py-1.5 text-sm">
-          <Icon
-            name={item.done ? 'check-circle' : 'circle'}
-            weight={item.done ? 'fill' : 'regular'}
-            size="lg"
-            className={item.done ? 'text-primary' : 'text-text-muted'}
-          />
-          <span className={item.done ? undefined : 'text-text-muted'}>{t(item.label)}</span>
-          <span className="sr-only">{item.done ? t('Đã xong') : t('Chưa xong')}</span>
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul aria-label={t('Kiểm tra trước khi lưu')} className="grid gap-1">
+        {checklistOf(draft).map((item) => (
+          <li key={item.label} className="flex items-center gap-3 py-1.5 text-sm">
+            <Icon
+              name={item.done ? 'check-circle' : 'circle'}
+              weight={item.done ? 'fill' : 'regular'}
+              size="lg"
+              className={item.done ? 'text-primary' : 'text-text-muted'}
+            />
+            <span className={item.done ? undefined : 'text-text-muted'}>{t(item.label)}</span>
+            <span className="sr-only">{t(statusOf(item))}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-sm text-text-secondary">
+        {t('Chỉ cần đặt tên món là lưu được. Nguyên liệu và các bước có thể thêm sau.')}
+      </p>
+    </>
   );
+}
+
+function statusOf({ done, optional }: ChecklistItem): string {
+  if (done) return 'Đã xong';
+  return optional ? 'Có thể thêm sau' : 'Chưa xong';
 }
 
 export function EditorDock({ draft }: { draft: Draft }) {

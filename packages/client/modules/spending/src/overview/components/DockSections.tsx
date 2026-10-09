@@ -1,7 +1,7 @@
 import { useEngineQuery } from '@alavo-daily/common/engine';
 import { dayAndMonth, formatPercent, formatVnd, weekdayName } from '@alavo-daily/common/format';
 import { useLanguage, useT } from '@alavo-daily/common';
-import { Button, ContextSection, IconTile } from '@alavo-daily/design-system';
+import { Button, ContextSection, StickerTile } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
 import { BillsDialog } from '../../bills';
@@ -18,7 +18,7 @@ export function UpcomingBillsSection({ today }: { today: string }) {
   const [managing, setManaging] = useState(false);
   return (
     <ContextSection title={t('Sắp đến hạn')} defaultOpen>
-      <div className="grid gap-3">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-3">
         <Loadable query={bills} skeleton={<SkeletonRows count={2} className="h-10 w-full" />}>
           {(items) => <UpcomingList items={upcomingBills(items, today, UPCOMING_LIMIT)} />}
         </Loadable>
@@ -38,10 +38,10 @@ function UpcomingList({ items }: { items: UpcomingBill[] }) {
     return <p className="text-sm text-text-muted">{t('Chưa có khoản định kỳ nào sắp đến hạn.')}</p>;
   }
   return (
-    <ul className="grid gap-3">
+    <ul className="grid grid-cols-[minmax(0,1fr)] gap-3">
       {items.map(({ bill, dueOn }) => (
         <li key={bill.id} className="flex items-center gap-3">
-          <IconTile icon={bill.icon} size="sm" />
+          <StickerTile icon={bill.icon} kind="category" size="sm" />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium">{bill.title}</span>
             <span className="block text-xs text-text-muted">{`${weekdayName(dueOn, language)}, ${dayAndMonth(dueOn, language)}`}</span>

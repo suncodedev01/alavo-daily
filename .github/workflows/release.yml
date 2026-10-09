@@ -185,11 +185,12 @@ jobs:
           echo "NDK_HOME=$ANDROID_NDK_HOME" >> "$GITHUB_ENV"
           NDK_HOME="$ANDROID_NDK_HOME" pnpm tauri android init --ci
 
-      - name: Apply the app icon and allow exact reminder alarms on Android
+      - name: Apply the app icon, light status bar and exact reminder alarms on Android
         if: matrix.platform == 'android'
         shell: bash
         run: |
           node scripts/patch-android-manifest.mjs apps/native/src-tauri/gen/android/app/src/main/AndroidManifest.xml
+          node scripts/patch-android-theme.mjs apps/native/src-tauri/gen/android/app/src/main/res
           node scripts/apply-android-icons.mjs
           grep -n "uses-permission" apps/native/src-tauri/gen/android/app/src/main/AndroidManifest.xml
 

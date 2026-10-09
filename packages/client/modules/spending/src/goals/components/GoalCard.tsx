@@ -1,7 +1,7 @@
 import type { Goal } from '@alavo-daily/common/engine';
 import { formatPercent, formatVnd } from '@alavo-daily/common/format';
 import { useLanguage, useT } from '@alavo-daily/common';
-import { Button, Card, IconButton, IconTile, Menu, MenuItem, Meter, StatusChip } from '@alavo-daily/design-system';
+import { Button, Card, IconButton, StickerTile, Menu, MenuItem, Meter, StatusChip } from '@alavo-daily/design-system';
 
 import { useToday } from '../../today';
 import { dueText } from '../logic/dueText';
@@ -21,9 +21,9 @@ export function GoalCard({ goal, onContribute, onEdit, onDelete }: GoalCardProps
   const ratio = goal.savedVnd / goal.targetVnd;
   const reached = goal.savedVnd >= goal.targetVnd;
   return (
-    <Card aria-label={goal.name} className="grid content-start gap-4">
-      <div className="flex items-center gap-3">
-        <IconTile icon={goal.icon} size="md" />
+    <Card aria-label={goal.name} className="grid grid-cols-[minmax(0,1fr)] content-start gap-4">
+      <div className="flex min-w-0 items-center gap-3">
+        <StickerTile icon={goal.icon} kind="category" size="md" />
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-sm font-semibold">{goal.name}</h3>
           <p className="text-xs text-text-muted">{dueText(dueLabelOf(goal, today, language), t)}</p>

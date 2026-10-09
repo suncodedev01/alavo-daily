@@ -8,6 +8,7 @@ import {
   CardTitle,
   Eyebrow,
   IconTile,
+  StickerTile,
   PageColumn,
   Pill,
   SearchField,
@@ -148,7 +149,7 @@ function ComingSoon({ query }: { query: string }) {
         <ul>
           {apps.map((app) => (
             <li key={app.name} className="flex items-center gap-3 py-2.5">
-              <IconTile icon={app.icon} />
+              <StickerTile icon={app.icon} kind="module" />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium">{t(app.name)}</p>
                 <p className="text-xs text-text-muted">{t(app.description)}</p>

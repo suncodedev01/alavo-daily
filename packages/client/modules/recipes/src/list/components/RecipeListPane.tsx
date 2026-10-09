@@ -6,7 +6,7 @@ import {
   cn,
   EmptyState,
   Icon,
-  IconTile,
+  StickerTile,
   Pill,
   SearchField,
   useLayout,
@@ -14,7 +14,7 @@ import {
 import { Link, useNavigate } from 'react-router';
 
 import { filterRecipes } from '../../recipe-filter';
-import { costForServings, totalTimeText } from '../../recipe-math';
+import { costForServings, knownTimeText } from '../../recipe-math';
 import { QueryState, type QueryLike } from '../../query-state';
 import { FILTER_TAGS, LEVEL_LABELS } from '../../vocabulary';
 import { useRecipeQuery } from '../hooks/useRecipeQuery';
@@ -103,7 +103,7 @@ function RecipeRow({ recipe, selected, search, householdSize }: RecipeRowProps) 
   const language = useLanguage();
   const t = useT();
   const cost = costForServings(recipe, householdSize);
-  const meta = [totalTimeText(recipe, language), t(LEVEL_LABELS[recipe.level]), cost > 0 ? formatVnd(cost) : null]
+  const meta = [knownTimeText(recipe, language), t(LEVEL_LABELS[recipe.level]), cost > 0 ? formatVnd(cost) : null]
     .filter((part) => part !== null)
     .join(' · ');
   return (
@@ -115,7 +115,7 @@ function RecipeRow({ recipe, selected, search, householdSize }: RecipeRowProps) 
         selected && 'bg-accent text-accent-fg hover:bg-accent',
       )}
     >
-      <IconTile icon={recipe.icon} />
+      <StickerTile icon={recipe.icon} kind="recipe" />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium">{recipe.name}</span>
         <span className="block truncate text-xs text-text-muted">{meta}</span>

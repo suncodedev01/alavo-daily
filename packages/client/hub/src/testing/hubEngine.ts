@@ -70,6 +70,18 @@ export function aDinner(): PlanEntry {
   };
 }
 
+export function aMeal(slot: PlanEntry['slot'], recipeName: string, recipeId = `recipe-${recipeName}`): PlanEntry {
+  return {
+    id: `plan-${slot}-${recipeName}`,
+    date: '2026-10-09',
+    slot,
+    recipeId,
+    recipeName,
+    recipeIcon: 'cooking-pot',
+    servings: 2,
+  };
+}
+
 export function aFoodBudget(spentVnd: number, budgetVnd = 1_000_000): BudgetStatus {
   const remainingVnd = budgetVnd - spentVnd;
   return {

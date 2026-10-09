@@ -1,8 +1,8 @@
 import { useEngineMutation, type RecipeSummary } from '@alavo-daily/common/engine';
-import { formatMinutes, relativeDayLabel } from '@alavo-daily/common/format';
+import { relativeDayLabel } from '@alavo-daily/common/format';
 import { useLanguage, useT } from '@alavo-daily/common';
 import {
-  IconTile,
+  StickerTile,
   ResponsiveDialog,
   SearchField,
   useToast,
@@ -10,7 +10,7 @@ import {
 import { useState } from 'react';
 
 import { filterRecipes } from '../../recipe-filter';
-import { totalMinutes } from '../../recipe-math';
+import { knownTimeText } from '../../recipe-math';
 import { useReportError } from '../../engine-errors';
 import { SLOT_LABELS } from '../../vocabulary';
 import type { PlanTarget } from '../types';
@@ -94,10 +94,10 @@ function PickerBody({ target, recipes, servings, onDone }: PickerBodyProps) {
                 className="focus-ring flex min-h-12 w-full items-center gap-3 rounded-lg px-2 text-left hover:bg-surface-tint"
                 onClick={() => pick(recipe)}
               >
-                <IconTile icon={recipe.icon} size="sm" />
+                <StickerTile icon={recipe.icon} kind="recipe" size="sm" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-medium">{recipe.name}</span>
-                  <span className="block text-xs text-text-muted">{formatMinutes(totalMinutes(recipe), language)}</span>
+                  <span className="block min-h-4 text-xs text-text-muted">{knownTimeText(recipe, language)}</span>
                 </span>
               </button>
             </li>

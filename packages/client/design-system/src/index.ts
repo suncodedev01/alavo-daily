@@ -57,6 +57,21 @@ export { ConfirmDialog, type ConfirmDialogProps } from './components/overlays/Co
 
 export { Card, CardBody, CardHeader, CardTitle, type CardPadding, type CardProps } from './components/surfaces/Card';
 export { FloatingCard, type FloatingCardProps } from './components/surfaces/FloatingCard';
+export {
+  Sticker,
+  StickerTile,
+  STICKER_ICON_NAMES,
+  STICKER_NAMES,
+  hasSticker,
+  stickerFor,
+  type StickerChoice,
+  type StickerKind,
+  type StickerName,
+  type StickerProps,
+  type StickerTileProps,
+  type StickerTileSize,
+  type StickerTone,
+} from './components/stickers';
 export { IconTile, type IconTileProps, type IconTileSize, type IconTileTone } from './components/surfaces/IconTile';
 export { Eyebrow, type EyebrowProps } from './components/surfaces/Eyebrow';
 export {

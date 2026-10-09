@@ -13,6 +13,10 @@ export function useAddIngredientsToShopping(recipe: Recipe, servings: number) {
   const [busy, setBusy] = useState(false);
   const addItem = useEngineMutation('recipes.add_shopping_item');
   const run = async () => {
+    if (recipe.ingredients.length === 0) {
+      toast(t('Món này chưa có nguyên liệu để thêm vào danh sách đi chợ.'));
+      return;
+    }
     setBusy(true);
     try {
       for (const item of recipe.ingredients) {

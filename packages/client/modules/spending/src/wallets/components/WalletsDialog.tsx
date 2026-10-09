@@ -1,6 +1,6 @@
 import { useEngineMutation, useEngineQuery, type Wallet } from '@alavo-daily/common/engine';
 import { useT } from '@alavo-daily/common';
-import { Button, EmptyState, IconButton, IconTile, ResponsiveDialog } from '@alavo-daily/design-system';
+import { Button, EmptyState, IconButton, StickerTile, ResponsiveDialog } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
 import { formatBalance } from '../../money';
@@ -72,7 +72,7 @@ function WalletRow({ wallet, onEdit, onDelete }: WalletRowProps) {
   const t = useT();
   return (
     <li className="flex items-center gap-3 py-2">
-      <IconTile icon={walletIcon(wallet.kind)} size="md" />
+      <StickerTile icon={walletIcon(wallet.kind)} kind="wallet" size="md" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{wallet.name}</p>
         <p className="text-xs text-text-muted">{`${t(walletKindLabel(wallet.kind))} · ${formatBalance(wallet.balanceVnd)}`}</p>

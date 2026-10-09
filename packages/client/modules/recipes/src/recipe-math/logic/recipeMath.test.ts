@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { costForServings, sharePercent, totalMinutes, totalTimeText } from './recipeMath';
+import { costForServings, knownTimeText, sharePercent, totalMinutes, totalTimeText } from './recipeMath';
 
 describe('costForServings', () => {
   it('scales the cost proportionally', () => {
@@ -21,6 +21,13 @@ describe('time helpers', () => {
   it('adds preparation and cooking', () => {
     expect(totalMinutes({ prepMin: 15, cookMin: 40 })).toBe(55);
     expect(totalTimeText({ prepMin: 40, cookMin: 150 })).toBe('3 giờ 10 phút');
+  });
+});
+
+describe('knownTimeText', () => {
+  it('is empty when no time was entered', () => {
+    expect(knownTimeText({ prepMin: 0, cookMin: 0 })).toBeNull();
+    expect(knownTimeText({ prepMin: 0, cookMin: 25 })).toBe('25 phút');
   });
 });
 

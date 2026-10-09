@@ -1,6 +1,6 @@
 import type { Category } from '@alavo-daily/common/engine';
 import { useT } from '@alavo-daily/common';
-import { Icon, useLayout } from '@alavo-daily/design-system';
+import { cn, Icon, StickerTile, useLayout } from '@alavo-daily/design-system';
 
 export interface CategoryPickerProps {
   categories: readonly Category[];
@@ -34,14 +34,12 @@ export function CategoryPicker({ categories, selectedId, onSelect, onCreate, err
             className={wide ? TILE_CLASS : CHIP_CLASS}
             onClick={() => onSelect(category.id)}
           >
-            <span className="grid size-8 place-items-center">
-              <Icon name={category.icon} size="lg" />
-            </span>
+            <StickerTile icon={category.icon} kind="category" size={wide ? 'lg' : 'sm'} />
             <span className="max-w-full text-center leading-tight break-words">{t(category.name)}</span>
           </button>
         ))}
         <button type="button" className={wide ? TILE_CLASS : CHIP_CLASS} onClick={onCreate}>
-          <span className="grid size-8 place-items-center text-text-muted">
+          <span className={cn('grid place-items-center text-text-muted', wide ? 'size-12' : 'size-8')}>
             <Icon name="plus" size="lg" />
           </span>
           <span className="max-w-full text-center leading-tight break-words text-text-muted">{t('Hạng mục mới')}</span>

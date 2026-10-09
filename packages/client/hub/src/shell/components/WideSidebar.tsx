@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router';
 
 import { useT, type ModuleManifest } from '@alavo-daily/common';
-import { NavItem, Sidebar, SidebarGroup, SidebarSeparator } from '@alavo-daily/design-system';
+import { NavItem, Sidebar, SidebarGroup, SidebarSeparator, StickerTile } from '@alavo-daily/design-system';
 
 import { useModules } from '../../module-registry';
 import { useSettings } from '../../hub-settings';
@@ -70,6 +70,7 @@ function PinnedGroup() {
         <NavItem
           key={manifest.id}
           icon={manifest.icon}
+          leading={<StickerTile icon={manifest.icon} kind="module" size="sm" />}
           label={t(manifest.name)}
           onClick={() => select(manifest.id)}
         />

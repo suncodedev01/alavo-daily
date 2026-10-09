@@ -12,3 +12,4 @@ pkg/
 *.pem
 .playwright-mcp/
 **/src-tauri/gen/
+.ui-audit/

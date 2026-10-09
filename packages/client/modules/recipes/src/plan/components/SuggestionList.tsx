@@ -1,7 +1,7 @@
 import type { SuggestedEntry } from '@alavo-daily/common/engine';
 import { dayAndMonth, relativeDayLabel } from '@alavo-daily/common/format';
 import { useLanguage, useT } from '@alavo-daily/common';
-import { Eyebrow, IconButton, IconTile } from '@alavo-daily/design-system';
+import { Eyebrow, IconButton, StickerTile } from '@alavo-daily/design-system';
 
 import { SLOT_LABELS } from '../../vocabulary';
 import type { SuggestionEditor } from '../hooks/useSuggestionEditor';
@@ -42,7 +42,7 @@ function SuggestionRow({ entry, editor }: { entry: SuggestedEntry; editor: Sugge
   return (
     <div className="flex min-h-12 items-center gap-2" aria-busy={rerolling}>
       <Eyebrow className="w-10 shrink-0">{slot}</Eyebrow>
-      <IconTile icon={entry.recipeIcon} size="sm" />
+      <StickerTile icon={entry.recipeIcon} kind="recipe" size="sm" />
       <span className="min-w-0 flex-1 truncate text-sm font-medium">{entry.recipeName}</span>
       <IconButton
         icon="arrows-clockwise"

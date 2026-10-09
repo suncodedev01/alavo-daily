@@ -12,7 +12,7 @@ const PILL_CLASS =
 
 export function Pill({ selected = false, leadingIcon, className, children, ...rest }: PillProps) {
   return (
-    <button type="button" aria-pressed={selected} className={cn(PILL_CLASS, className)} {...rest}>
+    <button type="button" aria-pressed={selected} data-pill className={cn(PILL_CLASS, className)} {...rest}>
       {leadingIcon ? <Icon name={leadingIcon} /> : null}
       {children}
     </button>

@@ -22,7 +22,7 @@ export function WeekGrid({ dates, entries, today, onAdd }: WeekGridProps) {
     <div className="overflow-x-auto rounded-xl bg-surface p-3 shadow-card">
       <table aria-label={t('Thực đơn cả tuần')} className="w-full min-w-160 table-fixed border-separate border-spacing-1">
         <colgroup>
-          <col className="w-16" />
+          <col className="w-20" />
           {dates.map((date) => (
             <col key={date} />
           ))}

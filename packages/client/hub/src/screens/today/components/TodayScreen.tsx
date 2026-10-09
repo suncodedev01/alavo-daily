@@ -6,7 +6,8 @@ import { PageColumn, Skeleton, useLayout } from '@alavo-daily/design-system';
 import { useModules } from '../../../module-registry';
 import { SyncNowButton } from '../../../sync-status';
 import { FirstRunState } from './FirstRunState';
-import { DinnerCard, MealsCard, ShoppingCard, SpendingCard } from './TodayCards';
+import { ShoppingCard, SpendingCard } from './TodayCards';
+import { TodayMealsCard } from './TodayMealsCard';
 import {
   DecisionSection,
   RecentNotificationsSection,
@@ -68,7 +69,7 @@ function TodayCards({ data, narrowDecision }: { data: TodayData; narrowDecision:
     <>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         <div className="grid lg:col-span-3">
-          <DinnerCard plan={plan} shopping={data.shopping.data} />
+          <TodayMealsCard plan={plan} hour={data.hour} shopping={data.shopping.data} />
         </div>
         <div className="grid gap-4 lg:col-span-2">
           {narrowDecision}
@@ -77,11 +78,8 @@ function TodayCards({ data, narrowDecision }: { data: TodayData; narrowDecision:
             monthTransactionCount={data.summary.data?.transactionCount ?? 0}
             foodLine={foodLine}
           />
+          <ShoppingCard shopping={data.shopping.data} />
         </div>
-      </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <MealsCard plan={plan} />
-        <ShoppingCard shopping={data.shopping.data} />
       </div>
     </>
   );

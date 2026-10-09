@@ -33,6 +33,13 @@ describe('wallets in the sidebar', () => {
     expect(screen.getByText('Ví')).toBeInTheDocument();
   });
 
+  it('draws a sticker for each wallet kind', async () => {
+    const { container } = renderInSpendingShell(<WalletsSidebar />);
+    await screen.findByText('Techcombank');
+    const stickers = [...container.querySelectorAll('img')].map((image) => image.dataset.sticker);
+    expect(stickers).toEqual(['credit_card', 'mobile_phone', 'money_bag']);
+  });
+
   it('shows skeletons while loading', () => {
     renderInSpendingShell(<WalletsSidebar />, {
       handlers: { 'spending.list_wallets': () => new Promise(() => undefined) },

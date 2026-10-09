@@ -44,6 +44,7 @@ export function Menu({
 
 export type MenuItemProps = {
   icon?: string;
+  leading?: ReactNode;
   hint?: string;
   selected?: boolean;
   destructive?: boolean;
@@ -58,6 +59,7 @@ const ITEM_CLASS =
 
 export function MenuItem({
   icon,
+  leading,
   hint,
   selected,
   destructive = false,
@@ -74,7 +76,7 @@ export function MenuItem({
       className={cn(ITEM_CLASS, destructive && 'text-destructive-fg', className)}
       {...radioProps}
     >
-      {icon ? <Icon name={icon} size="lg" /> : null}
+      {leading ?? (icon ? <Icon name={icon} size="lg" /> : null)}
       <span className="min-w-0 flex-1 truncate">{children}</span>
       {hint ? <span className="ml-auto text-xs whitespace-nowrap text-text-muted">{hint}</span> : null}
     </MenuPrimitive.Item>

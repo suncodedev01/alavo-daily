@@ -1,5 +1,5 @@
 import type { Transaction } from '@alavo-daily/common/engine';
-import { IconTile } from '@alavo-daily/design-system';
+import { StickerTile } from '@alavo-daily/design-system';
 import { Link } from 'react-router';
 
 import type { Lookups } from '../../lookups';
@@ -22,7 +22,7 @@ export function TransactionRow({ transaction, lookups, to, active = false }: Tra
     .join(' · ');
   return (
     <Link to={to} aria-current={active ? 'true' : undefined} data-active={active ? '' : undefined} className={ROW_CLASS}>
-      <IconTile icon={lookups.categoryIcon(transaction.categoryId)} size="md" />
+      <StickerTile icon={lookups.categoryIcon(transaction.categoryId)} kind="category" size="md" />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5">
           <span className="min-w-0 truncate text-sm font-medium text-text-primary">{transaction.title}</span>

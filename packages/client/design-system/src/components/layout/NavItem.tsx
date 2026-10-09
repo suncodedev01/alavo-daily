@@ -1,10 +1,11 @@
-import type { ComponentProps, ReactElement } from 'react';
+import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { cn } from '@/lib/utils';
 import { Icon } from '../foundations/Icon';
 
 export type NavItemProps = Omit<ComponentProps<'button'>, 'children'> & {
   icon: string;
+  leading?: ReactNode;
   label: string;
   count?: number | string;
   active?: boolean;
@@ -16,10 +17,10 @@ const ITEM_CLASS =
 
 const ACTIVE_CLASS = 'bg-accent text-accent-fg hover:bg-accent';
 
-export function NavItem({ icon, label, count, active = false, render, className, ...rest }: NavItemProps) {
+export function NavItem({ icon, leading, label, count, active = false, render, className, ...rest }: NavItemProps) {
   const content = (
     <>
-      <Icon name={icon} size="lg" />
+      {leading ?? <Icon name={icon} size="lg" />}
       <span className="min-w-0 flex-1 truncate max-compact:sr-only">{label}</span>
       {count !== undefined ? (
         <span

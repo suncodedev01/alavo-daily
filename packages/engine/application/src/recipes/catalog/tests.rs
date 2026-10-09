@@ -10,8 +10,8 @@ use super::*;
 use crate::recipes::catalog;
 use crate::recipes::plan::get_plan;
 use crate::recipes::test_support::{
-    all_event_count, assert_code, create_recipe, event_count, ingredient, plan_meal, recipe_input,
-    with_ctx,
+    all_event_count, assert_code, create_recipe, event_count, ingredient, plan_meal,
+    recipe_input, with_ctx,
 };
 
 fn names(summaries: Vec<RecipeSummary>) -> Vec<String> {
@@ -79,7 +79,6 @@ fn create_rejects_invalid_input_and_writes_nothing() {
             |r: &mut RecipeInput| r.body.name = " ".into(),
             |r: &mut RecipeInput| r.body.servings = 0,
             |r: &mut RecipeInput| r.body.servings = 51,
-            |r: &mut RecipeInput| r.ingredients.clear(),
             |r: &mut RecipeInput| r.ingredients[0].quantity = 0.0,
             |r: &mut RecipeInput| r.steps[0].timer_min = -1,
         ] {

@@ -11,9 +11,9 @@ export function PaletteSwatchRow({ swatches }: { swatches: PaletteSwatches }) {
     [t('Chữ'), swatches.text],
   ] as const;
   return (
-    <span className="grid grid-cols-4 gap-2">
+    <span className="flex flex-wrap gap-x-3 gap-y-1">
       {entries.map(([label, color]) => (
-        <span key={label} className="flex items-center gap-1.5 text-xs text-text-secondary">
+        <span key={label} className="flex items-center gap-1.5 text-xs whitespace-nowrap text-text-secondary">
           <span
             className="size-4 shrink-0 rounded-full inset-ring inset-ring-line-strong"
             style={{ background: color }}

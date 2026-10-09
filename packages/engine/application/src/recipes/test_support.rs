@@ -55,6 +55,14 @@ pub fn recipe_input(name: &str) -> RecipeInput {
     }
 }
 
+pub fn name_only_input(name: &str) -> RecipeInput {
+    let mut input = recipe_input(name);
+    input.body.tags.clear();
+    input.ingredients.clear();
+    input.steps.clear();
+    input
+}
+
 pub fn create_recipe(ctx: &Ctx, name: &str) -> Recipe {
     catalog::create(ctx, recipe_input(name)).unwrap()
 }

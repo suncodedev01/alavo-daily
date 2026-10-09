@@ -34,6 +34,7 @@ export interface Draft {
 export interface ChecklistItem {
   label: string;
   done: boolean;
+  optional: boolean;
 }
 
 export type GeneralField = 'name' | 'prepMin' | 'cookMin';

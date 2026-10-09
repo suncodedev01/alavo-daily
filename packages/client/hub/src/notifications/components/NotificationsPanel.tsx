@@ -1,5 +1,5 @@
 import { useEngineMutation, useLanguage, useT, type AppNotification } from '@alavo-daily/common';
-import { Button, EmptyState, IconTile, cn } from '@alavo-daily/design-system';
+import { Button, EmptyState, StickerTile, cn } from '@alavo-daily/design-system';
 
 import { useModules } from '../../module-registry';
 import { todayText } from '../../clock';
@@ -62,7 +62,7 @@ function NotificationRow({ item }: { item: AppNotification }) {
   const meta = [owner ? t(owner.name) : null, formatNotificationTime(item.createdAt, todayText(), language)];
   return (
     <li className={cn('flex gap-3 rounded-lg p-3', !item.read && 'bg-accent')}>
-      <IconTile icon={owner?.icon ?? 'bell'} size="sm" />
+      <StickerTile icon={owner?.icon ?? 'bell'} kind="module" size="sm" />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium">{item.title}</p>
         <p className="text-xs text-text-secondary">{item.body}</p>

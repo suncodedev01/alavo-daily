@@ -1,5 +1,5 @@
 import { EngineCallError } from '@alavo-daily/common/engine';
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -242,6 +242,34 @@ describe('narrow layout', () => {
     await save();
     await waitFor(() => expect(engine.callsTo('spending.record_transaction')).toHaveLength(1));
     expect(engine.callsTo('spending.record_transaction')[0]).toMatchObject({ amountVnd: -1_200 });
+  });
+
+  it('pins the amount and keypad outside the scrolling middle part', async () => {
+    openDialog({ width: NARROW_WIDTH });
+    const keypad = await screen.findByRole('group', { name: 'Bàn phím nhập số tiền' });
+    const middle = screen.getByRole('textbox', { name: 'Ghi chú' }).closest('.overflow-y-auto') as HTMLElement;
+    expect(middle).toContainElement(screen.getByRole('group', { name: 'Hạng mục' }));
+    expect(middle).not.toContainElement(keypad);
+    expect(middle).not.toContainElement(screen.getByRole('status', { name: 'Số tiền' }));
+    expect(middle).not.toContainElement(screen.getByRole('radiogroup', { name: 'Loại giao dịch' }));
+  });
+
+  it('hides the keypad but keeps the amount and Save while the phone keyboard is open', async () => {
+    const originalHeight = window.innerHeight;
+    openDialog({ width: NARROW_WIDTH });
+    await screen.findByRole('group', { name: 'Bàn phím nhập số tiền' });
+    const note = screen.getByRole('textbox', { name: 'Ghi chú' });
+    note.focus();
+    Object.defineProperty(window, 'innerHeight', { configurable: true, writable: true, value: originalHeight / 2 });
+    act(() => {
+      window.dispatchEvent(new Event('resize'));
+    });
+    await waitFor(() =>
+      expect(screen.queryByRole('group', { name: 'Bàn phím nhập số tiền' })).not.toBeInTheDocument(),
+    );
+    expect(screen.getByRole('status', { name: 'Số tiền' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Lưu giao dịch' })).toBeInTheDocument();
+    Object.defineProperty(window, 'innerHeight', { configurable: true, writable: true, value: originalHeight });
   });
 
   it('lists categories as chips inside a bottom sheet', async () => {

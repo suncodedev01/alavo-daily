@@ -1,7 +1,7 @@
 import type { BudgetLine } from '@alavo-daily/common/engine';
 import { formatPercent, formatVnd } from '@alavo-daily/common/format';
 import { useT } from '@alavo-daily/common';
-import { Card, IconButton, IconTile, Menu, MenuItem, Meter } from '@alavo-daily/design-system';
+import { Card, IconButton, StickerTile, Menu, MenuItem, Meter } from '@alavo-daily/design-system';
 
 export interface BudgetCardProps {
   line: BudgetLine;
@@ -17,14 +17,13 @@ export function BudgetCard({ line, onEdit, onDelete }: BudgetCardProps) {
       ? t('Còn {{amount}}', { amount: formatVnd(line.remainingVnd) })
       : t('Vượt {{amount}}', { amount: formatVnd(line.remainingVnd) });
   return (
-    <Card padding="sm" aria-label={name} className="grid content-start gap-3">
-      <div className="flex items-center gap-3">
-        <IconTile icon={line.icon} size="md" />
+    <Card padding="sm" aria-label={name} className="grid grid-cols-[minmax(0,1fr)] content-start gap-3">
+      <div className="flex min-w-0 items-center gap-3">
+        <StickerTile icon={line.icon} kind="category" size="md" />
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-sm font-semibold">{name}</h3>
-          <p className="text-xs text-text-muted">{`${formatVnd(line.spentVnd)} / ${formatVnd(line.budgetVnd)}`}</p>
         </div>
-        <span className="text-sm font-semibold">{formatPercent(line.pct)}</span>
+        <span className="shrink-0 text-sm font-semibold">{formatPercent(line.pct)}</span>
         <Menu
           align="end"
           trigger={<IconButton icon="dots-three" label={t('Tuỳ chọn {{name}}', { name })} size="sm" />}
@@ -38,7 +37,10 @@ export function BudgetCard({ line, onEdit, onDelete }: BudgetCardProps) {
         </Menu>
       </div>
       <Meter value={line.pct} tone={line.tone} label={t('Đã dùng ngân sách {{name}}', { name })} />
-      <p className="text-xs text-text-muted">{remaining}</p>
+      <div className="grid gap-0.5 text-xs text-text-muted">
+        <p>{`${formatVnd(line.spentVnd)} / ${formatVnd(line.budgetVnd)}`}</p>
+        <p>{remaining}</p>
+      </div>
     </Card>
   );
 }

@@ -53,8 +53,8 @@ export function AddToPlanMenu({ recipeId, recipeName, servings }: AddToPlanMenuP
     >
       <ul className="grid gap-1 p-1">
         {days.map((date) => (
-          <li key={date} className="flex items-center gap-2">
-            <span className="min-w-0 flex-1 text-sm">{relativeDayLabel(date, today, language)}</span>
+          <li key={date} className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="min-w-24 flex-1 text-sm">{relativeDayLabel(date, today, language)}</span>
             {MEAL_SLOTS.map((slot) => (
               <Pill
                 key={slot}

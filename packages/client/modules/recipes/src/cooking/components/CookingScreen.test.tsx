@@ -105,12 +105,13 @@ describe('cooking mode content', () => {
     expect(await screen.findByRole('button', { name: 'Thử lại' })).toBeInTheDocument();
   });
 
-  it('offers a way back for a recipe without steps', async () => {
+  it('offers to edit a recipe without steps', async () => {
     const bare: Recipe = recipe({ id: 'bare', name: 'Trống', ingredients: [], steps: [] });
     renderCooking('/recipes/cook/bare', { backend: new RecipesBackend([bare]) });
-    expect(await screen.findByText('Công thức này chưa có bước nào')).toBeInTheDocument();
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Quay lại công thức' }));
-    expect(location()).toHaveTextContent('/recipes/list/bare');
+    expect(await screen.findByText('Món này chưa có các bước nấu')).toBeInTheDocument();
+    expect(screen.queryByText(/Bước 1\/0/)).not.toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Sửa công thức' }));
+    expect(location()).toHaveTextContent('/recipes/edit/bare');
   });
 });
 

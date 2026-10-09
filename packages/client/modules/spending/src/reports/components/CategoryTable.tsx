@@ -1,7 +1,7 @@
 import type { CategoryKind, CategoryShare } from '@alavo-daily/common/engine';
 import { formatVnd } from '@alavo-daily/common/format';
 import { useT } from '@alavo-daily/common';
-import { IconTile } from '@alavo-daily/design-system';
+import { StickerTile } from '@alavo-daily/design-system';
 
 import { useLookups } from '../../lookups';
 import { SectionCard } from '../../overview';
@@ -33,7 +33,7 @@ export function CategoryTable({ categories, kind }: { categories: readonly Categ
               <tr key={item.categoryId} className="border-b border-line-hairline last:border-b-0">
                 <th scope="row" className={`${CELL} text-left font-medium`}>
                   <span className="flex items-center gap-2">
-                    <IconTile icon={lookups.categoryIcon(item.categoryId)} size="sm" />
+                    <StickerTile icon={lookups.categoryIcon(item.categoryId)} kind="category" size="sm" />
                     <span className="min-w-0">{lookups.categoryName(item.categoryId) || t(item.name)}</span>
                   </span>
                 </th>

@@ -1,5 +1,5 @@
 import { useT } from '@alavo-daily/common';
-import { Button, ResponsiveDialog } from '@alavo-daily/design-system';
+import { Button, ResponsiveDialog, type ResponsiveDialogProps } from '@alavo-daily/design-system';
 import { useId, type ReactNode } from 'react';
 
 export interface FormDialogProps {
@@ -11,6 +11,7 @@ export interface FormDialogProps {
   pending?: boolean;
   error?: string | null;
   description?: string;
+  docks?: ResponsiveDialogProps['docks'];
   children: ReactNode;
 }
 
@@ -23,6 +24,7 @@ export function FormDialog({
   pending = false,
   error,
   description,
+  docks,
   children,
 }: FormDialogProps) {
   const t = useT();
@@ -38,7 +40,7 @@ export function FormDialog({
     </>
   );
   return (
-    <ResponsiveDialog open={open} onOpenChange={onOpenChange} title={title} description={description} footer={footer}>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange} title={title} description={description} footer={footer} docks={docks}>
       <form
         id={formId}
         noValidate

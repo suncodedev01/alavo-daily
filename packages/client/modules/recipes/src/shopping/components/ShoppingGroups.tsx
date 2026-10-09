@@ -56,9 +56,11 @@ function ItemLabel({ item }: { item: ShoppingItem }) {
         <span className="block">{item.name}</span>
         <span className="block text-xs font-normal text-text-muted">{note}</span>
       </span>
-      <span className="shrink-0 text-sm">{formatAmount(item.quantity, item.unit)}</span>
-      <span className="min-w-16 shrink-0 text-right text-xs font-normal text-text-muted">
-        {item.have || item.costVnd === 0 ? '' : formatVnd(item.costVnd)}
+      <span className="flex shrink-0 flex-col items-end lg:flex-row lg:items-center lg:gap-3">
+        <span className="text-sm">{formatAmount(item.quantity, item.unit)}</span>
+        <span className="min-h-4 min-w-16 text-right text-xs font-normal text-text-muted">
+          {item.have || item.costVnd === 0 ? '' : formatVnd(item.costVnd)}
+        </span>
       </span>
     </span>
   );

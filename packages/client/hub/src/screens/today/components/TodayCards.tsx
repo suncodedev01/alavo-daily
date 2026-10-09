@@ -3,60 +3,12 @@ import {
   formatVnd,
   useT,
   type BudgetLine,
-  type PlanEntry,
   type ShoppingList,
 } from '@alavo-daily/common';
-import { Card, CardHeader, CardTitle, Eyebrow, IconTile, Meter } from '@alavo-daily/design-system';
+import { Card, CardHeader, CardTitle, Meter } from '@alavo-daily/design-system';
 
 import { LinkButton } from '../../../router-links';
-import { RECIPES_PLAN_PATH, RECIPES_SHOPPING_PATH, SPENDING_OVERVIEW_PATH, cookingPath } from '../logic/links';
-import { dinnerEntries, missingIngredientCount } from '../logic/today';
-
-export function DinnerCard({ plan, shopping }: { plan: PlanEntry[]; shopping: ShoppingList | undefined }) {
-  const t = useT();
-  const dinner = dinnerEntries(plan);
-  const missing = shopping ? missingIngredientCount(shopping, dinner.map((entry) => entry.recipeName)) : 0;
-  const first = dinner[0];
-  return (
-    <Card padding="lg" className="grid content-start gap-4">
-      <Eyebrow>{t('Bữa tối nay')}</Eyebrow>
-      {dinner.length === 0 ? (
-        <p className="text-sm text-text-muted">{t('Chưa lên món cho bữa tối.')}</p>
-      ) : (
-        dinner.map((entry) => <DinnerRow key={entry.id} entry={entry} />)
-      )}
-      {first ? (
-        <div className="flex flex-wrap items-center gap-3">
-          <LinkButton to={cookingPath(first.recipeId)} leadingIcon="play" size="lg">
-            {t('Bắt đầu nấu')}
-          </LinkButton>
-          <span className="text-sm text-text-muted">
-            {missing > 0
-              ? t('Còn {{count}} nguyên liệu chưa mua', { count: missing })
-              : t('Đã đủ nguyên liệu')}
-          </span>
-        </div>
-      ) : (
-        <LinkButton to={RECIPES_PLAN_PATH} variant="outline" className="justify-self-start">
-          {t('Lên thực đơn')}
-        </LinkButton>
-      )}
-    </Card>
-  );
-}
-
-function DinnerRow({ entry }: { entry: PlanEntry }) {
-  const t = useT();
-  return (
-    <div className="flex items-center gap-3">
-      <IconTile icon={entry.recipeIcon} />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{entry.recipeName}</p>
-        <p className="text-xs text-text-muted">{t('{{count}} người', { count: entry.servings })}</p>
-      </div>
-    </div>
-  );
-}
+import { RECIPES_SHOPPING_PATH, SPENDING_OVERVIEW_PATH } from '../logic/links';
 
 export interface SpendingCardProps {
   spentTodayVnd: number;
@@ -94,41 +46,6 @@ function FoodBudget({ line }: { line: BudgetLine }) {
       <Meter value={line.pct} label={t('Ngân sách {{name}}', { name: t(line.name) })} />
       <p className="text-xs text-text-muted">{`${formatVnd(line.spentVnd)} / ${formatVnd(line.budgetVnd)}`}</p>
     </div>
-  );
-}
-
-const SLOT_LABELS: [PlanEntry['slot'], string][] = [
-  ['breakfast', 'Sáng'],
-  ['lunch', 'Trưa'],
-  ['dinner', 'Tối'],
-];
-
-export function MealsCard({ plan }: { plan: PlanEntry[] }) {
-  const t = useT();
-  return (
-    <Card padding="lg">
-      <CardHeader>
-        <CardTitle>{t('Thực đơn hôm nay')}</CardTitle>
-        <LinkButton to={RECIPES_PLAN_PATH} variant="ghost" size="sm">
-          {t('Cả tuần')}
-        </LinkButton>
-      </CardHeader>
-      {SLOT_LABELS.map(([slot, label]) => {
-        const entries = plan.filter((entry) => entry.slot === slot);
-        return (
-          <div key={slot} className="flex gap-3 py-2">
-            <Eyebrow className="w-12 pt-0.5">{t(label)}</Eyebrow>
-            <div className="min-w-0 flex-1 text-sm">
-              {entries.length === 0 ? (
-                <span className="text-text-muted">{t('Chưa lên món')}</span>
-              ) : (
-                entries.map((entry) => <p key={entry.id}>{entry.recipeName}</p>)
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </Card>
   );
 }
 

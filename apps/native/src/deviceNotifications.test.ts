@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const plugin = vi.hoisted(() => ({
   isPermissionGranted: vi.fn(),
@@ -23,6 +23,22 @@ beforeEach(() => {
   vi.setSystemTime(NOW);
   plugin.isPermissionGranted.mockResolvedValue(true);
   plugin.pending.mockResolvedValue([]);
+});
+
+describe('the small icon in the status bar', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('is the white house glyph on Android', async () => {
+    vi.stubGlobal('navigator', { userAgent: 'Mozilla/5.0 (Linux; Android 14)' });
+    await showNow('a', 'b');
+    expect(plugin.sendNotification).toHaveBeenCalledWith(expect.objectContaining({ icon: 'ic_notification' }));
+  });
+
+  it('is left to the system on other devices', async () => {
+    vi.stubGlobal('navigator', { userAgent: 'Mozilla/5.0 (Windows NT 10.0)' });
+    await showNow('a', 'b');
+    expect(plugin.sendNotification.mock.calls[0]![0]).not.toHaveProperty('icon');
+  });
 });
 
 describe('scheduleOnDevice', () => {

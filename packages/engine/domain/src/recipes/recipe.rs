@@ -68,6 +68,7 @@ pub struct StepInput {
 pub struct RecipeInput {
     #[serde(flatten)]
     pub body: RecipeBody,
+    #[serde(default)]
     pub ingredients: Vec<IngredientInput>,
     #[serde(default)]
     pub steps: Vec<StepInput>,

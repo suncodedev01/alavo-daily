@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
   ContextSection,
-  IconTile,
+  StickerTile,
   Meter,
   StatusChip,
   useLayout,
@@ -130,7 +130,7 @@ export function RecentNotificationsSection({ notifications, today }: RecentNotif
             const owner = modules.find((manifest) => manifest.id === item.module);
             return (
               <li key={item.id} className="flex gap-3">
-                <IconTile icon={owner?.icon ?? 'bell'} size="sm" />
+                <StickerTile icon={owner?.icon ?? 'bell'} kind="module" size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">{item.title}</p>
                   <p className="text-xs text-text-muted">{formatNotificationTime(item.createdAt, today, language)}</p>
@@ -155,7 +155,7 @@ export function UpcomingBillsSection({ upcoming, today }: { upcoming: UpcomingBi
         <ul className="grid gap-3">
           {upcoming.map(({ bill, dueOn }) => (
             <li key={bill.id} className="flex items-center gap-3">
-              <IconTile icon={bill.icon} size="sm" />
+              <StickerTile icon={bill.icon} kind="category" size="sm" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{bill.title}</p>
                 <p className="text-xs text-text-muted">{relativeDayLabel(dueOn, today, language)}</p>

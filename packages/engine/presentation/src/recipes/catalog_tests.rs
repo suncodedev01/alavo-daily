@@ -50,6 +50,17 @@ fn create_accepts_a_minimal_payload_and_fills_the_defaults() {
 }
 
 #[test]
+fn create_accepts_a_name_and_servings_alone() {
+    let app = Harness::start();
+    let recipe = app.call("recipes.create", json!({ "name": "Phở", "servings": 2 }));
+    assert_eq!(recipe["ingredients"], json!([]));
+    assert_eq!(recipe["steps"], json!([]));
+    assert_eq!((recipe["costVnd"].clone(), recipe["ingredientCount"].clone()), (json!(0), json!(0)));
+    let loaded = app.call("recipes.get", json!({ "id": recipe["id"] }));
+    assert_eq!(loaded, recipe);
+}
+
+#[test]
 fn create_with_invalid_data_is_a_validation_error() {
     let app = Harness::start();
     let mut payload = recipe_payload("Gà kho");

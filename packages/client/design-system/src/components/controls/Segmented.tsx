@@ -12,7 +12,7 @@ export type SegmentedProps = {
 };
 
 const ITEM_CLASS =
-  'focus-ring h-8 rounded-4xl px-4 text-sm font-medium whitespace-nowrap text-text-secondary aria-checked:bg-surface aria-checked:text-text-primary aria-checked:shadow-raised max-lg:h-11 max-lg:px-2';
+  'focus-ring min-h-8 min-w-0 rounded-4xl px-4 py-1 text-center text-sm leading-tight font-medium text-balance wrap-anywhere text-text-secondary aria-checked:bg-surface aria-checked:text-text-primary aria-checked:shadow-raised max-lg:min-h-11 max-lg:px-2';
 
 function nextIndex(key: string, current: number, count: number): number | null {
   if (key === 'ArrowRight' || key === 'ArrowDown') return (current + 1) % count;
@@ -39,7 +39,7 @@ export function Segmented({ options, value, onChange, label, className }: Segmen
     <div
       role="radiogroup"
       aria-label={label}
-      className={cn('inline-grid auto-cols-fr grid-flow-col rounded-4xl bg-surface-tint p-1', className)}
+      className={cn('inline-grid max-w-full auto-cols-[minmax(0,1fr)] grid-flow-col rounded-4xl bg-surface-tint p-1', className)}
     >
       {options.map((option, index) => (
         <button

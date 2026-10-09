@@ -1,1 +1,1 @@
-export { costForServings, sharePercent, totalMinutes, totalTimeText } from './logic/recipeMath';
+export { costForServings, knownTimeText, sharePercent, totalMinutes, totalTimeText } from './logic/recipeMath';

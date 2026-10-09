@@ -1,7 +1,7 @@
 import { useEngineMutation, useEngineQuery, type Bill } from '@alavo-daily/common/engine';
 import { formatVnd } from '@alavo-daily/common/format';
 import { useT } from '@alavo-daily/common';
-import { Button, EmptyState, IconButton, IconTile, ResponsiveDialog } from '@alavo-daily/design-system';
+import { Button, EmptyState, IconButton, StickerTile, ResponsiveDialog } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
 import { DeleteConfirm } from '../../form-dialogs';
@@ -77,7 +77,7 @@ function BillRow({ bill, onEdit, onDelete }: BillRowProps) {
   const status = bill.active ? '' : ` · ${t('Tạm dừng')}`;
   return (
     <li className="flex items-center gap-3 py-2">
-      <IconTile icon={bill.icon} size="md" />
+      <StickerTile icon={bill.icon} kind="category" size="md" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{bill.title}</p>
         <p className="text-xs text-text-muted">{`${schedule} · ${formatVnd(bill.amountVnd)}${status}`}</p>

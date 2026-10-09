@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 
 import { useT } from '@alavo-daily/common';
-import { Button, Menu, MenuItem } from '@alavo-daily/design-system';
+import { Button, Menu, MenuItem, StickerTile } from '@alavo-daily/design-system';
 
 import { useModules } from '../../../module-registry';
 
@@ -20,7 +20,11 @@ export function QuickAddMenu() {
       }
     >
       {actions.map((action) => (
-        <MenuItem key={action.id} icon={action.icon} onSelect={() => navigate(action.path)}>
+        <MenuItem
+          key={action.id}
+          leading={<StickerTile icon={action.icon} kind="module" size="sm" />}
+          onSelect={() => navigate(action.path)}
+        >
           {t(action.label)}
         </MenuItem>
       ))}

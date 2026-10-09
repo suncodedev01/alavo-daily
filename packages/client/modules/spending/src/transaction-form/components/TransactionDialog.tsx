@@ -1,6 +1,6 @@
 import type { Transaction } from '@alavo-daily/common/engine';
 import { useT } from '@alavo-daily/common';
-import { Field, ResponsiveDialog, Skeleton, useLayout } from '@alavo-daily/design-system';
+import { Field, ResponsiveDialog, Skeleton, useKeyboardOpen, useLayout } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
 import { CategoryDialog } from '../../categories';
@@ -59,6 +59,7 @@ function TransactionForm({ onOpenChange, editing, lookups, onSaved, title }: For
   const t = useT();
   const today = useToday();
   const narrow = useLayout() === 'narrow';
+  const keyboardOpen = useKeyboardOpen();
   const [creatingCategory, setCreatingCategory] = useState(false);
   const form = useTransactionForm({
     editing,
@@ -70,6 +71,14 @@ function TransactionForm({ onOpenChange, editing, lookups, onSaved, title }: For
     },
   });
   const { draft, errors, patch } = form;
+  const amountBlock = (
+    <>
+      <KindSwitch kind={draft.kind} onChange={form.setKind} />
+      <AmountInput value={draft.amount} onChange={(amount) => patch({ amount })} error={errors.amount} />
+    </>
+  );
+  const keypad = <MoneyKeypad onKey={(key) => patch({ amount: applyKeypadKey(draft.amount, key) })} />;
+  const docks = narrow ? { top: amountBlock, bottom: keyboardOpen ? null : keypad } : undefined;
 
   return (
     <>
@@ -81,9 +90,9 @@ function TransactionForm({ onOpenChange, editing, lookups, onSaved, title }: For
         onSubmit={form.submit}
         pending={form.pending}
         error={form.serverError}
+        docks={docks}
       >
-        <KindSwitch kind={draft.kind} onChange={form.setKind} />
-        <AmountInput value={draft.amount} onChange={(amount) => patch({ amount })} error={errors.amount} />
+        {narrow ? null : amountBlock}
         <CategoryPicker
           categories={categoriesOfKind(lookups.categories, draft.kind)}
           selectedId={draft.categoryId}
@@ -115,7 +124,6 @@ function TransactionForm({ onOpenChange, editing, lookups, onSaved, title }: For
         {editing?.recurringSourceId ? null : (
           <RecurringRow checked={draft.recurring} onChange={(recurring) => patch({ recurring })} />
         )}
-        {narrow ? <MoneyKeypad onKey={(key) => patch({ amount: applyKeypadKey(draft.amount, key) })} /> : null}
       </FormDialog>
       <CategoryDialog
         open={creatingCategory}

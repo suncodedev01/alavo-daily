@@ -1,4 +1,5 @@
 import {
+  hasSticker,
   IconTile,
   Icon,
   Menu,
@@ -7,6 +8,7 @@ import {
   MenuSeparator,
   ModulePill,
   Sheet,
+  StickerTile,
   cn,
 } from '@alavo-daily/design-system';
 import { useT, type ModuleManifest } from '@alavo-daily/common';
@@ -30,7 +32,7 @@ export function ModuleSwitcherMenu({ current }: { current: ModuleManifest }) {
       {entries.map((entry) => (
         <MenuItem
           key={entry.id}
-          icon={entry.icon}
+          leading={<StickerTile icon={entry.icon} kind="module" size="sm" />}
           selected={entry.id === current.id}
           onSelect={() => select(entry.id)}
         >
@@ -103,7 +105,11 @@ function SwitcherRow({ entry, current, disabled = false, onChoose }: SwitcherRow
         current && 'bg-accent text-accent-fg hover:bg-accent',
       )}
     >
-      <IconTile icon={entry.icon} tone="solid" />
+      {hasSticker(entry.icon) ? (
+        <StickerTile icon={entry.icon} kind="module" size="lg" />
+      ) : (
+        <IconTile icon={entry.icon} tone="solid" />
+      )}
       <span className="grid min-w-0 flex-1">
         <span className="truncate text-base font-medium">{t(entry.name)}</span>
         <span className="truncate text-xs text-text-muted">{t(entry.description)}</span>

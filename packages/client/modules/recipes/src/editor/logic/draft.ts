@@ -112,12 +112,20 @@ export function draftToInput(draft: Draft): RecipeInput {
 
 export function checklistOf(draft: Draft): ChecklistItem[] {
   return [
-    { label: 'Có tên món', done: draft.name.trim() !== '' },
-    { label: 'Ít nhất 1 nguyên liệu có tên', done: draft.ingredients.some((item) => item.name.trim() !== '') },
-    { label: 'Ít nhất 1 bước làm', done: draft.steps.some((step) => step.text.trim() !== '') },
+    { label: 'Có tên món', done: isDraftValid(draft), optional: false },
+    {
+      label: 'Nguyên liệu (thêm sau cũng được)',
+      done: draft.ingredients.some((item) => item.name.trim() !== ''),
+      optional: true,
+    },
+    {
+      label: 'Các bước làm (thêm sau cũng được)',
+      done: draft.steps.some((step) => step.text.trim() !== ''),
+      optional: true,
+    },
   ];
 }
 
 export function isDraftValid(draft: Draft): boolean {
-  return checklistOf(draft).every((item) => item.done);
+  return draft.name.trim() !== '';
 }

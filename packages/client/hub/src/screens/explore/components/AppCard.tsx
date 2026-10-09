@@ -1,5 +1,5 @@
 import { useT, type ModuleManifest } from '@alavo-daily/common';
-import { Button, IconTile, useLayout } from '@alavo-daily/design-system';
+import { Button, StickerTile, useLayout } from '@alavo-daily/design-system';
 
 export interface AppCardProps {
   manifest: ModuleManifest;
@@ -15,7 +15,7 @@ export function AppCard({ manifest, pinned, onOpen, onTogglePin }: AppCardProps)
   return (
     <div className="grid gap-4 rounded-lg bg-surface-tint p-4">
       <div className="flex items-center gap-3">
-        <IconTile icon={manifest.icon} size="lg" tone="brand" />
+        <StickerTile icon={manifest.icon} kind="module" size="lg" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{name}</p>
           <p className="truncate text-xs text-text-muted">{t(manifest.description)}</p>

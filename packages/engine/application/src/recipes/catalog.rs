@@ -125,4 +125,6 @@ fn write_body(
 }
 
 #[cfg(test)]
+mod name_only_tests;
+#[cfg(test)]
 mod tests;

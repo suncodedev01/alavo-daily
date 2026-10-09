@@ -6,7 +6,7 @@ import {
   type ModuleManifest,
   type NotificationRule,
 } from '@alavo-daily/common';
-import { Card, CardHeader, CardTitle, Icon, IconTile, OptionPicker, Switch } from '@alavo-daily/design-system';
+import { Card, CardHeader, CardTitle, Icon, StickerTile, OptionPicker, Switch } from '@alavo-daily/design-system';
 
 import { useModules } from '../../../module-registry';
 import { groupRulesByModule, timeOptions, type RuleGroup } from '../logic/notificationRules';
@@ -52,7 +52,7 @@ function RuleGroupCard({ group }: { group: RuleGroup }) {
   return (
     <Card padding="lg">
       <CardHeader className="mb-2 justify-start gap-3">
-        <IconTile icon={manifest?.icon ?? 'bell'} />
+        <StickerTile icon={manifest?.icon ?? 'bell'} kind="module" />
         <CardTitle>{manifest ? t(manifest.name) : group.moduleId}</CardTitle>
       </CardHeader>
       <ul className="divide-y divide-line-hairline">

@@ -1,6 +1,6 @@
 import { useEngineQuery, type ShoppingItem } from '@alavo-daily/common/engine';
 import { useT } from '@alavo-daily/common';
-import { ContextSection, Icon, IconTile } from '@alavo-daily/design-system';
+import { ContextSection, Icon, StickerTile } from '@alavo-daily/design-system';
 import { Link } from 'react-router';
 
 import { BudgetImpactSection } from '../../budget';
@@ -39,7 +39,7 @@ export function SourceRecipes({ items }: { items: readonly ShoppingItem[] }) {
                   to={`/recipes/list/${recipe.id}`}
                   className="focus-ring flex min-h-11 items-center gap-3 rounded-lg hover:bg-surface-tint"
                 >
-                  <IconTile icon={recipe.icon} size="sm" />
+                  <StickerTile icon={recipe.icon} kind="recipe" size="sm" />
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">{name}</span>
                   <Icon name="caret-right" />
                 </Link>

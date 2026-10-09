@@ -41,7 +41,7 @@ export function CookingSession({ recipe, servings }: CookingSessionProps) {
       onToggle={toggleChecked}
     />
   );
-  if (stepCount === 0) return <NoSteps onClose={leave} />;
+  if (stepCount === 0) return <NoSteps onEdit={() => navigate(`/recipes/edit/${recipe.id}`)} />;
   return (
     <div className="flex h-dvh flex-col bg-paper text-text-primary">
       <CookingHeader
@@ -112,15 +112,15 @@ function AlertBanner({ text, onDismiss }: { text: string; onDismiss: () => void 
   );
 }
 
-function NoSteps({ onClose }: { onClose: () => void }) {
+function NoSteps({ onEdit }: { onEdit: () => void }) {
   const t = useT();
   return (
     <div className="grid h-dvh place-items-center bg-paper">
       <EmptyState
         icon="cooking-pot"
-        title={t('Công thức này chưa có bước nào')}
+        title={t('Món này chưa có các bước nấu')}
         description={t('Thêm các bước vào công thức để dùng chế độ nấu ăn.')}
-        action={<Button onClick={onClose}>{t('Quay lại công thức')}</Button>}
+        action={<Button onClick={onEdit}>{t('Sửa công thức')}</Button>}
       />
     </div>
   );

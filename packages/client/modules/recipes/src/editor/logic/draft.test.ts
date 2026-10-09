@@ -69,14 +69,39 @@ describe('draftFromRecipe', () => {
   });
 });
 
+describe('draftToInput with only a name', () => {
+  it('sends no ingredient or step rows when every row is blank', () => {
+    const draft = { ...blankDraft(), name: 'Cơm trắng' };
+    expect(draftToInput(draft)).toMatchObject({ name: 'Cơm trắng', ingredients: [], steps: [] });
+  });
+
+  it('drops rows that hold only spaces', () => {
+    const draft = filledDraft();
+    const blanks = { ...draft, ingredients: [draft.ingredients[1]!], steps: [draft.steps[1]!] };
+    expect(draftToInput(blanks)).toMatchObject({ ingredients: [], steps: [] });
+  });
+
+  it('opens and saves a stored recipe that has no ingredients or steps', () => {
+    const draft = draftFromRecipe({ ...GA_KHO, ingredients: [], steps: [] });
+    expect(isDraftValid(draft)).toBe(true);
+    expect(draftToInput(draft)).toMatchObject({ name: GA_KHO.name, ingredients: [], steps: [] });
+  });
+});
+
 describe('checklist', () => {
   it('starts with nothing done', () => {
     expect(checklistOf(blankDraft()).map((item) => item.done)).toEqual([false, false, false]);
     expect(isDraftValid(blankDraft())).toBe(false);
   });
 
-  it('is valid once the name, an ingredient and a step are there', () => {
-    expect(isDraftValid(filledDraft())).toBe(true);
+  it('requires only the name', () => {
+    expect(checklistOf(blankDraft()).map((item) => item.optional)).toEqual([false, true, true]);
+    expect(isDraftValid({ ...blankDraft(), name: 'Cơm trắng' })).toBe(true);
+    expect(isDraftValid({ ...blankDraft(), name: '   ' })).toBe(false);
+  });
+
+  it('ticks the optional parts when they are filled', () => {
+    expect(checklistOf(filledDraft()).map((item) => item.done)).toEqual([true, true, true]);
   });
 
   it('ignores rows with only spaces', () => {

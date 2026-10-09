@@ -45,6 +45,23 @@ describe('Dialog layout on short screens', () => {
     expect(body).not.toContainElement(screen.getByRole('button', { name: 'Lưu' }));
   });
 
+  it('keeps docked top and bottom content outside the scrolling body', () => {
+    render(
+      <Sheet
+        open
+        title="Thêm giao dịch"
+        docks={{ top: <output aria-label="Số tiền">0</output>, bottom: <button type="button">Bàn phím</button> }}
+        footer={<Button>Lưu</Button>}
+      >
+        <Field aria-label="Ghi chú" />
+      </Sheet>,
+    );
+    const body = screen.getByRole('textbox', { name: 'Ghi chú' }).closest('.overflow-y-auto') as HTMLElement;
+    expect(body).toContainElement(screen.getByRole('textbox', { name: 'Ghi chú' }));
+    expect(body).not.toContainElement(screen.getByRole('status', { name: 'Số tiền' }));
+    expect(body).not.toContainElement(screen.getByRole('button', { name: 'Bàn phím' }));
+  });
+
   it('limits a sheet to the dynamic viewport height', async () => {
     render(
       <Sheet open title="Chuyển ứng dụng">

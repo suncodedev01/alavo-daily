@@ -55,7 +55,7 @@ function BalanceCard({ summary }: { summary: MonthSummary }) {
         <Eyebrow>{t('Tổng số dư')}</Eyebrow>
         <p className="mt-2 text-display font-semibold whitespace-nowrap max-lg:text-2xl">{formatBalance(summary.totalBalanceVnd)}</p>
       </div>
-      <dl className="grid grid-cols-2 gap-4 border-t border-line-hairline pt-4 text-sm">
+      <dl className="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4 border-t border-line-hairline pt-4 text-sm">
         <div className="grid gap-1">
           <dt className="text-text-muted">{t('Dòng tiền ròng tháng {{month}}', { month: monthNumber(summary.month) })}</dt>
           <dd className="font-semibold">

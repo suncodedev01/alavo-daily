@@ -10,10 +10,10 @@ export type PaneHeaderProps = {
 
 export function PaneHeader({ title, leading, actions, className }: PaneHeaderProps) {
   return (
-    <header className={cn('flex h-12 shrink-0 items-center gap-2 pt-2 pr-6 pl-4', className)}>
+    <header className={cn('flex min-h-12 shrink-0 flex-wrap items-center gap-x-2 gap-y-1 pt-2 pr-6 pl-4', className)}>
       {leading}
       <h1 className="mr-auto min-w-0 truncate text-title font-semibold">{title}</h1>
-      {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
+      {actions ? <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">{actions}</div> : null}
     </header>
   );
 }

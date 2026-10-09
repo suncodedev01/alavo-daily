@@ -1,10 +1,10 @@
 import type { PlanEntry, RecipeSummary } from '@alavo-daily/common/engine';
-import { formatMinutes, formatVnd, weekdayShort } from '@alavo-daily/common/format';
+import { formatVnd, weekdayShort } from '@alavo-daily/common/format';
 import { useLanguage, useT } from '@alavo-daily/common';
-import { Button, Card, cn, Eyebrow, Icon, IconTile } from '@alavo-daily/design-system';
+import { Button, Card, cn, Eyebrow, Icon, StickerTile } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
-import { totalMinutes } from '../../recipe-math';
+import { knownTimeText } from '../../recipe-math';
 import { MEAL_SLOTS, SLOT_LABELS } from '../../vocabulary';
 import { MealMenu } from './MealMenu';
 import { dayOfMonth } from '../../week';
@@ -25,7 +25,7 @@ export function DayView({ dates, entries, recipes, today, onAdd }: DayViewProps)
   const date = chosen !== null && dates.includes(chosen) ? chosen : dates.includes(today) ? today : (dates[0] ?? today);
   return (
     <div className="grid gap-4">
-      <div role="group" aria-label={t('Chọn ngày')} className="grid grid-cols-7 gap-1">
+      <div role="group" aria-label={t('Chọn ngày')} className="grid grid-cols-7 gap-0.5">
         {dates.map((own) => (
           <DayButton key={own} date={own} selected={own === date} isToday={own === today} onChoose={setChosen} />
         ))}
@@ -79,7 +79,7 @@ function DishRow({ entry, recipes }: { entry: PlanEntry; recipes: readonly Recip
   const language = useLanguage();
   const recipe = recipes.find((own) => own.id === entry.recipeId);
   const cost = entryCost(entry, recipes);
-  const meta = [recipe ? formatMinutes(totalMinutes(recipe), language) : null, cost > 0 ? formatVnd(cost) : null]
+  const meta = [recipe ? knownTimeText(recipe, language) : null, cost > 0 ? formatVnd(cost) : null]
     .filter((part) => part !== null)
     .join(' · ');
   return (
@@ -87,7 +87,7 @@ function DishRow({ entry, recipes }: { entry: PlanEntry; recipes: readonly Recip
       entry={entry}
       trigger={
         <button type="button" className="focus-ring flex min-h-14 w-full items-center gap-3 rounded-lg text-left">
-          <IconTile icon={entry.recipeIcon} />
+          <StickerTile icon={entry.recipeIcon} kind="recipe" />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium">{entry.recipeName}</span>
             <span className="block truncate text-xs text-text-muted">{meta}</span>

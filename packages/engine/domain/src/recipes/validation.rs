@@ -51,9 +51,6 @@ fn clean_tags(tags: &[String]) -> Vec<String> {
 
 fn clean_ingredients(items: Vec<IngredientInput>) -> Result<Vec<IngredientInput>, EngineError> {
     let named: Vec<IngredientInput> = items.into_iter().filter_map(clean_ingredient).collect();
-    if named.is_empty() {
-        return Err(EngineError::validation("a recipe needs at least one named ingredient"));
-    }
     check_list_length(named.len(), "ingredients")?;
     named.iter().try_for_each(check_ingredient)?;
     Ok(named)
@@ -158,9 +155,20 @@ mod tests {
     }
 
     #[test]
-    fn a_recipe_without_a_named_ingredient_is_rejected() {
-        rejected(|recipe| recipe.ingredients.clear());
-        rejected(|recipe| recipe.ingredients = vec![ingredient("  ", 1.0)]);
+    fn a_recipe_with_only_a_name_is_valid() {
+        let mut recipe = input();
+        recipe.ingredients.clear();
+        recipe.steps.clear();
+        let clean = validate_recipe(recipe).unwrap();
+        assert!(clean.ingredients.is_empty());
+        assert!(clean.steps.is_empty());
+    }
+
+    #[test]
+    fn only_blank_ingredient_rows_leave_an_empty_list() {
+        let mut recipe = input();
+        recipe.ingredients = vec![ingredient("  ", 0.0), ingredient("", -1.0)];
+        assert!(validate_recipe(recipe).unwrap().ingredients.is_empty());
     }
 
     #[test]

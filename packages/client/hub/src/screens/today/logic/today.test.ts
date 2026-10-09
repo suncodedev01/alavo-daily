@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { aFoodBudget, aShoppingList } from '../../../testing/hubEngine';
 import {
   decideFoodBudget,
-  dinnerEntries,
   foodBudgetLine,
   isFirstRun,
   longDateLabel,
@@ -65,15 +64,7 @@ describe('roundUpToStep', () => {
 });
 
 describe('Today helpers', () => {
-  it('keeps dinner entries only', () => {
-    const entries = [
-      { id: '1', slot: 'lunch' },
-      { id: '2', slot: 'dinner' },
-    ] as never;
-    expect(dinnerEntries(entries).map((entry) => entry.id)).toEqual(['2']);
-  });
-
-  it('counts needed ingredients that belong to tonight dinner', () => {
+  it('counts needed ingredients that belong to the shown dishes', () => {
     const shopping = aShoppingList(0, ['Gà', 'Gừng']);
     const first = shopping.items[0];
     if (first) first.have = true;

@@ -30,7 +30,7 @@
 6. **Font là font giao diện của hệ điều hành** (`--font-sans`), không tải font web cho giao diện sản phẩm. Chỉ bốn độ đậm: 400, 500, 600, 700. Cấm `font-light`. Nhãn viết hoa dùng cỡ 11px, đậm 600, giãn chữ `0.1em`.
 7. Cỡ chữ lấy từ mười cấp đã đặt tên (`text-display`, `text-title`, `text-sm`, `text-row`, `text-meta`...). Màn dạng trang đầy đủ dùng nền 16px, vùng chrome (thanh bên, menu) dùng 14px.
 8. Khoảng cách theo thang 4px (4, 8, 12, 16, 24, 32, 48). Điều khiển bo `rounded-4xl`, ngăn nổi bo `rounded-lg`. Không bao giờ vuông góc.
-9. **Icon chỉ dùng Phosphor, nét regular.** Icon cạnh chữ trong nút phải có thuộc tính `data-icon`.
+9. **Icon điều khiển và điều hướng dùng Phosphor, nét regular** (nút, thanh bên, tab, menu). Icon cạnh chữ trong nút phải có thuộc tính `data-icon`. **Hạng mục, ví, mô-đun và món ăn dùng sticker Fluent Emoji** (giấy phép MIT, nằm trong `packages/client/design-system/src/assets/emoji` kèm file giấy phép) đặt trong ô tròn nền nhạt, theo đúng mockup; người dùng đã chọn theo mockup nên không còn quy tắc "chỉ Phosphor".
 10. Dark mode: dùng token ngữ nghĩa (`bg-card`, `text-muted-foreground`) để tự đảo. Token dải màu như `bg-click-100` giữ nguyên giá trị ở cả hai chế độ, nên nền và chữ đi cùng nhau hoặc không đổi gì.
 
 ## Điều khiển và tương tác

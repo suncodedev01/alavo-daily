@@ -51,7 +51,7 @@ function WideAmount({ value, onChange, invalid }: { value: string; onChange: (va
 function NarrowAmount({ value }: { value: string }) {
   const t = useT();
   return (
-    <div className="py-2 text-center">
+    <div className="py-1 text-center">
       <output aria-label={t('Số tiền')} className="block text-display font-semibold text-text-primary">
         {value === '' ? '0' : value} ₫
       </output>

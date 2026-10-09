@@ -23,6 +23,8 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test (và đã xem tr
 - [x] Desktop: hộp thoại lưu file khi xuất dữ liệu (lệnh Rust `save_text_file`, có test; chưa chạy cửa sổ thật)
 - [ ] Android: build APK và chạy thử trên máy ảo (máy có SDK, NDK 27 và JDK 21 ở thư mục cài mặc định; đã tạo được project Android, chưa build)
 - [ ] iOS (cần chứng chỉ Apple Developer, chưa có)
+- [x] Android: thanh trạng thái sáng (biểu tượng tối trên nền kem) qua `scripts/patch-android-theme.mjs`, và biểu tượng nhỏ trắng của thông báo (`ic_notification`, sinh bằng `scripts/build-android-notification-icon.mjs`)
+- [ ] Android: thanh trạng thái chưa đổi theo chế độ tối của ứng dụng. Hiện cả hai chủ đề hệ thống đều dùng thanh sáng vì ứng dụng mặc định sáng. Cần một cầu nối nhỏ để đổi biểu tượng thanh trạng thái khi người dùng chọn chủ đề tối
 - [ ] Android: token Google chỉ giữ trong bộ nhớ nên mỗi lần mở app phải đăng nhập lại (chưa có Android Keystore)
 - [ ] Android: đăng nhập Google đúng cách của Google (client loại Android với tên gói và SHA-1 của khoá ký, plugin Kotlin dùng `AuthorizationClient`). Luồng loopback hiện dùng cho Android bị Google ghi là deprecated với client Android và chưa được chạy thử với Google thật
 - [ ] Extension Chrome (`apps/extension`) và popup ghi chi tiêu nhanh (ngoài phạm vi đợt này)

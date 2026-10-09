@@ -40,7 +40,7 @@ export function CalendarMonth({ cursor, selected, today, onCursorChange, onSelec
   };
 
   return (
-    <div className="grid gap-2 p-2">
+    <div className="grid gap-2 p-2 max-lg:w-[min(20.5rem,calc(100vw-2rem))]">
       <div className="flex items-center justify-between gap-1">
         <IconButton icon="caret-left" label={t('Tháng trước')} size="sm" onClick={() => shiftMonth(-1)} />
         <span aria-live="polite" className="text-sm font-semibold">
@@ -63,7 +63,7 @@ export function CalendarMonth({ cursor, selected, today, onCursorChange, onSelec
           ))}
         </div>
         {monthGrid(month).map((week) => (
-          <div key={week.join('|')} role="row" className="grid grid-cols-7 justify-items-center">
+          <div key={week.join('|')} role="row" className="grid grid-cols-7">
             {week.map((date, index) =>
               date === null ? (
                 <span key={`blank-${index}`} role="gridcell" />

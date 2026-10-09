@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { NOW, aDinner, aFoodBudget, aShoppingList } from '../../../testing/hubEngine';
+import { NOW, aFoodBudget, aShoppingList } from '../../../testing/hubEngine';
 import { renderHub, setViewportWidth } from '../../../testing/renderHub';
 
 beforeEach(() => {
@@ -14,31 +14,6 @@ afterEach(() => vi.useRealTimers());
 const overBudget = () => ({
   budget: aFoodBudget(800_000),
   shopping: aShoppingList(436_000, ['Gà', 'Gừng']),
-});
-
-describe('tonight dinner card', () => {
-  it('lists dinner and links to the cooking mode of the first dish', async () => {
-    renderHub('/today', { state: { plan: [aDinner()] } });
-    expect(await screen.findAllByText('Gà kho gừng')).toHaveLength(2);
-    expect(screen.getByRole('link', { name: 'Bắt đầu nấu' })).toHaveAttribute('href', '/recipes/cook/recipe-1');
-  });
-
-  it('says how many ingredients are still missing', async () => {
-    renderHub('/today', { state: { plan: [aDinner()], shopping: aShoppingList(20_000, ['Gà', 'Gừng']) } });
-    expect(await screen.findByText('Còn 2 nguyên liệu chưa mua')).toBeInTheDocument();
-  });
-
-  it('says when everything is at home', async () => {
-    renderHub('/today', { state: { plan: [aDinner()] } });
-    expect(await screen.findByText('Đã đủ nguyên liệu')).toBeInTheDocument();
-  });
-
-  it('offers to plan the menu when nothing is planned for dinner', async () => {
-    renderHub('/today');
-    expect(await screen.findByText('Chưa lên món cho bữa tối.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Lên thực đơn' })).toHaveAttribute('href', '/recipes/plan');
-    expect(screen.queryByRole('link', { name: 'Bắt đầu nấu' })).not.toBeInTheDocument();
-  });
 });
 
 describe('today spending and shopping', () => {
@@ -138,7 +113,7 @@ describe('first run', () => {
   it('offers sample data instead of the cards when nothing exists yet', async () => {
     renderHub('/today', { state: empty });
     expect(await screen.findByText('Chưa có dữ liệu nào')).toBeInTheDocument();
-    expect(screen.queryByText('Bữa tối nay')).not.toBeInTheDocument();
+    expect(screen.queryByText('Thực đơn hôm nay')).not.toBeInTheDocument();
     expect(screen.queryByRole('complementary', { name: 'Bảng ngữ cảnh' })).not.toBeInTheDocument();
   });
 
@@ -152,7 +127,7 @@ describe('first run', () => {
 
   it('is not a first run when only one of the modules has data', async () => {
     renderHub('/today', { state: { transactions: [] } });
-    expect(await screen.findByText('Bữa tối nay')).toBeInTheDocument();
+    expect(await screen.findByText('Hôm nay chưa có món nào')).toBeInTheDocument();
     expect(screen.queryByText('Chưa có dữ liệu nào')).not.toBeInTheDocument();
   });
 });

@@ -1,5 +1,5 @@
 import { useT, type ModuleManifest } from '@alavo-daily/common';
-import { Button, ContextSection, IconTile } from '@alavo-daily/design-system';
+import { Button, ContextSection, StickerTile } from '@alavo-daily/design-system';
 
 export interface ExploreDockProps {
   pinned: ModuleManifest[];
@@ -16,7 +16,7 @@ export function ExploreDock({ pinned, onUnpin }: ExploreDockProps) {
         ) : (
           pinned.map((manifest) => (
             <div key={manifest.id} className="flex items-center gap-3 py-1">
-              <IconTile icon={manifest.icon} size="sm" />
+              <StickerTile icon={manifest.icon} kind="module" size="sm" />
               <span className="min-w-0 flex-1 truncate text-sm font-medium">{t(manifest.name)}</span>
               <Button
                 variant="ghost"

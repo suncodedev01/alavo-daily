@@ -10,10 +10,6 @@ const KNOWN_MESSAGES: readonly KnownMessage[] = [
   { pattern: /^recipe name must not be empty/, text: 'Công thức cần có tên.' },
   { pattern: /^servings must be between/, text: 'Khẩu phần phải từ 1 đến 50 người.' },
   { pattern: /^times and calories must not be negative/, text: 'Thời gian và calo không được âm.' },
-  {
-    pattern: /^a recipe needs at least one named ingredient/,
-    text: 'Công thức cần ít nhất một nguyên liệu có tên.',
-  },
   { pattern: /^quantity of (.+) must be above 0/, text: 'Số lượng của {{name}} phải lớn hơn 0.' },
   { pattern: /^cost of (.+) must not be negative/, text: 'Chi phí của {{name}} không được âm.' },
   { pattern: /^too many (ingredients|steps)/, text: 'Công thức có quá nhiều nguyên liệu hoặc bước.' },

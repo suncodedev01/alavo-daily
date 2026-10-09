@@ -13,10 +13,12 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "test:engine": "cargo test --manifest-path packages/engine/Cargo.toml",
-    "test:scripts": "node --test scripts/bump-version.test.mjs"
+    "test:scripts": "node --test scripts/bump-version.test.mjs scripts/patch-android-manifest.test.mjs scripts/patch-android-theme.test.mjs scripts/ui-audit/browser-audit.test.mjs",
+    "ui-audit": "node scripts/ui-audit/run.mjs"
   },
   "devDependencies": {
     "@resvg/resvg-js": "^2.6.2",
+    "playwright": "1.64.0",
     "turbo": "^2.11.7",
     "typescript": "~5.9.3"
   }

@@ -73,6 +73,7 @@ export function Button({
     <VendorButton
       variant={VENDOR_VARIANT[variant]}
       size={VENDOR_SIZE[size]}
+      data-variant={variant}
       className={cn(SIZE_CLASS[size], VARIANT_CLASS[variant], FOCUS_CLASS, className)}
       {...rest}
     >

@@ -5,6 +5,10 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import { renderEdit, renderEditor, fillMinimalRecipe, location } from '../../testing/editorScreens';
+import { RecipesBackend } from '../../testing/fakeBackend';
+import { recipe } from '../../testing/fixtures';
+import { renderScreen } from '../../testing/renderScreen';
+import { RecipeEditorScreen } from './RecipeEditorScreen';
 
 const IMPORT_CAPABILITIES = {
   backgroundReminders: false,
@@ -25,24 +29,58 @@ const IMPORTED: RecipeInput = {
 };
 
 describe('new recipe form', () => {
-  it('starts empty with the checklist unfinished and saving disabled', () => {
+  it('starts empty with only the name still to do and saving disabled', () => {
     renderEditor();
     const checklist = screen.getByRole('list', { name: 'Kiểm tra trước khi lưu' });
-    expect(within(checklist).getAllByText('Chưa xong')).toHaveLength(3);
+    expect(within(checklist).getAllByText('Chưa xong')).toHaveLength(1);
+    expect(within(checklist).getAllByText('Có thể thêm sau')).toHaveLength(2);
     expect(screen.getByRole('button', { name: 'Lưu công thức' })).toBeDisabled();
-    expect(screen.getByText('Còn thiếu thông tin bắt buộc.')).toBeInTheDocument();
+    expect(screen.getByText('Đặt tên món để lưu.')).toBeInTheDocument();
+    expect(screen.getByText(/Chỉ cần đặt tên món là lưu được/)).toBeInTheDocument();
   });
 
-  it('ticks the checklist as the required fields are filled', async () => {
+  it('can be saved as soon as the dish has a name', async () => {
     renderEditor();
     const user = userEvent.setup();
-    await user.type(screen.getByRole('textbox', { name: 'Tên món' }), 'Bò kho');
+    await user.type(screen.getByRole('textbox', { name: 'Tên món' }), 'Cơm trắng');
     const checklist = screen.getByRole('list', { name: 'Kiểm tra trước khi lưu' });
-    expect(within(checklist).getAllByText('Chưa xong')).toHaveLength(2);
-    await fillMinimalRecipe(userEvent.setup());
     expect(within(checklist).queryByText('Chưa xong')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Lưu công thức' })).toBeEnabled();
     expect(screen.getByText('Sẵn sàng để lưu.')).toBeInTheDocument();
+  });
+
+  it('saves a recipe with only a name and sends no ingredient or step rows', async () => {
+    const view = renderEditor();
+    const user = userEvent.setup();
+    await user.type(screen.getByRole('textbox', { name: 'Tên món' }), 'Cơm trắng');
+    await user.click(screen.getByRole('button', { name: 'Lưu công thức' }));
+    const [payload] = view.engine.callsTo('recipes.create') as RecipeInput[];
+    expect(payload).toMatchObject({ name: 'Cơm trắng', ingredients: [], steps: [] });
+    await waitFor(() => expect(location()).toHaveTextContent('/recipes/list/new-1'));
+  });
+
+  it('drops blank rows the person added before saving', async () => {
+    const view = renderEditor();
+    const user = userEvent.setup();
+    await user.type(screen.getByRole('textbox', { name: 'Tên món' }), 'Cơm trắng');
+    await user.click(screen.getByRole('button', { name: 'Thêm nguyên liệu' }));
+    await user.click(screen.getByRole('button', { name: 'Thêm bước' }));
+    await user.type(screen.getByRole('textbox', { name: 'Bước 2' }), '   ');
+    await user.click(screen.getByRole('button', { name: 'Lưu công thức' }));
+    const [payload] = view.engine.callsTo('recipes.create') as RecipeInput[];
+    expect(payload).toMatchObject({ ingredients: [], steps: [] });
+  });
+
+  it('keeps the filled rows and drops only the blank ones', async () => {
+    const view = renderEditor();
+    const user = userEvent.setup();
+    await fillMinimalRecipe(user);
+    await user.click(screen.getByRole('button', { name: 'Thêm nguyên liệu' }));
+    await user.click(screen.getByRole('button', { name: 'Thêm bước' }));
+    await user.click(screen.getByRole('button', { name: 'Lưu công thức' }));
+    const [payload] = view.engine.callsTo('recipes.create') as RecipeInput[];
+    expect(payload?.ingredients).toHaveLength(1);
+    expect(payload?.steps).toHaveLength(1);
   });
 
   it('creates the recipe with the shape the engine expects and opens it', async () => {
@@ -259,6 +297,22 @@ describe('edit recipe', () => {
     expect(screen.getAllByRole('textbox', { name: 'Tên nguyên liệu' })).toHaveLength(3);
     expect(screen.getAllByRole('textbox', { name: /^Bước/ })).toHaveLength(3);
     expect(screen.queryByRole('heading', { name: 'Cách nhập công thức' })).not.toBeInTheDocument();
+  });
+
+  it('opens and saves a recipe that has no ingredients or steps', async () => {
+    const bare = recipe({ id: 'bare', name: 'Cơm trắng' });
+    const view = renderScreen(<RecipeEditorScreen />, {
+      path: '/recipes/edit/:id',
+      route: '/recipes/edit/bare',
+      backend: new RecipesBackend([bare]),
+    });
+    const user = userEvent.setup();
+    expect(await screen.findByRole('textbox', { name: 'Tên món' })).toHaveValue('Cơm trắng');
+    expect(screen.getByRole('button', { name: 'Lưu công thức' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Lưu công thức' }));
+    const [payload] = view.engine.callsTo('recipes.update') as RecipeInput[];
+    expect(payload).toMatchObject({ id: 'bare', name: 'Cơm trắng', ingredients: [], steps: [] });
+    await waitFor(() => expect(location()).toHaveTextContent('/recipes/list/bare'));
   });
 
   it('saves through update and goes back to the recipe', async () => {

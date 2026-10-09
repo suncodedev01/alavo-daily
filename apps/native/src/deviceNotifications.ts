@@ -1,8 +1,14 @@
 import type { NotifyOptions, ScheduledNotification } from '@alavo-daily/common';
 import { Schedule, cancel, isPermissionGranted, pending, sendNotification } from '@tauri-apps/plugin-notification';
 
+const ANDROID_SMALL_ICON = 'ic_notification';
+
 export function isMobileDevice(): boolean {
   return /Android|iPhone|iPad/i.test(navigator.userAgent);
+}
+
+function smallIconFields(): { icon?: string } {
+  return /Android/i.test(navigator.userAgent) ? { icon: ANDROID_SMALL_ICON } : {};
 }
 
 export async function showNow(
@@ -11,7 +17,7 @@ export async function showNow(
   options?: NotifyOptions,
 ): Promise<boolean> {
   if (!(await isPermissionGranted())) return false;
-  sendNotification({ title, body, ...actionFields(options) });
+  sendNotification({ title, body, ...smallIconFields(), ...actionFields(options) });
   return true;
 }
 
@@ -45,6 +51,6 @@ async function replaceSchedule(items: ScheduledNotification[]): Promise<void> {
     .forEach((item) => {
       const { id, at, title, body } = item;
       const schedule = Schedule.at(new Date(at), false, true);
-      sendNotification({ id, title, body, schedule, ...actionFields(item) });
+      sendNotification({ id, title, body, schedule, ...smallIconFields(), ...actionFields(item) });
     });
 }

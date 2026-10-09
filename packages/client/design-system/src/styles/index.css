@@ -362,6 +362,51 @@
   padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
 }
 
+@utility sticker-wash {
+  background-color: color-mix(in srgb, var(--sticker-tone) var(--sticker-wash, 24%), var(--surface));
+}
+
+@utility sticker-tone-orange {
+  --sticker-tone: var(--tone-orange);
+}
+
+@utility sticker-tone-blue {
+  --sticker-tone: var(--tone-blue);
+}
+
+@utility sticker-tone-pink {
+  --sticker-tone: var(--tone-pink);
+}
+
+@utility sticker-tone-purple {
+  --sticker-tone: var(--tone-purple);
+}
+
+@utility sticker-tone-red {
+  --sticker-tone: var(--tone-red);
+}
+
+@utility sticker-tone-teal {
+  --sticker-tone: var(--tone-teal);
+}
+
+@utility sticker-tone-green {
+  --sticker-tone: var(--tone-green);
+}
+
+@utility sticker-tone-brown {
+  --sticker-tone: var(--tone-brown);
+}
+
+@utility sticker-tone-gold {
+  --sticker-tone: var(--tone-gold);
+  --sticker-wash: 32%;
+}
+
+@utility pb-sheet-tight {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
 @utility scrollbar-visible {
   scrollbar-width: auto;
   &::-webkit-scrollbar {
@@ -388,4 +433,23 @@
 }
 
 /* Must stay below the base token blocks: palettes override them at equal specificity. */
+
+/* Line icons take the colour of their group, as in the mockup (names map to --ink-* tokens). */
+[data-icon-name="fork-knife"], [data-icon-name="cooking-pot"], [data-icon-name="coffee"], [data-icon-name="fire"], [data-icon-name="timer"] { --glyph: var(--ink-orange); }
+[data-icon-name="car"], [data-icon-name="device-mobile"], [data-icon-name="desktop"], [data-icon-name="airplane-tilt"], [data-icon-name="receipt"], [data-icon-name="link"], [data-icon-name="magnifying-glass"], [data-icon-name="arrows-clockwise"], [data-icon-name="compass"] { --glyph: var(--ink-blue); }
+[data-icon-name="shopping-bag"], [data-icon-name="t-shirt"], [data-icon-name="gift"], [data-icon-name="heart"], [data-icon-name="heart-fill"] { --glyph: var(--ink-pink); }
+[data-icon-name="film-strip"], [data-icon-name="game-controller"], [data-icon-name="book-open"], [data-icon-name="graduation-cap"], [data-icon-name="chart-pie-slice"], [data-icon-name="squares-four"], [data-icon-name="moon"] { --glyph: var(--ink-purple); }
+[data-icon-name="heartbeat"], [data-icon-name="first-aid-kit"], [data-icon-name="trash"], [data-icon-name="sign-out"] { --glyph: var(--ink-red); }
+[data-icon-name="house-line"], [data-icon-name="house"], [data-icon-name="wrench"], [data-icon-name="calendar-blank"], [data-icon-name="repeat"], [data-icon-name="gear"] { --glyph: var(--ink-teal); }
+[data-icon-name="arrow-down-left"], [data-icon-name="checks"], [data-icon-name="list-checks"], [data-icon-name="cloud-check"] { --glyph: var(--ink-green); }
+[data-icon-name="tag"], [data-icon-name="paw-print"] { --glyph: var(--ink-brown); }
+[data-icon-name="lightning"], [data-icon-name="wallet"], [data-icon-name="piggy-bank"], [data-icon-name="target"], [data-icon-name="push-pin"], [data-icon-name="bell"], [data-icon-name="bell-ringing"] { --glyph: var(--ink-gold); }
+[data-icon-name="money"], [data-icon-name="coins"] { --glyph: var(--ink-green); }
+[data-icon-name="bank"], [data-icon-name="globe"] { --glyph: var(--ink-blue); }
+[data-icon-name="credit-card"] { --glyph: var(--ink-gold); }
+[data-icon-name="chart-bar"] { --glyph: var(--ink-purple); }
+[data-icon-name="upload-simple"], [data-icon-name="table"] { --glyph: var(--ink-teal); }
+[data-icon-name="file-text"] { --glyph: var(--ink-brown); }
+:is(nav, [role="menuitem"], [data-variant="outline"], [data-variant="ghost"], [data-pill]) svg[data-icon-name]:not(.bg-primary *) { color: var(--glyph, currentColor); }
+
 @import "./palettes.css";

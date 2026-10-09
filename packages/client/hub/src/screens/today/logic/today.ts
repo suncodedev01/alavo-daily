@@ -7,7 +7,6 @@ import {
   type Bill,
   type BudgetLine,
   type Language,
-  type PlanEntry,
   type ShoppingList,
 } from '@alavo-daily/common';
 
@@ -15,10 +14,6 @@ export const FOOD_CATEGORY_ID = 'category-food';
 export const SHOPPING_DAYS = 3;
 export const BUDGET_RAISE_STEP_VND = 100_000;
 const MAX_UPCOMING_BILLS = 4;
-
-export function dinnerEntries(plan: PlanEntry[]): PlanEntry[] {
-  return plan.filter((entry) => entry.slot === 'dinner');
-}
 
 export function missingIngredientCount(shopping: ShoppingList, recipeNames: string[]): number {
   return shopping.items.filter(

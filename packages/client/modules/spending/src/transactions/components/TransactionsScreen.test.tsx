@@ -33,6 +33,12 @@ describe('list pane', () => {
     expect(screenInfo.current).toMatchObject({ title: 'Giao dịch', hasList: true, listLabel: 'Danh sách giao dịch' });
   });
 
+  it('draws the sticker of the category on each row', async () => {
+    await open();
+    const row = await within(listPane()).findByRole('link', { name: /Grab đi làm/ });
+    expect(row.querySelector('img')).toHaveAttribute('data-sticker', 'automobile');
+  });
+
   it('shows the category, wallet and signed amount on each row', async () => {
     await open();
     const row = await within(listPane()).findByRole('link', { name: /Grab đi làm/ });

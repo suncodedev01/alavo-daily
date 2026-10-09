@@ -1,7 +1,7 @@
 import { useEngineMutation, useEngineQuery, type Transaction } from '@alavo-daily/common/engine';
 import { parseDateText, relativeDayLabel } from '@alavo-daily/common/format';
 import { useLanguage, useT } from '@alavo-daily/common';
-import { Button, Card, EmptyState, IconTile, Skeleton, useToast } from '@alavo-daily/design-system';
+import { Button, Card, EmptyState, StickerTile, Skeleton, useToast } from '@alavo-daily/design-system';
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 
@@ -54,7 +54,7 @@ function DetailCard({ transaction, lookups }: { transaction: Transaction; lookup
   return (
     <Card className="mx-auto grid w-full max-w-160 gap-4">
       <div className="flex items-center gap-3">
-        <IconTile icon={lookups.categoryIcon(transaction.categoryId)} size="lg" />
+        <StickerTile icon={lookups.categoryIcon(transaction.categoryId)} kind="category" size="lg" />
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-title font-semibold">{transaction.title}</h2>
           <p className="truncate text-xs text-text-muted">{`${relativeDayLabel(transaction.occurredOn, today, language)} · ${categoryName}`}</p>

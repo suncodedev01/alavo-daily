@@ -31,7 +31,7 @@ describe('app language', () => {
   it('shows the Today screen in English when the settings say English', async () => {
     renderApp(createHubEngine(withLanguage('en')).engine);
     expect(await screen.findByRole('heading', { name: 'Hello' })).toBeInTheDocument();
-    expect(await screen.findByText('No dishes planned for dinner.')).toBeInTheDocument();
+    expect(await screen.findByText('No dishes planned for today yet')).toBeInTheDocument();
     expect(screen.queryByText('Chào bạn')).not.toBeInTheDocument();
     expect(document.documentElement.lang).toBe('en');
   });

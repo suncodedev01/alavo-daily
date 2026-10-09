@@ -1,4 +1,4 @@
-import { Icon } from '@alavo-daily/design-system';
+import { StickerTile } from '@alavo-daily/design-system';
 
 export interface IconGridProps {
   icons: readonly string[];
@@ -8,7 +8,7 @@ export interface IconGridProps {
 }
 
 const OPTION_CLASS =
-  'focus-ring grid h-10 place-items-center rounded-lg text-text-secondary hover:bg-surface-tint aria-pressed:bg-accent aria-pressed:text-accent-fg max-lg:h-12';
+  'focus-ring grid h-12 place-items-center rounded-lg text-text-secondary hover:bg-surface-tint aria-pressed:bg-accent aria-pressed:text-accent-fg';
 
 export function IconGrid({ icons, value, onChange, label }: IconGridProps) {
   return (
@@ -22,7 +22,7 @@ export function IconGrid({ icons, value, onChange, label }: IconGridProps) {
           className={OPTION_CLASS}
           onClick={() => onChange(icon)}
         >
-          <Icon name={icon} size="xl" />
+          <StickerTile icon={icon} kind="category" size="sm" />
         </button>
       ))}
     </div>

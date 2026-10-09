@@ -10,12 +10,12 @@ export interface CalendarDayProps {
 }
 
 const DAY_CLASS =
-  'focus-ring grid size-9 place-items-center rounded-full text-sm text-text-primary hover:bg-surface-tint max-lg:size-11 data-selected:bg-primary data-selected:text-primary-fg data-selected:hover:bg-primary-hover data-today:font-semibold data-today:inset-ring data-today:inset-ring-line-strong';
+  'focus-ring grid h-9 w-9 place-items-center rounded-full text-sm text-text-primary hover:bg-surface-tint max-lg:h-11 max-lg:w-full max-lg:max-w-11 data-selected:bg-primary data-selected:text-primary-fg data-selected:hover:bg-primary-hover data-today:font-semibold data-today:inset-ring data-today:inset-ring-line-strong';
 
 export function CalendarDay({ date, isCursor, isSelected, isToday, onSelect }: CalendarDayProps) {
   const language = useLanguage();
   return (
-    <span role="gridcell" aria-selected={isSelected}>
+    <span role="gridcell" aria-selected={isSelected} className="grid min-w-0 justify-items-center">
       <button
         type="button"
         tabIndex={isCursor ? 0 : -1}

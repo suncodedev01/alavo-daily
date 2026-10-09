@@ -16,6 +16,10 @@ export function totalTimeText(recipe: Timed, language: Language = 'vi'): string 
   return formatMinutes(totalMinutes(recipe), language);
 }
 
+export function knownTimeText(recipe: Timed, language: Language = 'vi'): string | null {
+  return totalMinutes(recipe) > 0 ? totalTimeText(recipe, language) : null;
+}
+
 export function sharePercent(part: number, whole: number): number {
   return whole <= 0 ? 0 : Math.round((part / whole) * 100);
 }

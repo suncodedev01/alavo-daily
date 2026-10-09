@@ -124,9 +124,12 @@ describe('Checkbox', () => {
 });
 
 describe('Segmented labels', () => {
-  it('never wrap their text onto a second line', () => {
+  it('wrap inside their pill instead of sticking out of it', () => {
     render(<Segmented label="Loại" options={[{ value: 'a', label: 'Nền sáng' }]} value="a" onChange={() => undefined} />);
-    expect(screen.getByRole('radio', { name: 'Nền sáng' }).className).toContain('whitespace-nowrap');
+    const item = screen.getByRole('radio', { name: 'Nền sáng' });
+    expect(item.className).toContain('min-w-0');
+    expect(item.className).toContain('wrap-anywhere');
+    expect(item.className).not.toContain('whitespace-nowrap');
   });
 });
 

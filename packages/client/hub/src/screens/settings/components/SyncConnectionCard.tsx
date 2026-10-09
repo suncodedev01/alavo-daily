@@ -38,7 +38,7 @@ function NotConnectedCard({ actions, pending }: { actions: SyncActions; pending:
       <CardIntro
         icon="cloud-slash"
         title={t('Dữ liệu đang chỉ nằm trên máy này')}
-        body={t('Nếu xoá dữ liệu trình duyệt hoặc đổi máy, bạn sẽ mất dữ liệu chưa xuất ra.')}
+        body={t('Nếu xoá dữ liệu trên máy hoặc đổi máy, bạn sẽ mất dữ liệu chưa xuất ra.')}
       />
       <p className="text-sm text-text-secondary">
         {t(
