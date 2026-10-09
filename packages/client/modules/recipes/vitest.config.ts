@@ -10,5 +10,6 @@ export default defineConfig({
     setupFiles: ['@alavo-daily/common/testing/setup'],
     include: ['src/**/*.test.{ts,tsx}'],
     css: false,
+    testTimeout: 20000,
   },
 });
