@@ -6,7 +6,14 @@ Tên sản phẩm là **Alavo Daily** và scope package là `@alavo-daily/*`. N�
 
 ## Tổ chức code
 
-1. **Gom theo tính năng, không gom theo loại file.** Code của một tính năng nằm chung một thư mục `features/<tên_tính_năng>/` (ví dụ `features/recipes`, `features/shopping`), cả ở Rust lẫn React. Lý do: khi sửa một tính năng, mọi file cần mở đều ở cạnh nhau.
+1. **Gom theo tính năng trước, rồi chia theo loại file bên trong tính năng.** Code của một tính năng nằm chung một thư mục `features/<tên_tính_năng>/` (ví dụ `features/recipes`, `features/shopping`), cả ở Rust lẫn React. Lý do: khi sửa một tính năng, mọi file cần mở đều ở cạnh nhau. Ở React, mỗi thư mục tính năng có cấu trúc cố định:
+   - `components/`: component `.tsx`, kèm test của chúng (`X.test.tsx`).
+   - `hooks/`: custom hook `useX.ts`.
+   - `types.ts`: kiểu dùng trong tính năng (tách thành `types/` khi vượt 250 dòng).
+   - `logic/`: hàm thuần không phụ thuộc React (tính toán, chuyển đổi dữ liệu).
+   - `index.ts`: điểm vào công khai của tính năng.
+
+   Thư mục nào rỗng thì không tạo. Cấm thư mục chung kiểu `lib/`, `foundation/`, `data/`, `ui/`: code dùng ở một tính năng thì nằm trong tính năng đó, dùng ở nhiều tính năng của cùng module thì tạo một tính năng có tên nói rõ việc (ví dụ `engine-errors/`).
 2. **Hàm gọi nằm trên, hàm được gọi nằm dưới.** Đọc file từ trên xuống phải gặp luồng chính trước, helper sau. Áp dụng cho Rust, TypeScript và component React.
 3. **Mỗi hàm hoặc component chỉ làm một việc.** Hàm dài thì tách helper và đặt tên rõ nghĩa. Tên hàm đóng vai trò của comment. Ngưỡng độ dài và độ phức tạp cụ thể nằm ở `.claude/rules/clean-code-principles.md`.
 4. **Dòng code tối đa khoảng 100 ký tự.** Chuỗi gọi dài (`.map(...).filter(...)`) thì tách helper hoặc xuống dòng thụt lề.
