@@ -176,3 +176,44 @@ fn every_write_leaves_a_pending_sync_event() {
     app.create("Gà kho");
     assert_eq!(app.call("sync.status", Value::Null)["pendingEvents"], 5);
 }
+
+#[test]
+fn morning_menus_list_what_is_planned_for_each_date() {
+    let app = Harness::start();
+    let id = app.create("Gà kho")["id"].clone();
+    plan_dinner(&app, &id, "2026-10-11");
+    let menus = app.call("recipes.morning_menus", json!({ "from": "2026-10-10", "days": 2 }));
+    assert_eq!(menus[0]["source"], "suggested");
+    assert_eq!(menus[1]["source"], "planned");
+    assert_eq!(menus[1]["dishes"][0]["name"], "Gà kho");
+    assert_eq!(menus[1]["dishes"][0]["slot"], "dinner");
+}
+
+#[test]
+fn morning_menus_suggest_the_same_recipe_for_an_empty_day_every_time() {
+    let app = Harness::start();
+    app.create("Gà kho");
+    app.create("Bún chả");
+    let first = app.call("recipes.morning_menus", json!({ "from": "2026-10-10" }));
+    let second = app.call("recipes.morning_menus", json!({ "from": "2026-10-10" }));
+    assert_eq!(first.as_array().unwrap().len(), 3);
+    assert_eq!(first, second);
+    assert!(first[0]["dishes"][0]["slot"].is_null());
+}
+
+#[test]
+fn morning_menus_are_empty_when_there_is_nothing_to_suggest() {
+    let app = Harness::start();
+    let menus = app.call("recipes.morning_menus", json!({ "from": "2026-10-10", "days": 1 }));
+    assert_eq!(menus[0]["source"], "empty");
+    assert_eq!(menus[0]["dishes"].as_array().unwrap().len(), 0);
+}
+
+#[test]
+fn morning_menus_reject_a_bad_date_and_a_bad_day_count() {
+    let app = Harness::start();
+    let bad_date = app.fail("recipes.morning_menus", json!({ "from": "2026-13-45" }));
+    assert_eq!(error_code(&bad_date), "validation");
+    let too_many = app.fail("recipes.morning_menus", json!({ "from": "2026-10-10", "days": 99 }));
+    assert_eq!(error_code(&too_many), "validation");
+}

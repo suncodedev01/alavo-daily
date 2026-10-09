@@ -26,4 +26,9 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "hub_notification_rules",
         sql: include_str!("hub/v005_hub_notification_rules.sql"),
     },
+    Migration {
+        version: 6,
+        name: "hub_morning_menu_rule",
+        sql: include_str!("hub/v006_hub_morning_menu_rule.sql"),
+    },
 ];

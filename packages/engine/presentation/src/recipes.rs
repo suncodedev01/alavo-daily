@@ -1,4 +1,4 @@
-use alavo_application::recipes::{catalog, expense, import, plan, shopping};
+use alavo_application::recipes::{catalog, expense, import, morning_menu, plan, shopping};
 use alavo_application::Ctx;
 use alavo_domain::recipes::expense::LogShoppingExpense;
 use alavo_domain::recipes::filter::RecipeFilter;
@@ -35,6 +35,13 @@ struct JsonLd {
 
 #[derive(Deserialize)]
 struct PlanRange {
+    from: String,
+    #[serde(default)]
+    days: Option<i64>,
+}
+
+#[derive(Deserialize)]
+struct MenuRange {
     from: String,
     #[serde(default)]
     days: Option<i64>,
@@ -85,6 +92,9 @@ fn handle_plan_and_shopping(ctx: &Ctx, command: &str, payload: &str) -> Handled 
         "recipes.get_plan" => {
             with_input(payload, |input: PlanRange| plan::get_plan(ctx, &input.from, input.days))
         }
+        "recipes.morning_menus" => with_input(payload, |input: MenuRange| {
+            morning_menu::get_many(ctx, &input.from, input.days)
+        }),
         "recipes.add_to_plan" => {
             with_input(payload, |input: NewPlanEntry| plan::add_to_plan(ctx, input))
         }

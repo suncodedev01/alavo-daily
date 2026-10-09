@@ -101,6 +101,16 @@ VALUES
      'Kêu khi hết giờ từng bước', 'always', NULL, 1, 4);
 ```
 
+### v006_hub_morning_menu_rule.sql
+
+```sql
+INSERT OR IGNORE INTO hub_notification_rules
+    (id, module, label, description, kind, time, enabled, position)
+VALUES
+    ('recipes.morning_menu', 'recipes', 'Nhắc món hôm nay vào buổi sáng',
+     'Nhắc từ giờ này, rồi lặp lại mỗi giờ trong 3 giờ tiếp theo. Chưa có món thì gợi ý một món', 'time', '06:00', 1, 0);
+```
+
 ## Chi tiêu (v100–v199)
 
 ### v100_spending_categories.sql

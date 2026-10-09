@@ -8,6 +8,7 @@ pub mod catalog;
 pub mod demo;
 pub mod expense;
 pub mod import;
+pub mod morning_menu;
 pub mod plan;
 pub mod shopping;
 

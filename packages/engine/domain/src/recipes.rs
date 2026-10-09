@@ -2,6 +2,7 @@ pub mod expense;
 pub mod filter;
 pub mod json_ld;
 pub mod kinds;
+pub mod morning_menu;
 pub mod plan;
 pub mod position;
 pub mod recipe;

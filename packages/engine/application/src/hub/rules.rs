@@ -63,6 +63,16 @@ mod tests {
     }
 
     #[test]
+    fn the_morning_menu_rule_starts_at_six_and_is_on() {
+        with_ctx(|ctx| {
+            let rule = list(ctx).unwrap().into_iter().find(|rule| rule.id == "recipes.morning_menu");
+            let rule = rule.expect("morning menu rule is seeded");
+            assert_eq!((rule.enabled, rule.time.as_deref()), (true, Some("06:00")));
+            assert_eq!(rule.kind, "time");
+        });
+    }
+
+    #[test]
     fn update_changes_enabled_and_time() {
         with_ctx(|ctx| {
             let updated =
