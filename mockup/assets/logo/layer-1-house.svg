@@ -6,7 +6,7 @@
       <stop offset="1" stop-color="#8FC4F5"/>
     </linearGradient>
   </defs>
-  <g transform="translate(30 -14) translate(422 442) scale(0.8) translate(-512 -512)">
+  <g transform="translate(90 -14) translate(422 442) scale(0.8) translate(-512 -512)">
     <polygon points="512,240 790,470 790,770 234,770 234,470" fill="url(#house)" stroke="url(#house)"
       stroke-width="96" stroke-linejoin="round"/>
   </g>

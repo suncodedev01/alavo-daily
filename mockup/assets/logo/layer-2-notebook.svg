@@ -14,7 +14,7 @@
       <stop offset="1" stop-color="#3373F6"/>
     </linearGradient>
   </defs>
-  <g transform="translate(30 -14) translate(640 650) rotate(8)">
+  <g transform="translate(-60 -14) translate(640 650) rotate(8)">
     <rect x="-150" y="-190" width="300" height="380" rx="56" fill="url(#cover)"/>
     <rect x="-90" y="-140" width="210" height="130" rx="30" fill="url(#paper)"/>
     <rect x="-60" y="-108" width="150" height="24" rx="12" fill="url(#ink)"/>

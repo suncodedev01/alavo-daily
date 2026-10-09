@@ -15,7 +15,7 @@
       <stop offset="1" stop-color="#E9EEF5"/>
     </linearGradient>
   </defs>
-  <g transform="translate(30 -14) translate(668 700) rotate(-40) scale(0.8) translate(-265 -48)">
+  <g transform="translate(-60 -14) translate(668 700) rotate(-40) scale(0.8) translate(-265 -48)">
     <rect x="450" y="0" width="80" height="96" rx="34" fill="url(#wood)"/>
     <rect x="120" y="0" width="320" height="96" fill="url(#body)"/>
     <rect x="440" y="0" width="36" height="96" fill="url(#ferrule)"/>
