@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Budget Manager — Web</title>
 <link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/palettes.css">
+<script src="assets/palettes.js"></script>
 <style>
   html, body { height: 100%; overflow: hidden; }
   .shell { display: flex; height: 100vh; }
@@ -14,7 +16,7 @@
 
   .sidebar { width: 256px; flex: none; background: var(--surface-raised); display: flex; flex-direction: column; margin-right: 0; }
   .sb-head { height: 40px; padding: 0 8px 0 12px; display: flex; align-items: center; gap: 8px; margin-top: 0; }
-  .brand-tile { width: 24px; height: 24px; border-radius: var(--r-md); background: var(--click-600); color: #fff; display: grid; place-items: center; }
+  .brand-tile { width: 24px; height: 24px; border-radius: var(--r-md); background-color: var(--tile-bg, var(--primary)); color: var(--tile-fg, var(--primary-fg)); display: grid; place-items: center; }
   .sb-scroll { flex: 1; overflow-y: auto; padding: 4px 8px 8px; }
   .nav-item { display: flex; align-items: center; gap: 10px; width: 100%; height: 36px; padding: 0 12px; border-radius: var(--r-4xl); font-size: 14px; font-weight: 500; color: var(--text-secondary); text-align: left; }
   .nav-item:hover { background: var(--surface-tint); }
@@ -227,9 +229,9 @@
   .cat-opt { display: grid; justify-items: center; gap: 4px; padding: 8px 4px; border-radius: var(--r-lg); font-size: 12px; color: var(--text-secondary); }
   .cat-opt:hover { background: var(--surface-tint); }
   .cat-opt.on { background: var(--accent); color: var(--accent-fg); }
-  .cat-opt.on .cat-tile { background: transparent; color: var(--accent-fg); }
+  .cat-opt.on .cat-tile { background-color: transparent; color: var(--accent-fg); }
   .cat-opt.new { color: var(--text-muted); }
-  .cat-opt.new .cat-tile { background: transparent; box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .cat-opt.new .cat-tile { background-color: transparent; color: var(--text-secondary); box-shadow: inset 0 0 0 1px var(--line-strong); }
   .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
   .icon-opt { height: 40px; border-radius: var(--r-lg); display: grid; place-items: center; color: var(--text-secondary); }
   .icon-opt:hover { background: var(--surface-tint); }
@@ -287,6 +289,7 @@
         <span class="t-sm w5" style="min-width:104px;text-align:center">Tháng 10, 2026</span>
         <button class="btn ghost icon sm" aria-label="Tháng sau"><span data-i="caret-right"></span></button>
       </div>
+      <button class="btn outline icon" id="syncQuick" type="button" hidden></button>
       <button class="btn primary" id="addBtn"><span data-i="plus"></span>Thêm giao dịch</button>
       <button class="btn ghost icon" id="bellBtn" data-popanchor aria-label="Thông báo"><span data-i="bell"></span><i class="dot" id="bellDot" hidden></i></button>
       <button class="btn ghost icon" id="dockBtn" aria-label="Bật/tắt bảng bên phải"><span data-i="list"></span></button>
@@ -304,10 +307,8 @@
     <label class="amount-in"><input id="fAmount" inputmode="numeric" placeholder="0" autocomplete="off" aria-label="Số tiền"><span class="t-2xl muted">₫</span></label>
     <div class="cat-grid" id="fCats"></div>
     <div class="field"><span data-i="receipt"></span><input id="fNote" placeholder="Ghi chú (ví dụ: Highlands Coffee)" aria-label="Ghi chú"></div>
-    <div class="field-row">
-      <div class="menu-wrap"><button type="button" class="field pick" id="fWalletBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Chọn ví"><span data-i="wallet"></span><span class="grow t-sm" id="fWalletLabel" style="text-align:left;color:var(--text-primary)"></span><span data-i="caret-down"></span></button><ul class="menu" id="fWalletMenu" role="listbox" hidden></ul></div>
-      <div class="field"><span data-i="calendar-blank"></span><span class="t-sm" style="color:var(--text-primary)">Hôm nay, 9/10</span></div>
-    </div>
+    <div class="pay"><span class="eyebrow">Thanh toán bằng</span><div class="pay-pills" id="fPay" role="radiogroup" aria-label="Thanh toán bằng"></div></div>
+    <div class="field"><span data-i="calendar-blank"></span><span class="t-sm" style="color:var(--text-primary)">Hôm nay, 9/10</span></div>
     <div class="row" style="gap:8px;justify-content:flex-end"><button class="btn outline" type="button" id="cancelDlg">Huỷ</button><button class="btn primary" type="submit" id="saveBtn">Lưu giao dịch</button></div>
   </form>
 </dialog>
@@ -344,11 +345,12 @@
 <script src="assets/data.js"></script>
 <script src="assets/food-data.js"></script>
 <script src="assets/ui.js"></script>
+<script src="assets/dialogs.js"></script>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const state = { view: 'overview', selected: 1, filter: 'all', query: '' };
-const TITLES = { overview: 'Tổng quan', transactions: 'Giao dịch', budgets: 'Ngân sách', goals: 'Mục tiêu', settings: 'Cài đặt' };
+const TITLES = { overview: 'Tổng quan', transactions: 'Giao dịch', budgets: 'Ngân sách', goals: 'Mục tiêu', report: 'Báo cáo', import: 'Nhập sao kê', settings: 'Cài đặt' };
 const sync = { state: 'off', last: '2 phút trước', auto: true, wifi: false, choice: 'merge' };
 
 const section = (title, body, open = true, chip = '') => `
@@ -389,9 +391,9 @@ const VIEWS = {
       const top = [...BUDGETED].sort((a, b) => b.pct - a.pct).slice(0, 4);
       return `<div class="col">
         <div class="stat-row">
-          <section class="card p6 span2"><span class="eyebrow">Tổng số dư</span><div class="t-display" style="margin-top:8px;white-space:nowrap">${vnd(totalBalance)}</div><div class="wallet-split"><div><span class="muted">Dòng tiền ròng tháng 10</span><span class="w6 income">${signed(income - expense)}</span></div><div><span class="muted">Trên ${WALLETS.length} ví và tài khoản</span><span class="muted">${TX.length} giao dịch</span></div></div></section>
+          <section class="card p6 span2"><span class="eyebrow">Tổng số dư</span><div class="t-display" style="margin-top:8px;white-space:nowrap">${vnd(totalBalance)}</div><div class="wallet-split"><div><span class="muted">Dòng tiền ròng tháng 10</span><span class="w6 ${amountTone(income - expense)}">${signed(income - expense)}</span></div><div><span class="muted">Trên ${WALLETS.length} ví và tài khoản</span><span class="muted">${TX.length} giao dịch</span></div></div></section>
           <section class="card p6"><span class="eyebrow">Thu nhập tháng 10</span><div class="t-2xl income" style="margin-top:8px">${signed(income)}</div><div class="delta">${ic('arrow-down-left')} ${TX.filter((t) => t.amt > 0).length} khoản thu</div></section>
-          <section class="card p6"><span class="eyebrow">Chi tiêu tháng 10</span><div class="t-2xl" style="margin-top:8px">${vnd(expense)}</div><div class="delta">${ic('trend-up')} ${expenseDelta < 0 ? 'Thấp hơn' : 'Cao hơn'} tháng 9 ${pctText(Math.abs(expenseDelta))} (cùng kỳ ${vnd(LAST_MONTH_SPENT)})</div></section>
+          <section class="card p6"><span class="eyebrow">Chi tiêu tháng 10</span><div class="t-2xl expense" style="margin-top:8px">${vnd(expense)}</div><div class="delta">${ic('trend-up')} ${expenseDelta < 0 ? 'Thấp hơn' : 'Cao hơn'} tháng 9 ${pctText(Math.abs(expenseDelta))} (cùng kỳ ${vnd(LAST_MONTH_SPENT)})</div></section>
         </div>
         <div class="grid-2">
           <section class="card p6"><div class="card-head"><h2 class="t-title">Chi tiêu theo ngày</h2><span class="t-xs muted">Không gồm tiền nhà</span></div>${chart()}</section>
@@ -431,9 +433,9 @@ const VIEWS = {
       return `<div class="detail-wrap">
         <section class="card p6" style="display:grid;gap:16px">
           <div class="row" style="gap:12px"><span class="cat-tile">${ic(CATS[t.cat].icon)}</span><div class="grow"><div class="t-title trunc">${t.title}</div><div class="t-xs muted">${dayLabel(t.day)} · ${CATS[t.cat].name}</div></div></div>
-          <div class="t-display ${t.amt > 0 ? 'income' : ''}">${signed(t.amt)}</div>
+          <div class="t-display ${amountTone(t.amt)}">${signed(t.amt)}</div>
           <dl class="kv"><dt>Ví</dt><dd>${walletName(t.wallet)}</dd><dt>Danh mục</dt><dd>${CATS[t.cat].name}</dd><dt>Ngày</dt><dd>${t.day}/10/2026</dd><dt>Lặp lại</dt><dd>${t.rec || 'Không'}</dd></dl>
-          <div class="row" style="gap:8px"><button class="btn outline sm"><span data-i="gear"></span>Sửa</button><button class="btn outline sm"><span data-i="arrows-left-right"></span>Đổi danh mục</button></div>
+          <div class="row" style="gap:8px"><button class="btn outline sm"><span data-i="gear"></span>Sửa</button><button class="btn outline sm"><span data-i="arrows-left-right"></span>Đổi danh mục</button><button class="btn outline sm" data-dlg="confirm-tx"><span data-i="trash"></span>Xoá</button></div>${t.rec ? '<p class="t-xs muted">Tự động tạo từ giao dịch lặp lại hằng tháng</p>' : ''}
         </section></div>`;
     },
     dock() {
@@ -453,7 +455,7 @@ const VIEWS = {
         <section class="card p6"><div class="row" style="gap:24px;flex-wrap:wrap;justify-content:space-between"><div><span class="eyebrow">Còn lại tháng này</span><div class="t-display" style="margin-top:8px">${vnd(left)}</div><div class="t-sm muted" style="margin-top:8px">Khoảng ${vnd(Math.round(left / daysLeft))} mỗi ngày trong ${daysLeft} ngày tới</div></div>
           <div style="flex:1;min-width:240px;align-self:flex-end"><div class="row t-sm" style="margin-bottom:8px"><span class="grow">Đã chi ${vnd(budgetSpent)}</span><span class="muted">/ ${vnd(budgetTotal)}</span></div>${meter(budgetSpent / budgetTotal)}</div></div></section>
         <div class="grid-3">${BUDGETED.map((b) => `
-          <section class="card p4" style="display:grid;gap:12px"><div class="row" style="gap:12px"><span class="cat-tile">${ic(b.icon)}</span><div class="grow"><div class="t-sm w6">${b.name}</div><div class="t-xs muted">${vnd(b.spent)} / ${vnd(b.budget)}</div></div><span class="t-sm w6">${pctText(b.pct)}</span></div>
+          <section class="card p4" style="display:grid;gap:12px"><div class="row" style="gap:12px"><span class="cat-tile">${ic(b.icon)}</span><div class="grow"><div class="t-sm w6">${b.name}</div><div class="t-xs muted">${vnd(b.spent)} / ${vnd(b.budget)}</div></div><span class="t-sm w6">${pctText(b.pct)}</span><button class="btn ghost icon sm" data-dlg="budget-form" aria-label="Sửa ngân sách"><span data-i="pencil-simple"></span></button></div>
             ${meter(b.pct)}<div class="t-xs muted">${remaining(b) >= 0 ? 'Còn ' + vnd(remaining(b)) : 'Vượt ' + vnd(-remaining(b))}</div></section>`).join('')}
           <button class="card p4" data-addcat style="display:grid;place-items:center;gap:4px;min-height:132px;color:var(--text-secondary);border:1px dashed var(--line-strong);box-shadow:none;background:transparent"><span class="ic xl" style="display:inline-flex">${ic('plus', 'lg')}</span><span class="t-sm w5">Thêm hạng mục</span></button>
         </div></div>`;
@@ -467,11 +469,11 @@ const VIEWS = {
 
   goals: {
     main() {
-      return `<div class="col"><div class="grid-3">${GOALS.map((g) => { const p = g.saved / g.target; return `
-        <section class="card p6" style="display:grid;gap:16px"><div class="row" style="gap:12px"><span class="cat-tile">${ic(g.icon)}</span><div class="grow"><div class="t-sm w6">${g.name}</div><div class="t-xs muted">${g.due}</div></div></div>
+      return `<div class="col"><div class="row"><span class="grow"></span><button class="btn outline" data-dlg="goal-form"><span data-i="plus"></span>Thêm mục tiêu</button></div><div class="grid-3">${GOALS.map((g) => { const p = g.saved / g.target; return `
+        <section class="card p6" style="display:grid;gap:16px"><div class="row" style="gap:12px"><span class="cat-tile">${ic(g.icon)}</span><div class="grow"><div class="t-sm w6">${g.name}</div><div class="t-xs muted">${g.due}</div></div><button class="btn ghost icon sm" data-dlg="confirm-goal" aria-label="Xoá mục tiêu"><span data-i="trash"></span></button></div>
           <div><div class="t-2xl">${vnd(g.saved)}</div><div class="t-xs muted" style="margin-top:4px">trên ${vnd(g.target)}</div></div>${meter(p)}
           <div class="row t-xs muted"><span class="grow">${pctText(p)} hoàn thành</span><span>Còn ${vnd(g.target - g.saved)}</span></div>
-          <button class="btn affirm sm" style="justify-self:start"><span data-i="plus"></span>Thêm tiền</button></section>`; }).join('')}</div></div>`;
+          <button class="btn affirm sm" style="justify-self:start" data-dlg="contribute"><span data-i="plus"></span>Thêm tiền</button></section>`; }).join('')}</div></div>`;
     },
     dock() {
       const g = GOALS[1], need = Math.ceil((g.target - g.saved) / 2.5);
@@ -482,7 +484,7 @@ const VIEWS = {
 };
 
 /* ───────── settings · Google sync ───────── */
-const SYNC_LABELS = { off: 'Chưa kết nối', connecting: 'Đang kết nối', connected: 'Đã kết nối', syncing: 'Đang đồng bộ', offline: 'Mất mạng', conflict: 'Xung đột' };
+const SYNC_LABELS = { off: 'Chưa kết nối', connecting: 'Đang kết nối', connected: 'Đã kết nối', syncing: 'Đang đồng bộ', offline: 'Mất mạng', conflict: 'Xung đột', unconfigured: 'Chưa cấu hình', relogin: 'Cần đăng nhập lại' };
 const syncRowInfo = () => ({
   off: ['cloud-slash', 'Chưa kết nối Google', 'Dữ liệu chỉ ở máy này'],
   connecting: ['arrows-clockwise spin', 'Đang kết nối…', 'Chờ đăng nhập Google'],
@@ -490,7 +492,31 @@ const syncRowInfo = () => ({
   syncing: ['arrows-clockwise spin', 'Đang đồng bộ…', 'Đừng đóng ứng dụng'],
   offline: ['cloud-slash', 'Chưa đồng bộ', '3 thay đổi đang chờ'],
   conflict: ['cloud', 'Cần chọn bản dữ liệu', 'Hai thiết bị cùng sửa'],
+  unconfigured: ['cloud-slash', 'Chưa cấu hình Google', 'Bản này chưa đồng bộ được'],
+  relogin: ['warning', 'Cần đăng nhập lại Google', 'Dữ liệu trên máy vẫn an toàn'],
 }[sync.state]);
+const SYNC_QUICK = {
+  off: ['cloud-slash', 'Kết nối với Google'],
+  connecting: ['arrows-clockwise spin', 'Kết nối với Google'],
+  connected: ['cloud-check', 'Đồng bộ ngay'],
+  syncing: ['arrows-clockwise spin', 'Đồng bộ ngay'],
+  offline: ['cloud-slash', 'Đồng bộ ngay'],
+  conflict: ['warning', 'Đồng bộ ngay'],
+  unconfigured: ['cloud-slash', 'Kết nối với Google'],
+  relogin: ['warning', 'Đăng nhập lại Google'],
+};
+function paintSyncQuick() {
+  const btn = $('#syncQuick'); btn.hidden = state.module !== 'today';
+  const [icon, label] = SYNC_QUICK[sync.state]; const spin = icon.includes('spin');
+  btn.innerHTML = ic(icon.replace(' spin', ''), spin ? 'spin' : '');
+  btn.setAttribute('aria-label', label); btn.title = label;
+  btn.disabled = sync.state === 'syncing' || sync.state === 'connecting';
+}
+function runQuickSync() {
+  if (['off', 'conflict', 'unconfigured', 'relogin'].includes(sync.state)) return $('#navSlot [data-view="settings"]').click();
+  if (sync.state === 'offline') return toast('Đang ngoại tuyến, sẽ đồng bộ khi có mạng');
+  setSync('syncing'); syncTimer = setTimeout(() => { sync.last = 'Vừa xong'; setSync('connected'); }, 1400);
+}
 function paintSyncRow() {
   const [icon, title, sub] = syncRowInfo();
   const spin = icon.includes('spin');
@@ -500,6 +526,8 @@ const acctRow = () => `<div class="row" style="gap:12px"><img class="avatar" src
 const toggleRule = (id, label, sub, on) => `<div class="rule"><span class="grow"><span class="t-sm w5" style="display:block">${label}</span><span class="t-xs muted">${sub}</span></span><button class="switch" role="switch" data-sync-toggle="${id}" aria-checked="${on}" aria-label="${label}"></button></div>`;
 
 const syncCards = {
+  unconfigured: () => syncProblemCard('unconfigured'),
+  relogin: () => syncProblemCard('relogin'),
   off: () => `<section class="card p6" style="display:grid;gap:24px">
       <div class="row" style="gap:16px"><span class="hero-tile">${ic('cloud-slash')}</span><div><h2 class="t-title">Dữ liệu đang chỉ nằm trên máy này</h2><p class="t-sm muted" style="margin-top:4px">Nếu xoá dữ liệu trình duyệt hoặc đổi máy, bạn sẽ mất toàn bộ giao dịch.</p></div></div>
       <p class="t-sm secondary">Kết nối Google để sao lưu và dùng cùng một dữ liệu trên nhiều thiết bị. Budget Manager không có máy chủ riêng, dữ liệu được lưu trong Google Drive của chính bạn.</p>
@@ -553,8 +581,11 @@ function render() {
   $('#listSlot').innerHTML = v.four ? `<section class="listpane float" aria-label="${v.listLabel || 'Danh sách giao dịch'}">${v.list()}</section>` : '';
   $('#paneBody').innerHTML = v.main();
   $('#dockBody').innerHTML = v.dock();
+  const dockExtra = { today: `<button class="btn outline" data-dlg="bills">${ic('repeat')}Quản lý khoản định kỳ</button>`, overview: `<button class="btn outline" data-dlg="bills">${ic('repeat')}Quản lý khoản định kỳ</button>`, recipes: `<button class="btn outline" data-dlg="confirm-recipe">${ic('trash')}Xoá công thức</button>` }[state.view];
+  if (dockExtra) $('#dockBody').insertAdjacentHTML('beforeend', `<div class="dock-extra">${dockExtra}</div>`);
   walletsHtml();
   paintSyncRow();
+  paintSyncQuick();
   hydrateIcons();
   $('#paneBody').style.paddingBottom = state.view === 'shopping' ? '0' : '';
   $('#paneBody').scrollTop = keep ? bodyTop : 0;
@@ -603,7 +634,7 @@ function paintShell() {
   const items = mod.views.map(([v, icon, label]) => `<button class="nav-item ${state.view === v || (v === 'recipes' && state.view === 'recipeNew') ? 'on' : ''}" data-view="${v}">${ic(icon)}<span class="lbl">${label}</span>${v === 'transactions' ? `<span class="count">${TX.length}</span>` : ''}${v === 'shopping' ? `<span class="count">${shopNeed().length}</span>` : ''}</button>`).join('');
   $('#navSlot').innerHTML = items + `<div class="nav-sep"></div><button class="nav-item ${state.view === 'settings' ? 'on' : ''}" data-view="settings">${ic('gear')}<span class="lbl">Cài đặt</span></button>`;
   const todayMeals = SLOTS.flatMap(([s, label]) => planOf(TODAY, s).map((id) => [label, recipeById(id)]));
-  $('#sideGroup').innerHTML = state.module === 'spend' ? `<span class="eyebrow">Ví</span><ul id="walletList"></ul>`
+  $('#sideGroup').innerHTML = state.module === 'spend' ? `<div class="row"><span class="eyebrow grow">Ví</span><button class="btn ghost sm" data-dlg="wallets">Quản lý</button></div><ul id="walletList"></ul>`
     : state.module === 'food' ? `<span class="eyebrow">Hôm nay ăn gì</span><ul>${todayMeals.map(([l, r]) => `<li><button class="wallet" style="width:100%;text-align:left" data-recipe-open="${r.id}"><span class="cat-tile sm">${ic(r.icon)}</span><span class="grow wallet-meta"><span class="t-sm w5 trunc" style="display:block">${r.name}</span><span class="t-xs muted" style="display:block">${l}</span></span></button></li>`).join('')}</ul>` : state.module === 'today' ? pinnedGroup() : '';
   const unread = state.notifs.filter((n) => n.unread).length;
   $('#bellDot').hidden = !unread;
@@ -673,7 +704,7 @@ VIEWS.recipes = {
     return `<div class="lp-head"><h2 class="t-sm w6">Công thức</h2><span class="t-xs muted">${items.length}/${RECIPES.length}</span></div>
       <div class="lp-tools"><label class="field">${ic('magnifying-glass')}<input id="rq" placeholder="Tìm công thức" value="${h(state.rq)}" aria-label="Tìm công thức"></label>
         <div class="row" style="gap:4px;flex-wrap:wrap">${TAGS.map((t) => `<button class="pill ${state.tag === t ? 'on' : ''}" data-tag="${t}">${t}</button>`).join('')}</div></div>
-      <div class="lp-scroll">${items.length ? items.map((r) => `<button class="rrow ${r.id === state.recipe ? 'on' : ''}" data-recipe="${r.id}"><span class="cat-tile">${ic(r.icon)}</span><span class="grow"><span class="rn trunc">${h(r.name)}</span><span class="rm">${fmtMin(totalTime(r))} · ${r.level}</span></span>${r.fav ? `<span class="heart" style="color:var(--primary)">${ic('heart-fill')}</span>` : ''}</button>`).join('') : '<div class="empty">Không có công thức khớp.</div>'}</div>`;
+      <div class="lp-scroll">${items.length ? items.map((r) => `<button class="rrow ${r.id === state.recipe ? 'on' : ''}" data-recipe="${r.id}"><span class="cat-tile">${ic(r.icon)}</span><span class="grow"><span class="rn trunc">${h(r.name)}</span><span class="rm">${fmtMin(totalTime(r))} · ${r.level}</span></span>${r.fav ? `<span class="heart" style="color:var(--heart)">${ic('heart-fill')}</span>` : ''}</button>`).join('') : '<div class="empty">Không có công thức khớp.</div>'}</div>`;
   },
   main() {
     const r = recipeById(state.recipe); if (!r) return '<div class="empty">Chọn một công thức để xem.</div>';
@@ -708,7 +739,7 @@ VIEWS.plan = {
   main() {
     const head = WEEK_DAYS.map(([d, l]) => `<div class="ph ${d === TODAY ? 'today' : ''}"><div class="t-xs w6">${l}</div><div class="t-base w6">${d}</div></div>`).join('');
     const rows = SLOTS.map(([s, label]) => `<div class="rl cell">${label}</div>` + WEEK_DAYS.map(([d]) => `<div class="cell">${planOf(d, s).map((id) => `<button class="pchip ${d < TODAY ? 'past' : ''}" data-pchip="${d}|${s}|${id}"><span>${recipeById(id).name}</span></button>`).join('')}<button class="padd" data-padd="${d}|${s}" aria-label="Thêm món">${ic('plus')}</button></div>`).join('')).join('');
-    return `<div class="col"><div class="row" style="gap:8px"><button class="btn ghost icon sm" aria-label="Tuần trước"><span style="transform:rotate(180deg);display:inline-flex">${ic('caret-right')}</span></button><span class="t-title">Tuần 5 – 11 tháng 10</span><button class="btn ghost icon sm" aria-label="Tuần sau">${ic('caret-right')}</button><span class="grow"></span><button class="btn outline sm" data-go="shopping">${ic('shopping-bag')}Tạo danh sách đi chợ</button></div>
+    return `<div class="col"><div class="row"><span class="grow"></span><button class="btn outline" data-dlg="suggest-plan"><span data-i="sparkle"></span>Gợi ý thực đơn</button></div><div class="row" style="gap:8px"><button class="btn ghost icon sm" aria-label="Tuần trước"><span style="transform:rotate(180deg);display:inline-flex">${ic('caret-right')}</span></button><span class="t-title">Tuần 5 – 11 tháng 10</span><button class="btn ghost icon sm" aria-label="Tuần sau">${ic('caret-right')}</button><span class="grow"></span><button class="btn outline sm" data-go="shopping">${ic('shopping-bag')}Tạo danh sách đi chợ</button></div>
       <section class="card p4" style="overflow-x:auto"><div class="plan">${'<div class="ph"></div>' + head}${rows}</div></section></div>`;
   },
   dock() {
@@ -733,7 +764,7 @@ VIEWS.shopping = {
       <div class="row" style="gap:12px"><div class="grow"><div class="t-title">Cần mua cho 9 – 11/10</div><div class="t-sm muted" style="margin-top:4px">Gộp từ ${new Set(state.shop.flatMap((i) => i.from)).size} món trong thực đơn, ${HOUSEHOLD} người. Món trùng nguyên liệu đã được cộng dồn.</div></div></div>
       ${groups.map((g) => `<section class="card p6 shop-group" style="margin:0"><span class="eyebrow">${g.a} · ${g.items.filter((i) => !i.have).length}/${g.items.length}</span>${g.items.map((i) => `<button class="shop-row" role="checkbox" aria-checked="${i.have}" data-shop="${i.key}"><span class="check">${ic('check')}</span><span class="grow"><span class="sn">${i.name}</span><span class="sf">${i.have ? 'Đã có sẵn' : i.from.join(', ')}</span></span><span class="t-sm w5">${fmtAmount(i.q, i.unit)}</span><span class="t-xs muted" style="min-width:64px;text-align:right">${i.have ? '' : vnd(i.c)}</span></button>`).join('')}</section>`).join('')}
       <label class="field" style="height:48px">${ic('plus')}<input id="shopAdd" placeholder="Thêm món lẻ, ví dụ: sữa tươi" aria-label="Thêm món"></label>
-      <div class="shop-sum"><div class="grow"><div class="t-sm w6">${need.length} món cần mua</div><div class="t-xs muted">Ước tính ${vnd(total)}</div></div>${state.shopLogged ? `<span class="connected-badge">${ic('check')}Đã ghi vào Chi tiêu</span>` : `<button class="btn primary" data-act="log-shop">${ic('wallet')}Ghi vào Chi tiêu</button>`}</div></div>`;
+      <div class="shop-sum"><div class="grow"><div class="t-sm w6">${need.length} món cần mua</div><div class="t-xs muted">Ước tính ${vnd(total)}</div></div>${state.shopLogged ? `<span class="connected-badge">${ic('check')}Đã ghi vào Chi tiêu</span>` : `<button class="btn outline" data-dlg="log-expense">Chọn danh mục</button><button class="btn primary" data-act="log-shop">${ic('wallet')}Ghi vào Chi tiêu</button>`}</div></div>`;
   },
   dock() {
     const d = shopDecision();
@@ -745,12 +776,70 @@ VIEWS.shopping = {
 
 /* ───────── Cài đặt: tab Thông báo ───────── */
 const _syncMain = VIEWS.settings.main, _syncDock = VIEWS.settings.dock;
-const settingsTabs = () => `<div class="tabs" role="tablist"><button class="${state.settingsTab === 'sync' ? 'on' : ''}" data-stab="sync">Đồng bộ Google</button><button class="${state.settingsTab === 'notif' ? 'on' : ''}" data-stab="notif">Thông báo</button></div>`;
+const settingsTabs = () => `<div class="tabs" role="tablist"><button class="${state.settingsTab === 'sync' ? 'on' : ''}" data-stab="sync">Đồng bộ Google</button><button class="${state.settingsTab === 'notif' ? 'on' : ''}" data-stab="notif">Thông báo</button><button class="${state.settingsTab === 'theme' ? 'on' : ''}" data-stab="theme">Bộ màu</button></div>`;
 VIEWS.settings.main = () => {
   if (state.settingsTab === 'sync') return _syncMain().replace('<div class="col" style="max-width:720px">', '<div class="col" style="max-width:720px">' + settingsTabs());
   return `<div class="col" style="max-width:720px">${settingsTabs()}${state.rules.map((g, gi) => `<section class="card p6"><div class="row" style="gap:12px;margin-bottom:8px"><span class="cat-tile">${ic(MODULES.find((m) => m.id === g.mod).icon)}</span><h2 class="t-title">${modName(g.mod)}</h2></div>${g.rules.map((r, ri) => `<div class="rule" style="padding:12px 0"><span class="grow"><span class="t-sm w5" style="display:block">${r[0]}</span><span class="t-xs muted">${r[1]}</span></span>${/^\d/.test(r[2]) ? `<button class="time-pill" data-popanchor data-time="${gi}|${ri}">${ic('clock')}${r[2]}</button>` : `<span class="time-pill">${r[2]}</span>`}<button class="switch" role="switch" data-rule="${gi}|${ri}" aria-checked="${r[3]}" aria-label="${r[0]}"></button></div>`).join('')}</section>`).join('')}</div>`;
 };
 VIEWS.settings.dock = () => state.settingsTab === 'sync' ? _syncDock() : section('Thông báo hoạt động thế nào', `<p class="t-sm secondary">Mỗi ứng dụng có bộ nhắc riêng. Thông báo từ các ứng dụng gom chung về một chuông ở góc trên bên phải, gắn tên ứng dụng để bạn biết nó đến từ đâu.</p>`) + section('Giờ yên tĩnh', `<div class="rule"><span class="grow"><span class="t-sm w5" style="display:block">Không làm phiền</span><span class="t-xs muted">22:00 – 06:30</span></span><button class="switch" role="switch" aria-checked="true" aria-label="Không làm phiền"></button></div>`);
+
+/* ───────── Cài đặt: tab Bộ màu ───────── */
+const _tabMain = VIEWS.settings.main, _tabDock = VIEWS.settings.dock;
+VIEWS.settings.main = () => {
+  if (state.settingsTab === 'theme') return `<div class="col" style="max-width:720px">${settingsTabs()}<div><span class="eyebrow">Bộ màu của ứng dụng</span></div>${paletteCards()}</div>`;
+  const tabs = settingsTabs();
+  const extra = appearanceCards() + (state.settingsTab === 'sync' ? localDataCard() : webReminderNotice());
+  return _tabMain().replace(tabs, tabs + extra);
+};
+VIEWS.settings.dock = () => state.settingsTab === 'theme'
+  ? section('Màu chữ và độ dễ đọc', `<p class="t-sm secondary">Mỗi bộ màu có sẵn màu chữ chính, chữ phụ và chữ trên nút, đều được kiểm tra độ dễ đọc ở cả giao diện sáng và tối. Đổi bộ màu không làm đổi màu thu (xanh lá) và chi (đỏ).</p>`)
+    + section('Nhớ lựa chọn', `<p class="t-sm secondary">Bộ màu bạn chọn được nhớ trên thiết bị này.</p>`)
+  : _tabDock();
+
+const _todayMain = VIEWS.today.main;
+VIEWS.today.main = () => `<div class="demo-bar"><span class="eyebrow">Xem thử trạng thái</span><button class="pill ${state.emptyDemo ? '' : 'on'}" data-empty="0">Có dữ liệu</button><button class="pill ${state.emptyDemo ? 'on' : ''}" data-empty="1">Chưa có dữ liệu</button></div>` + (state.emptyDemo ? `<div class="col">${firstRunCard()}</div>` : _todayMain());
+VIEWS.unknown = { main: () => `<div class="col" style="max-width:560px">${unknownPathCard(state.unknownName)}</div>`, dock: () => '' };
+Object.assign(TITLES, { unknown: 'Chưa sẵn sàng' });
+
+/* ───────── Báo cáo và Nhập sao kê ───────── */
+VIEWS.report = {
+  main() {
+    const rows = spentByCategory(); const total = rows.reduce((s, r) => s + r.total, 0);
+    const legend = rows.map((r) => `<li class="row" style="gap:12px;padding:8px 0"><span class="cat-tile sm">${ic(r.icon)}</span><span class="grow t-sm w5">${r.name}</span><span class="t-sm muted">${pctText(r.total / total)}</span><span class="t-sm w6" style="min-width:104px;text-align:right">${vnd(r.total)}</span></li>`).join('');
+    const table = rows.map((r) => `<tr><td><span class="row" style="gap:8px"><span class="cat-tile sm">${ic(r.icon)}</span>${r.name}</span></td><td class="num">${vnd(r.total)}</td><td class="num">${pctText(r.total / total)}</td><td class="num">${r.count}</td></tr>`).join('');
+    return `<div class="col">
+      <div class="row" style="gap:8px;flex-wrap:wrap"><div class="row grow" style="gap:8px;flex-wrap:wrap">${REPORT_RANGES.map((l, i) => `<button class="pill ${(state.reportRange || 0) === i ? 'on' : ''}" data-range="${i}">${l}</button>`).join('')}</div><button class="btn outline" data-export>${ic('download-simple')}Xuất ra bảng tính</button></div>
+      <section class="card p6"><span class="eyebrow">Chi theo hạng mục</span><div class="row" style="gap:24px;margin-top:16px;flex-wrap:wrap;align-items:center">${donutChart(rows, total)}<ul class="grow" style="min-width:260px">${legend}</ul></div></section>
+      <section class="card p6"><span class="eyebrow">Chi theo tháng</span><div style="margin-top:16px">${monthBars(total)}</div><p class="t-xs muted" style="margin-top:8px">Các tháng trước là dữ liệu mẫu.</p></section>
+      <section class="card p6"><span class="eyebrow">Bảng hạng mục</span><table class="rep-table" style="margin-top:12px"><thead><tr><th>Hạng mục</th><th class="num">Đã chi</th><th class="num">Tỷ lệ</th><th class="num">Giao dịch</th></tr></thead><tbody>${table}</tbody></table></section></div>`;
+  },
+  dock() {
+    return section('Xuất ra bảng tính', `<p class="t-sm secondary">Tải bảng chi tiêu theo hạng mục và theo ngày về máy. Mở được bằng Excel hoặc Google Sheets.</p>`)
+      + section('Khoảng thời gian', `<p class="t-sm secondary">Chọn tháng này, 30 ngày, 3 tháng hoặc cả năm. Biểu đồ và bảng đổi theo khoảng đã chọn.</p>`);
+  },
+};
+const importState = { step: 1, picked: new Set([0, 1, 2]), wallet: 'tcb' };
+VIEWS.import = {
+  main() {
+    if (importState.step === 1) {
+      return `<div class="col" style="max-width:720px"><section class="card p6" style="display:grid;gap:16px;justify-items:start"><div class="row" style="gap:12px"><span class="cat-tile">${ic('upload-simple')}</span><div><h2 class="t-title">Chọn sao kê ngân hàng</h2><p class="t-sm secondary">Dùng file sao kê tải từ ứng dụng ngân hàng, hoặc dán nội dung vào ô bên dưới.</p></div></div>
+        <button class="btn primary" data-import-pick>${ic('upload-simple')}Chọn file sao kê</button>
+        <label class="gd-field" style="width:100%"><span class="eyebrow">Hoặc dán nội dung sao kê vào đây</span><textarea class="area" rows="5" placeholder="Nội dung sao kê" aria-label="Nội dung sao kê" style="width:100%"></textarea></label>
+        <button class="btn outline" data-import-read>Đọc sao kê</button></section></div>`;
+    }
+    const total = STATEMENT_SAMPLE.length, chosen = importState.picked.size;
+    const rows = STATEMENT_SAMPLE.map((r, i) => `<li class="gd-row"><button class="chk ${importState.picked.has(i) ? 'on' : ''}" data-import-row="${i}" ${r.dup ? 'disabled' : ''} aria-pressed="${importState.picked.has(i)}" aria-label="Chọn dòng ${i + 1}">${ic('check')}</button><span class="cat-tile sm">${ic(CATS[r.cat].icon)}</span><span class="grow"><b class="trunc">${r.title}</b><small>${r.date} · ${CATS[r.cat].name}${r.dup ? ' · Đã có trong ví, tự bỏ qua' : ''}</small></span><span class="gd-amt ${amountTone(r.amt)}">${signed(r.amt)}</span></li>`).join('');
+    return `<div class="col" style="max-width:720px"><section class="card p6" style="display:grid;gap:12px"><div class="row" style="gap:12px"><div class="grow"><h2 class="t-title">Kiểm tra trước khi nhập</h2><p class="t-sm secondary">Chọn những dòng cần nhập và đổi hạng mục nếu chưa đúng. Dòng đã có trong ví sẽ tự được bỏ qua.</p></div><button class="btn ghost sm" data-import-back>Chọn lại</button></div>
+      <div class="gd-group"><span class="eyebrow">Ví nhận giao dịch</span><div class="gd-pills">${WALLETS.map((w) => `<button type="button" class="pill ${w.id === importState.wallet ? 'on' : ''}" data-import-wallet="${w.id}">${w.name}</button>`).join('')}</div></div>
+      <div class="row"><span class="eyebrow grow">Các dòng trong sao kê</span><button class="btn ghost sm" data-import-all>Chọn tất cả</button></div><ul>${rows}</ul>
+      <p class="t-xs muted">1 dòng không đọc được</p>
+      <div class="row" style="gap:12px"><span class="t-sm secondary grow">Đã chọn ${chosen}/${total} dòng</span><button class="btn primary" data-import-run ${chosen ? '' : 'disabled'}>Nhập ${chosen} giao dịch</button></div></section></div>`;
+  },
+  dock() {
+    return section('Cách nhập', `<ol class="t-sm secondary" style="padding-left:18px;display:grid;gap:8px"><li>Tải sao kê từ ứng dụng ngân hàng.</li><li>Chọn file sao kê hoặc dán nội dung.</li><li>Kiểm tra hạng mục ứng dụng đã đoán, sửa nếu cần.</li><li>Bấm nhập.</li></ol>`)
+      + section('Dữ liệu của bạn', `<p class="t-sm secondary">File chỉ được đọc trên máy này, không gửi đi đâu.</p>`);
+  },
+};
 
 /* ───────── Chế độ nấu ăn ───────── */
 const cook = { r: null, sv: 2, i: 0, timers: {}, checked: new Set(), alert: '', tick: null, lock: null };
@@ -908,7 +997,7 @@ VIEWS.explore = {
       <section class="card p6"><h2 class="t-title" style="margin-bottom:16px">Ứng dụng của bạn</h2>
         ${mine.length ? `<div class="grid-eq">${mine.map((m) => `<div class="well" style="padding:16px;display:grid;gap:16px"><div class="row" style="gap:12px"><span class="cat-tile" style="width:44px;height:44px">${ic(m.icon, 'lg')}</span><div class="grow"><div class="t-sm w6">${m.name}</div><div class="t-xs muted">${m.desc}</div></div></div><div class="row" style="gap:8px"><button class="btn primary sm" data-module="${m.id}">Mở</button><button class="btn outline sm" data-pin="${m.id}" aria-pressed="${state.pinned.includes(m.id)}" style="${state.pinned.includes(m.id) ? 'color:var(--accent-fg);background:var(--accent);border-color:transparent' : ''}">${ic('push-pin')}${state.pinned.includes(m.id) ? 'Đã ghim' : 'Ghim'}</button></div></div>`).join('')}</div>` : '<p class="t-sm muted">Không có ứng dụng nào khớp.</p>'}</section>
       <section class="card p6"><div class="card-head" style="margin-bottom:8px"><h2 class="t-title">Sắp có</h2><span class="t-xs muted">${soon.length} ứng dụng</span></div>
-        ${soon.length ? soon.map(([n, i, d]) => `<div class="rule" style="padding:10px 0"><span class="cat-tile">${ic(i)}</span><span class="grow"><span class="t-sm w5" style="display:block">${n}</span><span class="t-xs muted">${d}</span></span><span class="t-xs muted">Sắp có</span></div>`).join('') : '<p class="t-sm muted">Không có ứng dụng nào khớp.</p>'}</section></div>`;
+        ${soon.length ? soon.map(([n, i, d]) => `<div class="rule" role="button" tabindex="0" data-soon="${n}" style="padding:10px 0;cursor:pointer"><span class="cat-tile">${ic(i)}</span><span class="grow"><span class="t-sm w5" style="display:block">${n}</span><span class="t-xs muted">${d}</span></span><span class="t-xs muted">Sắp có</span></div>`).join('') : '<p class="t-sm muted">Không có ứng dụng nào khớp.</p>'}</section></div>`;
   },
   dock() {
     return section(`Đã ghim (${state.pinned.length})`, state.pinned.length ? state.pinned.map((id) => `<div class="rule"><span class="cat-tile sm">${ic(modById(id).icon)}</span><span class="grow t-sm w5">${modById(id).name}</span><button class="btn ghost sm" data-pin="${id}">Bỏ ghim</button></div>`).join('') : '<p class="t-sm muted">Chưa ghim ứng dụng nào.</p>')
@@ -949,6 +1038,18 @@ document.addEventListener('click', (e) => {
   if ((x = t('[data-pchip]'))) { const [d, s, id] = x.dataset.pchip.split('|'); return popover(x, `<button data-pick="open">${ic('book-open')}Mở công thức</button><button data-pick="cook">${ic('play')}Bắt đầu nấu</button><button data-pick="remove">${ic('trash')}Bỏ khỏi bữa này</button>`, (k) => { if (k === 'open') { state.recipe = id; state.servings = HOUSEHOLD; go('recipes'); } else if (k === 'cook') openCook(id); else { PLAN[d][s] = PLAN[d][s].filter((q) => q !== id); state.shop = mergeShopping(buildShopping()); render(); } }, { width: 200 }); }
   if ((x = t('[data-shop]'))) { const i = state.shop.find((q) => q.key === x.dataset.shop); i.have = !i.have; return render(); }
   if ((x = t('[data-stab]'))) { state.settingsTab = x.dataset.stab; return render(); }
+  if ((x = t('[data-range]'))) { state.reportRange = +x.dataset.range; return render(); }
+  if (t('[data-export]')) return toast('Đã xuất ra bảng tính (bản mẫu)');
+  if (t('[data-import-pick]')) return toast('Chọn file sao kê (bản mẫu)');
+  if (t('[data-import-read]')) { importState.step = 2; return render(); }
+  if (t('[data-import-back]')) { importState.step = 1; return render(); }
+  if ((x = t('[data-import-row]'))) { const i = +x.dataset.importRow; importState.picked.has(i) ? importState.picked.delete(i) : importState.picked.add(i); return render(); }
+  if (t('[data-import-all]')) { importState.picked = new Set(STATEMENT_SAMPLE.map((r, i) => i).filter((i) => !STATEMENT_SAMPLE[i].dup)); return render(); }
+  if ((x = t('[data-import-wallet]'))) { importState.wallet = x.dataset.importWallet; return render(); }
+  if (t('[data-import-run]')) { toast('Đã nhập ' + importState.picked.size + ' giao dịch'); importState.step = 1; return render(); }
+  if ((x = t('[data-empty]'))) { state.emptyDemo = x.dataset.empty === '1'; return render(); }
+  if ((x = t('[data-soon]'))) { state.unknownName = x.dataset.soon; state.view = 'unknown'; return render(); }
+  if (t('[data-go-today]')) return $('#navSlot [data-view="today"]').click();
   if ((x = t('[data-rule]'))) { const [g, r] = x.dataset.rule.split('|'); state.rules[g].rules[r][3] = !state.rules[g].rules[r][3]; return render(); }
   if ((x = t('[data-time]'))) { const [g, r] = x.dataset.time.split('|'); const times = ['06:30', '07:00', '08:00', '09:00', '12:00', '16:00', '17:00', '17:30', '18:00', '20:00', '21:00', '22:00']; return popover(x, times.map((tm) => `<button data-pick="${tm}" aria-selected="${state.rules[g].rules[r][2] === tm}">${tm}${state.rules[g].rules[r][2] === tm ? `<span class="sub">${ic('check')}</span>` : ''}</button>`).join(''), (tm) => { state.rules[g].rules[r][2] = tm; render(); }, { width: 140 }); }
   if ((x = t('[data-act]'))) {
@@ -966,6 +1067,7 @@ document.addEventListener('input', (e) => { if (e.target.id === 'q') { state.que
 let syncTimer;
 const setSync = (st) => { clearTimeout(syncTimer); sync.state = st; render(); };
 document.addEventListener('click', (e) => {
+  if (e.target.closest('#syncQuick')) return runQuickSync();
   const demo = e.target.closest('[data-demo]'); if (demo) return setSync(demo.dataset.demo);
   const ch = e.target.closest('[data-choice]'); if (ch) { sync.choice = ch.dataset.choice; return render(); }
   const tg = e.target.closest('[data-sync-toggle]'); if (tg) { sync[tg.dataset.syncToggle] = tg.getAttribute('aria-checked') !== 'true'; return render(); }
@@ -983,34 +1085,33 @@ $('#confirmOk').onclick = () => { $('#confirmDlg').close(); setSync('off'); toas
 /* chrome */
 $('#dockBtn').onclick = () => $('#dock').classList.toggle('closed');
 if (innerWidth <= 1180) $('#dock').classList.add('closed');
+window.DIALOGS_INTERACTIVE = true;
 const root = document.documentElement;
-$('#themeBtn').onclick = () => { const dark = getComputedStyle(root).colorScheme === 'dark'; root.dataset.theme = dark ? 'light' : 'dark'; };
+$('#themeBtn').onclick = () => setThemeMode(root.dataset.theme === 'dark' ? 'light' : 'dark');
 
 /* add-transaction dialog */
 const dlg = $('#addDlg'); let kind = 'out', cat = 'food', walletId = WALLETS[0].id;
-const walletMenu = $('#fWalletMenu'), walletBtn = $('#fWalletBtn');
+const PAY_METHODS = [['cash', 'Tiền mặt', 'money'], ['tcb', 'Chuyển khoản', 'bank'], ['momo', 'Ví điện tử', 'device-mobile']];
 function paintWallet() {
-  $('#fWalletLabel').textContent = walletName(walletId);
-  walletMenu.innerHTML = WALLETS.map((w) => `<li role="none"><button type="button" role="option" data-w="${w.id}" aria-selected="${w.id === walletId}">${ic('wallet')}${w.name}<span class="sub">${vnd(w.balance)}</span></button></li>`).join('');
+  $('#fPay').innerHTML = PAY_METHODS.map(([id, label, icon]) => `<button type="button" class="pill ${id === walletId ? 'on' : ''}" role="radio" aria-checked="${id === walletId}" data-w="${id}">${ic(icon)}${label}</button>`).join('');
 }
-function closeWalletMenu() { walletMenu.hidden = true; walletBtn.setAttribute('aria-expanded', 'false'); }
-function toggleWalletMenu() { const open = walletMenu.hidden; walletMenu.hidden = !open; walletBtn.setAttribute('aria-expanded', open); if (open) { paintWallet(); $('[aria-selected="true"]', walletMenu).focus(); } }
-walletBtn.onclick = toggleWalletMenu;
-walletMenu.onclick = (e) => { const b = e.target.closest('[data-w]'); if (!b) return; walletId = b.dataset.w; paintWallet(); closeWalletMenu(); walletBtn.focus(); };
-walletMenu.onkeydown = (e) => {
-  const items = $$('[data-w]', walletMenu), i = items.indexOf(document.activeElement);
-  if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
-  else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
-  else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeWalletMenu(); walletBtn.focus(); }
+$('#fPay').onclick = (e) => { const b = e.target.closest('[data-w]'); if (!b) return; walletId = b.dataset.w; paintWallet(); };
+const VISIBLE_CATS = 6;
+const categoryIds = () => Object.keys(CATS).filter((id) => (kind === 'in') === isIncomeCat(id));
+const catOptions = () => {
+  const ids = categoryIds(); const shown = ids.slice(0, VISIBLE_CATS);
+  if (ids.includes(cat) && !shown.includes(cat)) shown[shown.length - 1] = cat;
+  const tile = (id) => `<button type="button" class="cat-opt ${id === cat ? 'on' : ''}" data-cat="${id}"><span class="cat-tile sm">${ic(CATS[id].icon)}</span>${CATS[id].name}</button>`;
+  const more = ids.length > shown.length ? `<button type="button" class="cat-opt new" data-allcats><span class="cat-tile sm">${ic('magnifying-glass')}</span>Xem tất cả</button>` : '';
+  return shown.map(tile).join('') + more + `<button type="button" class="cat-opt new" data-newcat><span class="cat-tile sm">${ic('plus')}</span>Hạng mục mới</button>`;
 };
-dlg.addEventListener('cancel', (e) => { if (!walletMenu.hidden) { e.preventDefault(); closeWalletMenu(); } });
-dlg.addEventListener('click', (e) => { if (!walletMenu.hidden && !e.target.closest('.menu-wrap')) closeWalletMenu(); });
-const catOptions = () => Object.entries(CATS).filter(([id]) => (kind === 'in') === isIncomeCat(id)).map(([id, c]) => `<button type="button" class="cat-opt ${id === cat ? 'on' : ''}" data-cat="${id}"><span class="cat-tile sm">${ic(c.icon)}</span>${c.name}</button>`).join('') + `<button type="button" class="cat-opt new" data-newcat><span class="cat-tile sm">${ic('plus')}</span>Hạng mục mới</button>`;
-function openDlg() { kind = 'out'; cat = 'food'; $('#addForm').reset(); walletId = WALLETS[0].id; closeWalletMenu(); paintWallet(); $$('.seg button').forEach((b) => b.classList.toggle('on', b.dataset.kind === kind)); $('#fCats').innerHTML = catOptions(); hydrateIcons(); dlg.showModal(); $('#fAmount').focus(); }
+function openDlg() { kind = 'out'; cat = 'food'; $('#addForm').reset(); walletId = WALLETS[0].id; paintWallet(); $$('.seg button').forEach((b) => b.classList.toggle('on', b.dataset.kind === kind)); $('#fCats').innerHTML = catOptions(); hydrateIcons(); dlg.showModal(); $('#fAmount').focus(); }
 $('#addBtn').onclick = (e) => addAction(e.currentTarget);
 $('#closeDlg').onclick = $('#cancelDlg').onclick = () => dlg.close();
 $$('.seg button').forEach((b) => (b.onclick = () => { kind = b.dataset.kind; cat = kind === 'in' ? 'income' : 'food'; $$('.seg button').forEach((x) => x.classList.toggle('on', x === b)); $('#fCats').innerHTML = catOptions(); }));
+document.addEventListener('category-picked', (e) => { cat = e.detail.id; $('#fCats').innerHTML = catOptions(); hydrateIcons($('#fCats')); });
 $('#fCats').onclick = (e) => {
+  if (e.target.closest('[data-allcats]')) return openCategoryPicker(categoryIds(), cat);
   if (e.target.closest('[data-newcat]')) return openCatDlg(kind, (id) => { cat = id; $('#fCats').innerHTML = catOptions(); hydrateIcons($('#fCats')); });
   const o = e.target.closest('[data-cat]'); if (o) { cat = o.dataset.cat; $('#fCats').innerHTML = catOptions(); hydrateIcons($('#fCats')); }
 };

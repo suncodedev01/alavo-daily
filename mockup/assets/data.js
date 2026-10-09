@@ -7,6 +7,11 @@ const CATS = {
   health:    { name: 'Sức khoẻ', icon: 'heartbeat',    budget: 800 },
   bills:     { name: 'Hoá đơn',  icon: 'lightning',    budget: 1200 },
   home:      { name: 'Nhà ở',    icon: 'house-line',   budget: null },
+  education: { name: 'Giáo dục', icon: 'graduation-cap', budget: null },
+  travel:    { name: 'Du lịch',  icon: 'airplane-tilt', budget: null },
+  pets:      { name: 'Thú cưng', icon: 'paw-print',    budget: null },
+  gifts:     { name: 'Quà tặng', icon: 'gift',         budget: null },
+  beauty:    { name: 'Làm đẹp',  icon: 'heart',        budget: null },
   income:    { name: 'Thu nhập', icon: 'arrow-down-left', budget: null, kind: 'in' },
 };
 
@@ -70,6 +75,7 @@ const WEEKDAY = { 1: 'Thứ Năm', 2: 'Thứ Sáu', 3: 'Thứ Bảy', 4: 'Chủ 
 
 const vnd = (k) => (Math.abs(k) * 1000).toLocaleString('vi-VN') + ' ₫';
 const signed = (k) => (k > 0 ? '+' : '−') + vnd(k);
+const amountTone = (k) => (k > 0 ? 'income' : 'expense');
 const dayLabel = (d) => (d === TODAY ? 'Hôm nay' : d === TODAY - 1 ? 'Hôm qua' : WEEKDAY[d]) + ' · ' + d + '/10';
 const walletName = (id) => WALLETS.find((w) => w.id === id).name;
 
@@ -100,7 +106,7 @@ const txRow = (t, opts = {}) => `
       <span class="tx-title trunc">${t.title}</span>
       <span class="tx-sub trunc">${CATS[t.cat].name} · ${walletName(t.wallet)}</span>
     </span>
-    <span class="tx-amt ${t.amt > 0 ? 'income' : ''}">${signed(t.amt)}</span>
+    <span class="tx-amt ${amountTone(t.amt)}">${signed(t.amt)}</span>
   </button>`;
 
 const ACCOUNT = { name: 'Linh Nguyễn', email: 'linh.nguyen@gmail.com' };
@@ -118,3 +124,30 @@ const SYNC_CONFLICT = {
   here:   { title: 'Bản trên máy này', meta: 'Chrome · Windows · sửa lúc 14:20', detail: '23 giao dịch', extra: 'Có 2 giao dịch mới chưa lên Google' },
   remote: { title: 'Bản trên Google Drive', meta: 'iPhone của Linh · sửa lúc 13:05', detail: '22 giao dịch', extra: 'Có 1 giao dịch đã bị xoá trên iPhone' },
 };
+
+/* Report helpers shared by the web and mobile mockups */
+const CAT_TONE = { food: 'orange', transport: 'blue', shopping: 'pink', fun: 'purple', health: 'red', bills: 'gold', home: 'teal', income: 'green', education: 'purple', travel: 'blue', pets: 'brown', gifts: 'pink', beauty: 'pink' };
+const toneOf = (id) => CAT_TONE[id] || 'brown';
+const REPORT_RANGES = ['Tháng này', '30 ngày', '3 tháng', 'Năm nay'];
+const MONTHLY_SAMPLE = [['T5', 11800], ['T6', 13250], ['T7', 12400], ['T8', 15100], ['T9', LAST_MONTH_SPENT]];
+const STATEMENT_SAMPLE = [
+  { date: '8/10', title: 'GRAB*TRIP HCM', amt: -62, cat: 'transport' },
+  { date: '7/10', title: 'HIGHLANDS COFFEE 0412', amt: -59, cat: 'food' },
+  { date: '6/10', title: 'THANH TOAN NETFLIX', amt: -260, cat: 'fun' },
+  { date: '5/10', title: 'LUONG THANG 10', amt: 28000, cat: 'income', dup: true },
+];
+const spentByCategory = () => Object.entries(CATS).filter(([id]) => !isIncomeCat(id))
+  .map(([id, c]) => { const rows = TX.filter((t) => t.cat === id && t.amt < 0); return { id, name: c.name, icon: c.icon, total: rows.reduce((s, t) => s - t.amt, 0), count: rows.length }; })
+  .filter((r) => r.total > 0).sort((a, b) => b.total - a.total);
+
+function donutChart(rows, total) {
+  const R = 64, C = 2 * Math.PI * R; let offset = 0;
+  const arcs = rows.map((r) => { const len = (r.total / total) * C; const arc = `<circle cx="90" cy="90" r="${R}" fill="none" stroke="var(--tone-${toneOf(r.id)})" stroke-width="28" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-offset}" transform="rotate(-90 90 90)"/>`; offset += len; return arc; }).join('');
+  return `<svg viewBox="0 0 180 180" width="180" height="180" role="img" aria-label="Chi tiêu theo hạng mục, tổng ${vnd(total)}">${arcs}<text x="90" y="86" text-anchor="middle" class="bar-label">Tổng chi</text><text x="90" y="106" text-anchor="middle" style="font-size:15px;font-weight:600;fill:var(--text-primary)">${vnd(total)}</text></svg>`;
+}
+function monthBars(currentTotal) {
+  const data = [...MONTHLY_SAMPLE, ['T10', currentTotal]]; const max = Math.max(...data.map((d) => d[1])); const W = 520, H = 200, base = 170, bw = W / data.length;
+  const bars = data.map(([label, v], i) => { const h = (v / max) * 130; const x = i * bw + bw * 0.2; const last = i === data.length - 1;
+    return `<rect x="${x}" y="${base - h}" width="${bw * 0.6}" height="${h}" rx="6" fill="var(${last ? '--chart-1' : '--chart-3'})"/><text x="${x + bw * 0.3}" y="${base - h - 6}" text-anchor="middle" class="bar-label">${(v / 1000).toFixed(1).replace('.', ',')}tr</text><text x="${x + bw * 0.3}" y="${base + 18}" text-anchor="middle" class="bar-label">${label}</text>`; }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="200" role="img" aria-label="Chi tiêu theo tháng">${bars}</svg>`;
+}

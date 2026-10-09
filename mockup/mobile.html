@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Budget Manager — Mobile</title>
 <link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/palettes.css">
+<script src="assets/palettes.js"></script>
 <style>
   body { min-height: 100vh; padding: 24px 24px 64px; }
   .page-head { max-width: 1400px; margin: 0 auto 24px; display: flex; align-items: center; gap: 16px; }
@@ -15,8 +17,8 @@
   figcaption { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
 
   .phone { position: relative; width: 390px; height: 844px; border-radius: 52px; background: var(--paper); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 0 0 10px var(--click-900), 0 0 0 11px var(--line-strong), var(--elevation-overlay); }
-  :root[data-theme="dark"] .phone { box-shadow: 0 0 0 10px #05070F, 0 0 0 11px var(--line-strong), var(--elevation-overlay); }
-  .island { position: absolute; top: 11px; left: 50%; width: 120px; height: 34px; border-radius: 20px; background: #05070F; transform: translateX(-50%); z-index: 5; }
+  :root[data-theme="dark"] .phone { box-shadow: 0 0 0 10px #0F0C06, 0 0 0 11px var(--line-strong), var(--elevation-overlay); }
+  .island { position: absolute; top: 11px; left: 50%; width: 120px; height: 34px; border-radius: 20px; background: #0F0C06; transform: translateX(-50%); z-index: 5; }
   .status { height: 54px; flex: none; padding: 18px 32px 0 36px; display: flex; justify-content: space-between; font-size: 16px; font-weight: 600; }
   .status .r { display: flex; gap: 6px; align-items: center; }
   .scroll { flex: 1; overflow-y: auto; padding: 8px 16px 24px; display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-rows: max-content; gap: 16px; align-content: start; scrollbar-width: none; }
@@ -39,6 +41,7 @@
   .p4 { padding: 16px; }
   .rowbtn { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 8px 0; text-align: left; }
   .rowbtn + .rowbtn { box-shadow: 0 -1px 0 var(--line-hairline); }
+  .rowbtn.card { padding: 8px 16px; }
   .rt { display: block; font-size: 16px; font-weight: 500; }
   .rs { display: block; font-size: 13px; color: var(--text-muted); }
   .ra { font-size: 16px; font-weight: 500; white-space: nowrap; }
@@ -76,6 +79,11 @@
   .overlay { position: absolute; inset: 0; z-index: 6; background: var(--scrim); display: flex; align-items: flex-end; }
   .overlay[hidden] { display: none; }
   .ov-sheet { width: 100%; background: var(--surface); border-radius: 28px 28px 0 0; padding: 12px 16px 36px; display: grid; gap: 16px; box-shadow: var(--elevation-overlay); }
+  .ov-sheet.fixed { max-height: 92%; display: flex; flex-direction: column; gap: 0; padding: 12px 0 0; }
+  .ov-head { display: grid; gap: 12px; padding: 0 16px 12px; flex: none; }
+  .ov-body { overflow-y: auto; min-height: 0; display: grid; gap: 16px; padding: 4px 16px 24px; align-content: start; }
+  .ov-foot .save { width: 100%; }
+  .ov-foot { flex: none; padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 20px)); box-shadow: 0 -1px 0 var(--line-hairline); background: var(--surface); }
   .grabber { width: 36px; height: 5px; border-radius: 3px; background: var(--line-strong); justify-self: center; }
   .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
   .icon-opt { height: 48px; border-radius: var(--r-xl); display: grid; place-items: center; color: var(--text-secondary); }
@@ -107,8 +115,7 @@
   .sw-row + .sw-row { box-shadow: 0 -1px 0 var(--line-hairline); }
   .topbar { display: flex; align-items: center; gap: 8px; }
   .modpill { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px 0 6px; border-radius: 22px; background: var(--surface); box-shadow: 0 0 0 1px var(--line-hairline), var(--elevation-hairline); font-size: 15px; font-weight: 600; }
-  .modpill .tile { width: 32px; height: 32px; border-radius: 16px; background: var(--click-600); color: #fff; display: grid; place-items: center; }
-  :root[data-theme="dark"] .modpill .tile { background: var(--click-400); color: #0B1020; }
+  .modpill .tile { width: 32px; height: 32px; border-radius: 16px; background-color: var(--tile-bg, var(--primary)); color: var(--tile-fg, var(--primary-fg)); display: grid; place-items: center; }
   .modpill .tile .ic { width: 18px; height: 18px; }
   .iconbtn { position: relative; }
   .udot { position: absolute; top: 9px; right: 10px; width: 9px; height: 9px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 2px var(--surface); }
@@ -150,12 +157,38 @@
   .nrow .nb { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
   .nrow.unread .nb { color: var(--text-secondary); }
   .nrow .nm { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .btn, .btn.sm { height: 44px; }
+  .btn.icon { width: 44px; padding: 0; }
+  .pill { min-height: 44px; }
+  .switch::before { content: ''; position: absolute; inset: -7px -4px; }
+  .pop button { min-height: 44px; }
+  .row:has(> h1) { flex-wrap: wrap; row-gap: 8px; }
+  .rule-m { display: grid; gap: 8px; padding: 12px 0; }
+  .rule-m + .rule-m { box-shadow: 0 -1px 0 var(--line-hairline); }
+  .rule-top { display: flex; align-items: center; gap: 12px; }
+  .time-field { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 0 16px; border-radius: var(--r-4xl); background: var(--surface-tint); font-size: 15px; font-weight: 500; }
+  .allow-card { display: grid; gap: 12px; }
+  .range-stack { display: grid; gap: 8px; }
+  .phone.kb-open .tabbar { display: none; }
+  .lockscreen { background: linear-gradient(165deg, var(--wallpaper-a), var(--wallpaper-b) 55%, var(--wallpaper-c)); color: var(--on-wallpaper); }
+  .lock-head { display: grid; justify-items: center; gap: 4px; margin-top: 8px; }
+  .lock-date { font-size: 18px; font-weight: 500; }
+  .lock-clock { font-size: 88px; line-height: 1; font-weight: 600; letter-spacing: -0.02em; }
+  .lock-list { display: grid; gap: 8px; padding: 36px 12px 0; }
+  .os-notif { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; padding: 12px; border-radius: 22px; background: color-mix(in srgb, var(--surface) 82%, transparent); backdrop-filter: blur(18px); color: var(--text-primary); box-shadow: var(--elevation-card); }
+  .os-notif .cat-tile { width: 40px; height: 40px; }
+  .os-top { display: flex; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+  .os-title { font-size: 15px; font-weight: 600; margin-top: 2px; }
+  .os-body { font-size: 14px; line-height: 1.35; color: var(--text-secondary); margin-top: 2px; }
+  .os-acts { grid-column: 2; display: flex; gap: 8px; margin-top: 4px; }
+  .os-acts .btn { height: 40px; padding: 0 14px; }
+  .os-banner { position: absolute; top: 58px; left: 12px; right: 12px; z-index: 6; }
   .tabs2 { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: var(--r-4xl); background: var(--surface-tint); }
   .tabs2 button { height: 40px; border-radius: var(--r-4xl); font-size: 15px; font-weight: 500; color: var(--text-secondary); }
   .tabs2 button.on { background: var(--surface); color: var(--text-primary); box-shadow: var(--elevation-raised); }
   .modrow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 8px; border-radius: var(--r-xl); text-align: left; }
   .modrow.on { background: var(--accent); }
-  .modrow .tile { width: 44px; height: 44px; border-radius: var(--r-lg); background: var(--surface-tint); display: grid; place-items: center; flex: none; }
+  .modrow .tile { width: 44px; height: 44px; border-radius: var(--r-lg); background-color: var(--tile-bg, var(--surface-tint)); color: var(--tile-fg, inherit); display: grid; place-items: center; flex: none; }
   .cook-m { background: var(--paper); }
   .cook-big { font-size: 26px; line-height: 1.35; font-weight: 500; }
   .tbox { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: var(--r-2xl); background: var(--surface); box-shadow: 0 0 0 1px var(--line-hairline), var(--elevation-card); }
@@ -168,8 +201,7 @@
   .area { width: 100%; min-height: 88px; padding: 12px 16px; border-radius: var(--r-xl); border: 0; outline: 0; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-hairline); color: var(--text-primary); font: inherit; font-size: 16px; resize: none; }
   .area:focus { box-shadow: inset 0 0 0 2px var(--ring); }
   .dropzone { display: flex; gap: 12px; align-items: center; width: 100%; padding: 16px; border-radius: var(--r-xl); border: 1px dashed var(--line-strong); text-align: left; min-height: 72px; }
-  .eing { display: grid; gap: 8px; padding-bottom: 12px; }
-  .eing + .eing { box-shadow: 0 -1px 0 var(--line-hairline); padding-top: 12px; }
+  .eing { display: grid; gap: 8px; padding: 12px; border-radius: var(--r-xl); background: var(--surface-tint); }
   .estep { display: grid; gap: 8px; }
   .estep + .estep { box-shadow: 0 -1px 0 var(--line-hairline); padding-top: 16px; }
   .field.pick { cursor: pointer; }
@@ -187,13 +219,14 @@
 <script src="assets/icons.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/food-data.js"></script>
+<script src="assets/dialogs.js"></script>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
 const meter = (pct) => `<div class="meter ${meterTone(pct)}" role="progressbar" aria-valuenow="${Math.round(pct * 100)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.min(pct, 1) * 100}%"></i></div>`;
 const daysLeft = 31 - TODAY;
 const food = BUDGETED.find((b) => b.id === 'food');
 
-const row = (t) => `<button class="rowbtn" type="button"><span class="cat-tile">${ic(CATS[t.cat].icon)}</span><span class="grow"><span class="rt trunc">${t.title}</span><span class="rs trunc">${CATS[t.cat].name} · ${walletName(t.wallet)}</span></span><span class="ra ${t.amt > 0 ? 'income' : ''}">${signed(t.amt)}</span></button>`;
+const row = (t) => `<button class="rowbtn" type="button"><span class="cat-tile">${ic(CATS[t.cat].icon)}</span><span class="grow"><span class="rt trunc">${t.title}</span><span class="rs trunc">${CATS[t.cat].name} · ${walletName(t.wallet)}</span></span><span class="ra ${amountTone(t.amt)}">${signed(t.amt)}</span></button>`;
 
 const phone = (caption, body, tab, { bar = true, tabs = 'spend' } = {}) => `
   <figure><div class="phone"><div class="island"></div>
@@ -213,7 +246,7 @@ const overview = () => phone('1 · Tổng quan', `<div class="scroll">
   <section class="card p5"><span class="eyebrow">Tổng số dư</span><div class="t-display" style="margin:8px 0 16px;white-space:nowrap">${vnd(totalBalance)}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="well p4" style="padding:12px"><div class="t-row muted">Thu tháng 10</div><div class="t-base w6 income">${signed(income)}</div></div>
-      <div class="well p4" style="padding:12px"><div class="t-row muted">Chi tháng 10</div><div class="t-base w6">${vnd(expense)}</div></div></div></section>
+      <div class="well p4" style="padding:12px"><div class="t-row muted">Chi tháng 10</div><div class="t-base w6 expense">${vnd(expense)}</div></div></div></section>
   <section class="card p4"><div class="row" style="gap:8px;margin-bottom:8px"><span class="t-base w6 grow">Cần bạn quyết định</span><span class="chip needs">Cần bạn</span></div>
     <p class="t-sm secondary" style="margin-bottom:12px">Ăn uống đã dùng <b>${pctText(food.pct)}</b> ngân sách, còn ${vnd(food.budget - food.spent)} cho ${daysLeft} ngày.</p>${meter(food.pct)}
     <div class="row" style="gap:8px;margin-top:16px"><button class="btn primary grow" style="height:44px">Tăng thêm ${vnd(500)}</button><button class="btn outline" style="height:44px">Giữ nguyên</button></div></section>
@@ -228,15 +261,18 @@ const add = () => phone('2 · Thêm giao dịch (bấm được)', `<div class="
   <div class="amount"><div class="t-display" id="amt" aria-live="polite">0 ₫</div><div class="t-row muted" style="margin-top:4px" id="amtHint">Nhập số tiền</div></div>
   <div class="chipset" id="cats"></div>
   <div style="padding:0 16px;display:grid;gap:8px"><label class="field">${ic('receipt', 'lg')}<input id="note" placeholder="Ghi chú" style="border:0;background:none;outline:0;flex:1;min-width:0;color:var(--text-primary);font-size:16px"></label>
-    <div class="row" style="gap:8px"><span class="pill" style="height:40px">${ic('wallet')}Ví MoMo</span><span class="pill" style="height:40px">${ic('calendar-blank')}Hôm nay</span><span class="pill" style="height:40px">${ic('repeat')}Một lần</span></div></div>
+    <span class="eyebrow">Thanh toán bằng</span>
+    <div class="pay-pills"><span class="pill">${ic('money')}Tiền mặt</span><span class="pill">${ic('bank')}Chuyển khoản</span><span class="pill on">${ic('device-mobile')}Ví điện tử</span></div>
+    <div class="row" style="gap:8px"><span class="pill">${ic('calendar-blank')}Hôm nay</span><span class="pill">${ic('repeat')}Một lần</span></div></div>
   <div class="keypad" id="keys">${['1','2','3','4','5','6','7','8','9','000','0','del'].map((k) => `<button class="key" data-k="${k}" ${k === 'del' ? 'aria-label="Xoá"' : ''}>${k === 'del' ? ic('backspace') : k}</button>`).join('')}</div>
   <button class="save" id="save" disabled style="opacity:.5">Lưu giao dịch</button>
-  <div class="overlay" id="newCat" hidden><form class="ov-sheet" id="newCatForm"><div class="grabber"></div>
-    <div class="row"><h2 class="t-title grow">Hạng mục mới</h2><button class="iconbtn" type="button" id="ncClose" aria-label="Đóng">${ic('x')}</button></div>
+  <div class="overlay" id="allCats" hidden><div class="ov-sheet fixed"><div class="ov-head"><div class="grabber"></div><div class="row"><h2 class="t-title grow">Chọn hạng mục</h2><button class="iconbtn" type="button" id="acClose" aria-label="Đóng">${ic('x')}</button></div></div><div class="ov-body" id="acBody"></div></div></div>
+  <div class="overlay" id="newCat" hidden><form class="ov-sheet fixed" id="newCatForm"><div class="ov-head"><div class="grabber"></div>
+    <div class="row"><h2 class="t-title grow">Hạng mục mới</h2><button class="iconbtn" type="button" id="ncClose" aria-label="Đóng">${ic('x')}</button></div></div><div class="ov-body">
     <label class="field">${ic('tag', 'lg')}<input id="ncName" placeholder="Tên hạng mục (ví dụ: Thú cưng)" maxlength="24" autocomplete="off"></label>
     <div><span class="eyebrow" style="display:block;margin-bottom:8px">Biểu tượng</span><div class="icon-grid" id="ncIcons"></div></div>
     <div id="ncBudgetWrap"><span class="eyebrow" style="display:block;margin-bottom:8px">Ngân sách tháng (không bắt buộc)</span><label class="field">${ic('chart-pie-slice', 'lg')}<input id="ncBudget" inputmode="numeric" placeholder="Ví dụ: 500.000" autocomplete="off"><span>₫</span></label></div>
-    <button class="save" style="margin:0" type="submit" id="ncSave" disabled>Tạo hạng mục</button></form></div>
+    </div><div class="ov-foot"><button class="save" style="margin:0" type="submit" id="ncSave" disabled>Tạo hạng mục</button></div></form></div>
   </div>`, '', { bar: false });
 
 /* 3 · Giao dịch */
@@ -366,8 +402,9 @@ const notifBody = () => `${navHead('Thông báo').replace('Cài đặt', 'Quay l
   <section class="card p4" style="padding:8px">${NOTIFS.map(notifRow).join('')}</section>
   <button class="rowbtn card p4" type="button" style="min-height:56px">${ic('gear', 'lg')}<span class="grow">Cài đặt thông báo</span>${ic('caret-right')}</button></div>`;
 const notifSettingsBody = () => `${navHead('Thông báo')}<div class="scroll">
+  <section class="card p4 allow-card"><div class="row" style="gap:12px"><span class="cat-tile">${ic('bell')}</span><div class="grow"><h2 class="t-title">Cho phép thông báo</h2><p class="t-sm secondary">Để nhận nhắc nấu ăn và cảnh báo ngân sách, hãy cho phép thông báo trên điện thoại.</p></div></div><button class="btn primary" type="button" style="width:100%">Cho phép thông báo</button></section>
   ${NOTIF_RULES.map((g) => `<section class="card p4" style="padding-top:12px;padding-bottom:4px"><div class="row" style="gap:12px;margin-bottom:4px"><span class="cat-tile">${ic(MOD[g.mod].icon)}</span><h2 class="t-title">${MOD[g.mod].name}</h2></div>
-    ${g.rules.map((r) => `<div class="sw-row" style="min-height:72px"><span class="grow"><span class="rt" style="font-size:15px">${r[0]}</span><span class="rs">${r[1]}</span></span>${/^\d/.test(r[2]) ? `<span class="time-pill">${ic('clock')}${r[2]}</span>` : ''}<button class="switch" role="switch" aria-checked="${r[3]}" aria-label="${r[0]}"></button></div>`).join('')}</section>`).join('')}
+    ${g.rules.map((r) => `<div class="rule-m"><div class="rule-top"><span class="grow"><span class="rt" style="font-size:15px">${r[0]}</span><span class="rs">${r[1]}</span></span><button class="switch" role="switch" aria-checked="${r[3]}" aria-label="${r[0]}"></button></div>${/^\d/.test(r[2]) ? `<div class="time-field">${ic('clock')}<span>${r[2]}</span></div>` : ''}</div>`).join('')}</section>`).join('')}
   <section class="card p4" style="padding-top:4px;padding-bottom:4px">${swRow('Không làm phiền', '22:00 – 06:30', true)}</section></div>`;
 
 /* Công thức */
@@ -375,7 +412,7 @@ const recipesBody = () => `<div class="scroll">${topbar('food')}
   <h1 class="t-2xl" style="padding:0 4px">Công thức</h1>
   <label class="field">${ic('magnifying-glass', 'lg')}<span>Tìm công thức</span></label>
   <div class="pills">${TAGS.map((t, i) => `<span class="pill ${i === 0 ? 'on' : ''}">${t}</span>`).join('')}</div>
-  <div style="display:grid;gap:8px">${RECIPES.slice(0, 6).map((r) => `<button class="rcard" type="button"><span class="thumb">${ic(r.icon)}</span><span class="grow"><span class="rt">${r.name}</span><span class="rs">${fmtMin(totalTime(r))} · ${r.level} · ${recipeCost(r, HOUSEHOLD) ? vnd(recipeCost(r, HOUSEHOLD)) : ''}</span></span>${r.fav ? `<span style="color:var(--primary)">${ic('heart-fill', 'lg')}</span>` : ''}</button>`).join('')}</div></div>`;
+  <div style="display:grid;gap:8px">${RECIPES.slice(0, 6).map((r) => `<button class="rcard" type="button"><span class="thumb">${ic(r.icon)}</span><span class="grow"><span class="rt">${r.name}</span><span class="rs">${fmtMin(totalTime(r))} · ${r.level} · ${recipeCost(r, HOUSEHOLD) ? vnd(recipeCost(r, HOUSEHOLD)) : ''}</span></span>${r.fav ? `<span style="color:var(--heart)">${ic('heart-fill', 'lg')}</span>` : ''}</button>`).join('')}</div></div>`;
 
 let mRec = { sv: HOUSEHOLD, tab: 'ing' };
 const detailInner = () => {
@@ -385,7 +422,7 @@ const detailInner = () => {
   return `<div class="tabs2" id="dtabs"><button class="${mRec.tab === 'ing' ? 'on' : ''}" data-tab="ing">Nguyên liệu</button><button class="${mRec.tab === 'steps' ? 'on' : ''}" data-tab="steps">Cách làm</button></div>
     <section class="card p4" style="padding-top:4px;padding-bottom:4px">${mRec.tab === 'ing' ? ing : steps}</section>`;
 };
-const detailBody = () => { const r = recipeById('ga-kho'); return `<div class="scroll" id="detailScroll" style="padding-top:0"><div class="cover-m">${ic(r.icon)}<button class="iconbtn" style="left:16px" aria-label="Quay lại">${ic('caret-left', 'lg')}</button><button class="iconbtn" style="right:16px;color:var(--primary)" aria-label="Yêu thích">${ic('heart-fill', 'lg')}</button></div>
+const detailBody = () => { const r = recipeById('ga-kho'); return `<div class="scroll" id="detailScroll" style="padding-top:0"><div class="cover-m">${ic(r.icon)}<button class="iconbtn" style="left:16px" aria-label="Quay lại">${ic('caret-left', 'lg')}</button><button class="iconbtn" style="right:16px;color:var(--heart)" aria-label="Yêu thích">${ic('heart-fill', 'lg')}</button></div>
   <div style="padding:0 4px"><h1 class="t-2xl">${r.name}</h1><div class="row" style="gap:6px;margin-top:8px"><span class="pill" style="height:28px;font-size:13px">Món chính</span></div></div>
   <div class="mchips"><div><div class="eyebrow">Chuẩn bị</div><div class="t-base w6">${fmtMin(r.prep)}</div></div><div><div class="eyebrow">Nấu</div><div class="t-base w6">${fmtMin(r.cook)}</div></div><div><div class="eyebrow">Độ khó</div><div class="t-base w6">${r.level}</div></div></div>
   <div class="row card p4" style="padding:12px 16px"><span class="grow"><span class="rt" style="font-size:15px;font-weight:500;display:block">Khẩu phần</span><span class="rs t-row muted" id="costLine">Khoảng ${vnd(recipeCost(r, mRec.sv))}</span></span><span class="stepper"><button data-sv="-1" aria-label="Giảm">${ic('minus')}</button><b id="svNum">${mRec.sv}</b><button data-sv="1" aria-label="Tăng">${ic('plus')}</button></span></div>
@@ -437,17 +474,18 @@ const exploreBody = () => `<div class="scroll"><div class="row" style="padding:4
     ${COMING_APPS.map(([n, i, d]) => `<div class="rowbtn" style="opacity:.8"><span class="cat-tile">${ic(i)}</span><span class="grow"><span class="rt">${n}</span><span class="rs">${d}</span></span><span class="t-row muted">Sắp có</span></div>`).join('')}</section></div>`;
 
 /* ───────── Nhập công thức (mobile) ───────── */
+const AISLES_M = ['Thịt cá', 'Rau củ', 'Gia vị', 'Đồ khô', 'Khác'];
 const UNITS_M = ['g', 'kg', 'ml', 'lít', 'củ', 'tép', 'cây', 'quả', 'trái', 'mớ', 'bó', 'miếng', 'nhúm', 'bộ', 'gói', 'muỗng canh', 'muỗng cà phê', 'phần'];
-const mBlank = () => ({ name: '', tags: ['Món chính'], prep: '', cook: '', servings: 2, ing: [{ q: '', u: 'g', n: '' }], steps: [{ t: '', m: 0 }], imported: false, photo: false });
+const mBlank = () => ({ name: '', tags: ['Món chính'], prep: '', cook: '', servings: 2, ing: [{ q: '', u: 'g', n: '', a: 'Khác', c: '' }], steps: [{ t: '', m: 0 }], imported: false, photo: false });
 const mImported = () => ({ name: 'Bò kho bánh mì', tags: ['Món chính'], prep: '20', cook: '90', servings: 4, imported: true, photo: false,
-  ing: [{ q: '500', u: 'g', n: 'Bắp bò' }, { q: '2', u: 'củ', n: 'Cà rốt' }, { q: '3', u: 'tép', n: 'Tỏi' }, { q: '2', u: 'cây', n: 'Sả' }, { q: '1', u: 'gói', n: 'Gia vị bò kho' }],
+  ing: [{ q: '500', u: 'g', n: 'Bắp bò', a: 'Thịt cá', c: '185000' }, { q: '2', u: 'củ', n: 'Cà rốt', a: 'Rau củ', c: '12000' }, { q: '3', u: 'tép', n: 'Tỏi', a: 'Gia vị', c: '3000' }, { q: '2', u: 'cây', n: 'Sả', a: 'Rau củ', c: '5000' }, { q: '1', u: 'gói', n: 'Gia vị bò kho', a: 'Gia vị', c: '9000' }],
   steps: [{ t: 'Ướp bò với gia vị bò kho 30 phút', m: 30 }, { t: 'Phi thơm sả tỏi, xào săn bò', m: 0 }, { t: 'Thêm nước, hầm lửa nhỏ 60 phút', m: 60 }, { t: 'Cho cà rốt vào hầm thêm 20 phút', m: 20 }] });
 const mEd = { a: { d: mImported() }, b: { d: mBlank() }, c: { d: mImported() } };
 const mOk = (d) => !!d.name.trim() && d.ing.some((i) => i.n.trim()) && d.steps.some((s) => s.t.trim());
 
 const edInner = (id) => {
   const d = mEd[id].d;
-  const ing = d.ing.map((r, i) => `<div class="eing" data-row="${i}"><div class="row" style="gap:8px"><label class="field" style="height:48px;width:84px;padding:0 12px"><input data-ing="q" inputmode="decimal" value="${r.q}" placeholder="SL" aria-label="Số lượng"></label><button type="button" class="field pick" data-unit="${i}" style="height:48px;flex:1;justify-content:space-between;color:var(--text-primary)">${r.u}${ic('caret-down')}</button><button type="button" class="iconbtn" style="box-shadow:none;background:transparent" data-ing-del="${i}" aria-label="Xoá nguyên liệu">${ic('trash')}</button></div><label class="field" style="height:48px"><input data-ing="n" value="${r.n}" placeholder="Tên nguyên liệu" aria-label="Tên nguyên liệu"></label></div>`).join('');
+  const ing = d.ing.map((r, i) => `<div class="eing" data-row="${i}"><div class="row" style="gap:8px"><label class="field" style="height:48px;width:84px;padding:0 12px"><input data-ing="q" inputmode="decimal" value="${r.q}" placeholder="SL" aria-label="Số lượng"></label><button type="button" class="field pick" data-unit="${i}" style="height:48px;flex:1;justify-content:space-between;color:var(--text-primary)">${r.u}${ic('caret-down')}</button><button type="button" class="iconbtn" style="box-shadow:none;background:transparent" data-ing-del="${i}" aria-label="Xoá nguyên liệu">${ic('trash')}</button></div><label class="field" style="height:48px"><input data-ing="n" value="${r.n}" placeholder="Tên nguyên liệu" aria-label="Tên nguyên liệu"></label><div class="row" style="gap:8px"><button type="button" class="field pick" data-aisle="${i}" style="height:48px;flex:1;justify-content:space-between;color:var(--text-primary)">${r.a}${ic('caret-down')}</button><label class="field" style="height:48px;width:132px;padding:0 12px"><input data-ing="c" inputmode="numeric" value="${r.c}" placeholder="Giá" aria-label="Giá ước tính"><span class="t-row">₫</span></label></div></div>`).join('');
   const steps = d.steps.map((s, i) => `<div class="estep" data-row="${i}"><div class="row" style="gap:12px;align-items:flex-start"><span class="cat-tile sm" style="border-radius:16px;font-weight:600;font-size:13px;margin-top:8px">${i + 1}</span><textarea class="area" rows="3" data-st="t" placeholder="Mô tả bước ${i + 1}" aria-label="Bước ${i + 1}">${s.t}</textarea></div><div class="row" style="gap:8px;padding-left:44px">${s.m ? `<label class="field" style="height:44px;width:132px;padding:0 12px">${ic('timer')}<input data-st="m" inputmode="numeric" value="${s.m}" aria-label="Phút hẹn giờ"><span class="t-row">phút</span></label><button type="button" class="btn ghost" style="height:44px" data-stimer="${i}">Bỏ hẹn giờ</button>` : `<button type="button" class="pill" data-stimer="${i}">${ic('timer')}Thêm hẹn giờ</button>`}<span class="grow"></span><button type="button" class="iconbtn" style="box-shadow:none;background:transparent" data-st-del="${i}" aria-label="Xoá bước">${ic('trash')}</button></div></div>`).join('');
   return `${d.imported ? `<div class="well" style="padding:12px 16px;display:flex;gap:12px;align-items:flex-start">${ic('link', 'lg')}<div class="t-sm"><b>Đã đọc từ đường dẫn.</b> Kiểm tra lại số lượng, đơn vị và các bước trước khi lưu.</div></div>` : ''}
     <button type="button" class="dropzone" data-photo>${d.photo ? `<span class="cat-tile">${ic('check')}</span><span class="grow t-base">Đã chọn ảnh</span>` : `<span class="cat-tile">${ic('plus')}</span><span class="grow"><span class="rt" style="font-size:16px;font-weight:500;display:block">Thêm ảnh món ăn</span><span class="rs t-row muted">Không bắt buộc</span></span>`}</button>
@@ -460,7 +498,7 @@ const edInner = (id) => {
 };
 const edBar = (id) => `<button class="btn outline" style="height:52px">Huỷ</button><button class="save grow" style="margin:0;${mOk(mEd[id].d) ? '' : 'opacity:.5'}" data-save ${mOk(mEd[id].d) ? '' : 'disabled'}>Lưu công thức</button>`;
 const edBody = (id) => `${navHead('Công thức mới').replace('Cài đặt', 'Công thức')}<div class="scroll" id="ed-${id}">${edInner(id)}</div><div class="shop-bar" id="bar-${id}">${edBar(id)}</div>
-  <div class="overlay" id="unit-${id}" hidden><div class="ov-sheet"><div class="grabber"></div><h2 class="t-title">Đơn vị</h2><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="unitgrid-${id}"></div></div></div>`;
+  <div class="overlay" id="unit-${id}" hidden><div class="ov-sheet fixed"><div class="ov-head"><div class="grabber"></div><h2 class="t-title">Đơn vị</h2></div><div class="ov-body"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="unitgrid-${id}"></div></div></div></div>`;
 
 function bindEditor(id) {
   const box = $('#ed-' + id), st = mEd[id], d = st.d, ov = $('#unit-' + id);
@@ -477,9 +515,10 @@ function bindEditor(id) {
     if (c('[data-photo]')) { d.photo = !d.photo; return redraw(); }
     if ((x = c('[data-serv]'))) { d.servings = Math.max(1, Math.min(12, d.servings + +x.dataset.serv)); return redraw(); }
     if ((x = c('[data-tag]'))) { const g = x.dataset.tag; d.tags = d.tags.includes(g) ? d.tags.filter((q) => q !== g) : [...d.tags, g]; return redraw(); }
-    if (c('[data-ing-add]')) { d.ing.push({ q: '', u: 'g', n: '' }); redraw(); return; }
-    if ((x = c('[data-ing-del]'))) { if (d.ing.length > 1) d.ing.splice(+x.dataset.ingDel, 1); else d.ing[0] = { q: '', u: 'g', n: '' }; return redraw(); }
+    if (c('[data-ing-add]')) { d.ing.push({ q: '', u: 'g', n: '', a: 'Khác', c: '' }); redraw(); return; }
+    if ((x = c('[data-ing-del]'))) { if (d.ing.length > 1) d.ing.splice(+x.dataset.ingDel, 1); else d.ing[0] = { q: '', u: 'g', n: '', a: 'Khác', c: '' }; return redraw(); }
     if ((x = c('[data-unit]'))) { const i = +x.dataset.unit; $('#unitgrid-' + id).innerHTML = UNITS_M.map((u) => `<button type="button" class="pill ${d.ing[i].u === u ? 'on' : ''}" style="justify-content:center;height:44px" data-pickunit="${u}|${i}">${u}</button>`).join(''); ov.hidden = false; return; }
+    if ((x = c('[data-aisle]'))) { const i = +x.dataset.aisle; d.ing[i].a = AISLES_M[(AISLES_M.indexOf(d.ing[i].a) + 1) % AISLES_M.length]; return redraw(); }
     if (c('[data-st-add]')) { d.steps.push({ t: '', m: 0 }); return redraw(); }
     if ((x = c('[data-st-del]'))) { if (d.steps.length > 1) d.steps.splice(+x.dataset.stDel, 1); else d.steps[0] = { t: '', m: 0 }; return redraw(); }
     if ((x = c('[data-stimer]'))) { const i = +x.dataset.stimer; d.steps[i].m = d.steps[i].m ? 0 : 10; return redraw(); }
@@ -522,8 +561,56 @@ function bindFood() {
   si.addEventListener('click', (e) => { const k = e.target.closest('[data-k]'); if (!k) return; const it = shopState.find((q) => q.key === k.dataset.k); it.have = !it.have; si.innerHTML = shopInner(); $('#shopBar').innerHTML = shopBar(); hydrateIcons(si); hydrateIcons($('#shopBar')); });
 }
 
+/* Thông báo của hệ điều hành: màn hình khóa và banner */
+const notifById = (id) => NOTIFS.find((n) => n.id === id);
+const osNotif = (n, { time = n.t, actions = [] } = {}) => `<div class="os-notif"><span class="cat-tile">${ic(MOD[n.mod].icon, 'lg')}</span><div><div class="os-top"><span class="grow">Alavo Daily · ${MOD[n.mod].name}</span><span>${time}</span></div><div class="os-title">${n.title}</div><div class="os-body">${n.body}</div></div>${actions.length ? `<div class="os-acts">${actions.map(([label, kind]) => `<button class="btn ${kind}" type="button">${label}</button>`).join('')}</div>` : ''}</div>`;
+const lockPhone = (caption, notifs) => `<figure><div class="phone lockscreen"><div class="island"></div>
+  <div class="status"><span></span><span class="r" style="font-size:14px">5G &nbsp;100%</span></div>
+  <div class="lock-head">${ic('lock-simple', 'lg')}<div class="lock-date">Thứ Sáu, 9 tháng 10</div><div class="lock-clock">17:30</div></div>
+  <div class="lock-list">${notifs}</div><div class="home-ind"></div></div><figcaption>${caption}</figcaption></figure>`;
+const bannerPhone = () => phone('Thông báo nổi khi đang dùng máy', `<div class="os-banner">${osNotif(notifById(2), { time: 'bây giờ' })}</div>${todayBody()}`, 'today', { tabs: 'home' });
+const osNotifPhones = () => lockPhone('Màn hình khóa — thông báo mới', osNotif(notifById(1), { time: 'bây giờ' }) + osNotif(notifById(2)) + osNotif(notifById(4)))
+  + lockPhone('Màn hình khóa — nhấn giữ để mở nút hành động', osNotif(notifById(1), { time: 'bây giờ', actions: [['Bắt đầu nấu', 'primary'], ['Nhắc lại sau 10 phút', 'outline']] }) + osNotif(notifById(2), { actions: [['Tăng thêm 300.000 ₫', 'primary'], ['Giữ nguyên', 'outline']] }))
+  + bannerPhone();
+
+/* Báo cáo và Nhập sao kê (mobile) */
+const reportScreen = () => {
+  const rows = spentByCategory(), total = rows.reduce((s, r) => s + r.total, 0);
+  const legend = rows.map((r) => `<li class="row" style="gap:12px;padding:8px 0"><span class="cat-tile sm">${ic(r.icon)}</span><span class="grow t-sm w5">${r.name}</span><span class="t-sm w6">${vnd(r.total)}</span></li>`).join('');
+  const table = rows.map((r) => `<tr><td>${r.name}</td><td class="num">${vnd(r.total)}</td><td class="num">${pctText(r.total / total)}</td></tr>`).join('');
+  return phone('Báo cáo', `<div class="scroll">${topbar('spend')}<h1 class="t-2xl" style="padding:4px 4px 0">Báo cáo</h1>
+    <div class="pills">${REPORT_RANGES.map((l, i) => `<span class="pill ${i === 0 ? 'on' : ''}">${l}</span>`).join('')}</div>
+    <section class="card p4 range-stack"><label class="field">${ic('calendar-blank', 'lg')}<span>Từ 1/10/2026</span></label><label class="field">${ic('calendar-blank', 'lg')}<span>Đến 9/10/2026</span></label></section>
+    <section class="card p5" style="display:grid;gap:12px;justify-items:center"><span class="eyebrow" style="justify-self:start">Chi theo hạng mục</span>${donutChart(rows, total)}<ul style="width:100%">${legend}</ul></section>
+    <section class="card p4"><span class="eyebrow">Bảng hạng mục</span><table class="rep-table" style="margin-top:8px"><thead><tr><th>Hạng mục</th><th class="num">Đã chi</th><th class="num">Tỷ lệ</th></tr></thead><tbody>${table}</tbody></table></section>
+    <button class="btn outline" type="button" style="width:100%">${ic('download-simple')}Xuất ra bảng tính</button></div>`, '', { tabs: 'spend' });
+};
+const importInputScreen = () => phone('Nhập sao kê · chọn file', `<div class="scroll">${topbar('spend')}<h1 class="t-2xl" style="padding:4px 4px 0">Nhập sao kê</h1>
+    <section class="card p4" style="display:grid;gap:12px"><div class="row" style="gap:12px"><span class="cat-tile">${ic('upload-simple')}</span><div class="grow"><h2 class="t-title">Chọn sao kê ngân hàng</h2><p class="t-sm secondary">Dùng file sao kê tải từ ứng dụng ngân hàng, hoặc dán nội dung vào ô bên dưới.</p></div></div>
+      <button class="btn primary" type="button" style="width:100%">${ic('upload-simple')}Chọn file sao kê</button>
+      <label class="gd-field"><span class="eyebrow">Hoặc dán nội dung sao kê vào đây</span><textarea class="area" rows="5" placeholder="Nội dung sao kê" aria-label="Nội dung sao kê"></textarea></label>
+      <button class="btn outline" type="button" style="width:100%">Đọc sao kê</button></section></div>`, '', { tabs: 'spend' });
+const importReviewScreen = () => {
+  const picked = STATEMENT_SAMPLE.filter((r) => !r.dup).length;
+  const rows = STATEMENT_SAMPLE.map((r, i) => `<li class="gd-row"><button class="chk ${r.dup ? '' : 'on'}" ${r.dup ? 'disabled' : ''} aria-label="Chọn dòng ${i + 1}">${ic('check')}</button><span class="cat-tile sm">${ic(CATS[r.cat].icon)}</span><span class="grow"><b class="trunc">${r.title}</b><small>${r.date} · ${CATS[r.cat].name}${r.dup ? ' · Đã có trong ví, tự bỏ qua' : ''}</small></span><span class="gd-amt ${amountTone(r.amt)}">${signed(r.amt)}</span></li>`).join('');
+  return phone('Nhập sao kê · kiểm tra trước khi nhập', `<div class="scroll">${topbar('spend')}<h1 class="t-2xl" style="padding:4px 4px 0">Kiểm tra trước khi nhập</h1>
+    <section class="card p4" style="display:grid;gap:12px"><p class="t-sm secondary">Chọn những dòng cần nhập và đổi hạng mục nếu chưa đúng. Dòng đã có trong ví sẽ tự được bỏ qua.</p>
+      <div class="gd-group"><span class="eyebrow">Ví nhận giao dịch</span><div class="gd-pills">${WALLETS.map((w, i) => `<button type="button" class="pill ${i === 0 ? 'on' : ''}">${w.name}</button>`).join('')}</div></div>
+      <div class="row"><span class="eyebrow grow">Các dòng trong sao kê</span><button class="btn ghost sm" type="button">Chọn tất cả</button></div><ul>${rows}</ul><p class="t-xs muted">1 dòng không đọc được</p></section>
+    <button class="btn primary" type="button" style="width:100%">Nhập ${picked} giao dịch</button><p class="t-row muted" style="text-align:center">Đã chọn ${picked}/${STATEMENT_SAMPLE.length} dòng</p></div>`, '', { tabs: 'spend' });
+};
+const appearancePhones = () => phone('Cài đặt · Giao diện và ngôn ngữ', `${navHead('Giao diện')}<div class="scroll">${appearanceCards()}</div>`, '', { bar: false })
+  + phone('Cài đặt · Bộ màu (bấm được)', `${navHead('Bộ màu')}<div class="scroll">${paletteCards()}</div>`, '', { bar: false });
+
+const dialogFrames = () => DIALOG_IDS.map((id, i) => dialogPhone('Hộp thoại · ' + ({ 'wallets': 'Quản lý ví', 'wallet-form': 'Thêm ví', 'bills': 'Khoản định kỳ', 'bill-form': 'Thêm khoản định kỳ', 'goal-form': 'Mục tiêu mới', 'contribute': 'Thêm tiền vào mục tiêu', 'confirm-goal': 'Xoá mục tiêu', 'confirm-tx': 'Xoá giao dịch', 'confirm-recipe': 'Xoá công thức', 'category-picker': 'Chọn hạng mục có tìm kiếm', 'budget-form': 'Sửa ngân sách', 'import-data': 'Nhập dữ liệu', 'suggest-plan': 'Gợi ý thực đơn', 'log-expense': 'Ghi khoản chi đi chợ' }[id]), id)).join('');
+const stateFrames = () => phone('Cài đặt · Dữ liệu trên máy', `${navHead('Dữ liệu')}<div class="scroll">${localDataCard()}</div>`, '', { bar: false })
+  + phone('Đồng bộ · chưa cấu hình đăng nhập', `${navHead('Đồng bộ Google')}<div class="scroll">${syncProblemCard('unconfigured')}</div>`, '', { bar: false })
+  + phone('Đồng bộ · cần đăng nhập lại', `${navHead('Đồng bộ Google')}<div class="scroll">${syncProblemCard('relogin')}</div>`, '', { bar: false })
+  + phone('Hôm nay · chưa có dữ liệu', `<div class="scroll">${topbar('today')}<h1 class="t-2xl" style="padding:4px 4px 0">Chào bạn</h1>${firstRunCard()}</div>`, 'today', { tabs: 'home' })
+  + phone('Không tìm thấy trang', `<div class="scroll">${topbar('today')}${unknownPathCard('')}</div>`, 'today', { tabs: 'home' })
+  + phone('Màn hình đang hoàn thiện', `<div class="scroll">${topbar('today')}${unknownPathCard('Công việc')}</div>`, 'today', { tabs: 'home' });
 const _ph = foodPhones();
-$('#groups').innerHTML = [['Hệ thống · nhiều ứng dụng trong một', _ph.system], ['Ứng dụng Chi tiêu', overview() + add() + txScreen() + budgets() + goals()], ['Ứng dụng Món ăn', _ph.food], ['Đồng bộ Google', syncPhones()]].map(([t, html]) => `<h2 class="gtitle">${t}</h2><div class="stage">${html}</div>`).join('');
+$('#groups').innerHTML = [['Hệ thống · nhiều ứng dụng trong một', _ph.system], ['Thông báo trên điện thoại', osNotifPhones()], ['Cài đặt giao diện', appearancePhones()], ['Ứng dụng Chi tiêu', overview() + add() + txScreen() + budgets() + goals() + reportScreen() + importInputScreen() + importReviewScreen()], ['Ứng dụng Món ăn', _ph.food], ['Hộp thoại và bảng kéo lên', dialogFrames()], ['Trạng thái và màn phụ', stateFrames()], ['Đồng bộ Google', syncPhones()]].map(([t, html]) => `<h2 class="gtitle">${t}</h2><div class="stage">${html}</div>`).join('');
 document.querySelectorAll('figcaption').forEach((f, i) => { f.textContent = (i + 1) + ' · ' + f.textContent.replace(/^\d+ · /, ''); });
 
 
@@ -531,11 +618,21 @@ document.querySelectorAll('figcaption').forEach((f, i) => { f.textContent = (i +
 (() => {
   let digits = '', kind = 'out', cat = 'food';
   const amt = $('#amt'), save = $('#save'), hint = $('#amtHint');
-  const cats = () => Object.entries(CATS).filter(([id]) => (kind === 'in') === isIncomeCat(id)).map(([id, c]) => `<button class="catpill ${id === cat ? 'on' : ''}" data-cat="${id}">${ic(c.icon)}${c.name}</button>`).join('') + `<button class="catpill add" data-new>${ic('plus')}Hạng mục mới</button>`;
+  const VISIBLE_CATS = 6;
+  const catIds = () => Object.keys(CATS).filter((id) => (kind === 'in') === isIncomeCat(id));
+  const cats = () => {
+    const ids = catIds(); const shown = ids.slice(0, VISIBLE_CATS);
+    if (ids.includes(cat) && !shown.includes(cat)) shown[shown.length - 1] = cat;
+    const pill = (id) => `<button class="catpill ${id === cat ? 'on' : ''}" data-cat="${id}">${ic(CATS[id].icon)}${CATS[id].name}</button>`;
+    const all = ids.length > shown.length ? `<button class="catpill" data-all>${ic('magnifying-glass')}Tất cả hạng mục</button>` : '';
+    return shown.map(pill).join('') + all + `<button class="catpill add" data-new>${ic('plus')}Hạng mục mới</button>`;
+  };
+  const openAll = () => { $('#acBody').innerHTML = categoryPickerBody(catIds(), cat); hydrateIcons($('#acBody')); $('#allCats').hidden = false; };
+  document.addEventListener('category-picked', (e) => { if ($('#allCats').hidden) return; cat = e.detail.id; $('#allCats').hidden = true; paint(); });
   const paint = () => {
     const n = +digits || 0;
     amt.textContent = n.toLocaleString('vi-VN') + ' ₫';
-    amt.style.color = n && kind === 'in' ? 'var(--income-fg)' : '';
+    amt.style.color = n ? (kind === 'in' ? 'var(--income-fg)' : 'var(--expense-fg)') : '';
     hint.textContent = n ? (kind === 'in' ? 'Thu nhập' : 'Chi tiêu') + ' · ' + CATS[cat].name : 'Nhập số tiền';
     save.disabled = !n; save.style.opacity = n ? 1 : .5;
     save.textContent = n ? `Lưu · ${kind === 'in' ? '+' : '−'}${n.toLocaleString('vi-VN')} ₫` : 'Lưu giao dịch';
@@ -543,7 +640,8 @@ document.querySelectorAll('figcaption').forEach((f, i) => { f.textContent = (i +
     hydrateIcons($('#sheet'));
   };
   $('#keys').onclick = (e) => { const k = e.target.closest('[data-k]')?.dataset.k; if (!k) return; digits = k === 'del' ? digits.slice(0, -1) : (digits + k).replace(/^0+/, '').slice(0, 9); paint(); };
-  $('#cats').onclick = (e) => { if (e.target.closest('[data-new]')) return openNew(); const c = e.target.closest('[data-cat]'); if (c) { cat = c.dataset.cat; paint(); } };
+  $('#acClose').onclick = () => { $('#allCats').hidden = true; };
+  $('#cats').onclick = (e) => { if (e.target.closest('[data-all]')) return openAll(); if (e.target.closest('[data-new]')) return openNew(); const c = e.target.closest('[data-cat]'); if (c) { cat = c.dataset.cat; paint(); } };
   /* new category sheet */
   let ncIcon = ICON_CHOICES[0];
   const ncPaint = () => { $('#ncIcons').innerHTML = ICON_CHOICES.map((n) => `<button type="button" class="icon-opt ${n === ncIcon ? 'on' : ''}" data-icon="${n}" aria-label="${n}">${ic(n)}</button>`).join(''); };
@@ -581,7 +679,9 @@ document.querySelectorAll('figcaption').forEach((f, i) => { f.textContent = (i +
 bindFood();
 ['a', 'b', 'c'].forEach(bindEditor);
 $('#ed-c').scrollTop = 99999;
-$('#themeBtn').onclick = () => { const r = document.documentElement; r.dataset.theme = getComputedStyle(r).colorScheme === 'dark' ? 'light' : 'dark'; };
+$('#themeBtn').onclick = () => setThemeMode(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+document.addEventListener('focusin', (e) => { const frame = e.target.closest('.phone'); if (frame && e.target.matches('input, textarea')) { frame.classList.add('kb-open'); e.target.scrollIntoView({ block: 'center' }); } });
+document.addEventListener('focusout', (e) => { const frame = e.target.closest('.phone'); if (frame) frame.classList.remove('kb-open'); });
 </script>
 </body>
 </html>

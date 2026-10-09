@@ -1,7 +1,7 @@
 /* Món ăn: fixtures + derived helpers. Costs are in thousand ₫ at the recipe's base servings. */
 const MODULES = [
   { id: 'today', name: 'Hôm nay', icon: 'house', desc: 'Tổng hợp mọi ứng dụng', views: [['today', 'house', 'Hôm nay'], ['explore', 'compass', 'Khám phá']] },
-  { id: 'spend', name: 'Chi tiêu', icon: 'wallet', desc: 'Thu chi, ngân sách, mục tiêu', views: [['overview', 'squares-four', 'Tổng quan'], ['transactions', 'receipt', 'Giao dịch'], ['budgets', 'chart-pie-slice', 'Ngân sách'], ['goals', 'target', 'Mục tiêu']] },
+  { id: 'spend', name: 'Chi tiêu', icon: 'wallet', desc: 'Thu chi, ngân sách, mục tiêu', views: [['overview', 'squares-four', 'Tổng quan'], ['transactions', 'receipt', 'Giao dịch'], ['budgets', 'chart-pie-slice', 'Ngân sách'], ['goals', 'target', 'Mục tiêu'], ['report', 'chart-bar', 'Báo cáo'], ['import', 'upload-simple', 'Nhập sao kê']] },
   { id: 'food', name: 'Món ăn', icon: 'cooking-pot', desc: 'Công thức, thực đơn, đi chợ', views: [['recipes', 'book-open', 'Công thức'], ['plan', 'calendar-blank', 'Thực đơn tuần'], ['shopping', 'shopping-bag', 'Đi chợ']] },
 ];
 const VIEW_MODULE = Object.fromEntries(MODULES.flatMap((m) => m.views.map(([v]) => [v, m.id])));
