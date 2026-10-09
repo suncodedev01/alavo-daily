@@ -4,9 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
     <title>Alavo Daily</title>
+    <style>
+      html, body { margin: 0; background: #FAF7F0; }
+      .boot { display: grid; place-items: center; min-height: 100vh; min-height: 100dvh; }
+      .boot img { width: 96px; height: 96px; border-radius: 24px; box-shadow: 0 8px 24px rgba(61, 36, 8, 0.18); animation: boot-pulse 1.4s ease-in-out infinite; }
+      @keyframes boot-pulse { 50% { transform: scale(0.94); opacity: 0.85; } }
+      @media (prefers-reduced-motion: reduce) { .boot img { animation: none; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="boot" role="status"><img src="/icon.svg" alt="" /></div></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
