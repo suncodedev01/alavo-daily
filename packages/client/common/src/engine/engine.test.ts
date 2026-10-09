@@ -28,6 +28,7 @@ describe('isReadCommand', () => {
     'recipes.get_shopping_list',
     'recipes.parse_json_ld',
     'recipes.morning_menus',
+    'recipes.suggest_plan',
     'hub.export_data',
     'hub.device_info',
   ])('treats %s as a read', (command) => {

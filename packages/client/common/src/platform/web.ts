@@ -1,18 +1,26 @@
 import { createInPageScheduler } from './inPageScheduler';
 import type { NotificationPermissionState, PlatformServices } from './index';
+import { createWebGoogleAuth, type WebGoogleAuthOptions } from './webGoogleAuth';
 
 interface WakeLockSentinelLike {
   release(): Promise<void>;
 }
 
+export interface WebPlatformOptions {
+  /** The OAuth client id for Google sign-in. Without one, Google sync is switched off. */
+  googleClientId?: string;
+  loadGoogle?: WebGoogleAuthOptions['loadGoogle'];
+}
+
 /** Browser implementation, used by the web app. */
-export function createWebPlatform(): PlatformServices {
+export function createWebPlatform(options: WebPlatformOptions = {}): PlatformServices {
+  const clientId = (options.googleClientId ?? import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID ?? '').trim();
   return {
     capabilities: {
       backgroundReminders: false,
       keepAwake: typeof navigator !== 'undefined' && 'wakeLock' in navigator,
       importFromUrl: false,
-      googleSync: true,
+      googleSync: clientId !== '',
     },
     keepAwake: requestWakeLock,
     saveTextFile: downloadTextFile,
@@ -24,7 +32,7 @@ export function createWebPlatform(): PlatformServices {
     fetchPage: async () => {
       throw new Error('The browser cannot fetch other sites without a server');
     },
-    googleAuth: null,
+    googleAuth: clientId ? createWebGoogleAuth({ clientId, loadGoogle: options.loadGoogle }) : null,
   };
 }
 

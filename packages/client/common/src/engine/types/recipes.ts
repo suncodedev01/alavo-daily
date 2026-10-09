@@ -36,7 +36,7 @@ export interface RecipeSummary {
   servings: number;
   level: RecipeLevel;
   favorite: boolean;
-  /** Phosphor icon name in kebab-case. There are no photos yet. */
+  /** Phosphor icon name in kebab-case, shown when the recipe has no photo. */
   icon: string;
   /** Sum of ingredient costs for `servings`. */
   costVnd: number;
@@ -48,6 +48,8 @@ export interface Recipe extends RecipeSummary {
   note: string;
   ingredients: Ingredient[];
   steps: Step[];
+  /** A data URL of an image under 400 KB. Only `recipes.get` returns it: the list stays light. */
+  photo: string | null;
   createdAt: number;
   updatedAt: number;
 }
@@ -161,4 +163,27 @@ export interface LogShoppingExpense {
   categoryId: string;
   occurredOn: string;
   title?: string;
+}
+
+export interface SuggestPlanRequest {
+  from: string;
+  /** Default 7. */
+  days?: number;
+  /** Meals to fill. Default lunch and dinner. */
+  slots?: MealSlot[];
+  /** The same seed gives the same proposal; another seed gives another one. Default 0. */
+  seed?: number;
+  /** Meals proposed elsewhere: they count for spacing and variety but are not returned. */
+  alsoPlanned?: { date: string; slot: MealSlot; recipeId: string }[];
+  /** Recipes not to propose, unless that would leave nothing to propose. */
+  avoid?: string[];
+}
+
+/** A proposed meal that is not saved yet. Apply it with `recipes.add_to_plan`. */
+export interface SuggestedEntry {
+  date: string;
+  slot: MealSlot;
+  recipeId: string;
+  recipeName: string;
+  recipeIcon: string;
 }

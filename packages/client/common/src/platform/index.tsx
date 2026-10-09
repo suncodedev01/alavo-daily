@@ -80,4 +80,10 @@ export function usePlatform(): PlatformServices {
 }
 
 export { createInPageScheduler } from './inPageScheduler';
-export { createWebPlatform } from './web';
+export { createWebPlatform, type WebPlatformOptions } from './web';
+export {
+  DRIVE_FILE_SCOPE,
+  createWebGoogleAuth,
+  type GoogleOAuth2,
+  type WebGoogleAuthOptions,
+} from './webGoogleAuth';

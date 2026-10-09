@@ -39,6 +39,8 @@ export interface Transaction {
   note: string;
   /** `monthly:<day>` for a repeating payment, `null` for a one-off. */
   recurringRule: string | null;
+  /** Set on a copy that the engine made from a recurring transaction: the id of that transaction. */
+  recurringSourceId?: string | null;
   createdAt: number;
   updatedAt: number;
 }
@@ -185,4 +187,94 @@ export interface SaveBill {
   amountVnd: number;
   dayOfMonth: number;
   active?: boolean;
+}
+
+export interface ReportRange {
+  /** First day, `YYYY-MM-DD`. */
+  from: string;
+  /** Last day, included. */
+  to: string;
+}
+
+export interface CategoryShare {
+  categoryId: string;
+  /** Natural-text i18n key for the built-in categories, free text for user-made ones. */
+  name: string;
+  icon: string;
+  kind: CategoryKind;
+  /** Positive number: the sum of the absolute amounts. */
+  totalVnd: number;
+  /** Fraction of the total of the same kind: 0.25 is 25%. */
+  share: number;
+  transactionCount: number;
+}
+
+export interface MonthBar {
+  month: string;
+  incomeVnd: number;
+  expenseVnd: number;
+  netVnd: number;
+}
+
+export interface SpendingReport {
+  from: string;
+  to: string;
+  incomeVnd: number;
+  /** Positive number: total spent. */
+  expenseVnd: number;
+  netVnd: number;
+  transactionCount: number;
+  /** Largest first, expense and income categories together. */
+  categories: CategoryShare[];
+  /** One entry for every month the range touches, empty months included. */
+  months: MonthBar[];
+}
+
+export interface CsvExport {
+  /** UTF-8 text with a header row, ISO dates, signed integer amounts and `
+` line ends. */
+  csv: string;
+  rowCount: number;
+}
+
+export type StatementProblem =
+  | 'missing_date'
+  | 'invalid_date'
+  | 'missing_amount'
+  | 'invalid_amount'
+  | 'zero_amount';
+
+export interface StatementPreviewRow {
+  /** 1-based record number in the file. */
+  line: number;
+  occurredOn: string | null;
+  /** Negative for money out, positive for money in. */
+  amountVnd: number | null;
+  title: string;
+  /** Suggested category; `null` when the row has no usable amount. */
+  categoryId: string | null;
+  problems: StatementProblem[];
+}
+
+export interface StatementPreview {
+  delimiter: string;
+  rows: StatementPreviewRow[];
+}
+
+export interface StatementImportRow {
+  occurredOn: string;
+  amountVnd: number;
+  title: string;
+  categoryId: string;
+}
+
+export interface StatementImportRequest {
+  walletId: string;
+  rows: StatementImportRow[];
+}
+
+export interface StatementImportResult {
+  imported: number;
+  /** Rows left out because the wallet already had the same date, amount and title. */
+  skippedDuplicates: number;
 }

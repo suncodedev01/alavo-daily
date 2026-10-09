@@ -5,3 +5,4 @@ export * from './platform';
 export * from './reminders';
 export * from './modules';
 export * from './shell';
+export * from './sync';
