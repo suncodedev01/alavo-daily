@@ -3,7 +3,7 @@ import { useT } from '@alavo-daily/common';
 import { Pill, SearchField } from '@alavo-daily/design-system';
 
 import { useLookups } from '../../lookups';
-import { useToday } from '../../month';
+import { useToday } from '../../today';
 import { Loadable, SkeletonRows } from '../../query-state';
 import { filterTransactions } from '../logic/transactionList';
 import type { ListCriteria, ListFilter } from '../types';

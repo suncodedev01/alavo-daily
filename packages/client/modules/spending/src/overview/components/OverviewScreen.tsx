@@ -2,6 +2,7 @@ import { useT } from '@alavo-daily/common';
 import { Card, useLayout } from '@alavo-daily/design-system';
 
 import { useMonthParam } from '../../month';
+import { LinkButton } from '../../navigation';
 import { SpendingScreen } from '../../spending-screen';
 import { DecisionSection } from './DecisionSection';
 import { MonthComparisonSection, UpcomingBillsSection } from './DockSections';
@@ -47,6 +48,11 @@ export function OverviewScreen() {
           <UpcomingBillsSection today={today} />
           <MonthComparisonSection month={month} today={today} />
         </Card>
+      ) : null}
+      {narrow ? (
+        <LinkButton to="/spending/reports" variant="outline" leadingIcon="chart-bar">
+          {t('Xem báo cáo')}
+        </LinkButton>
       ) : null}
     </SpendingScreen>
   );

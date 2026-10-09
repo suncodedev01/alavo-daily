@@ -15,6 +15,7 @@ describe('spendingManifest', () => {
       '/spending/transactions',
       '/spending/budgets',
       '/spending/goals',
+      '/spending/reports',
     ]);
     expect(spendingManifest.quickActions?.map((action) => action.path)).toEqual(['/spending/transactions?new=1']);
   });
@@ -33,10 +34,24 @@ describe('spendingManifest', () => {
   it('contributes the wallet list to the sidebar', () => {
     expect(spendingManifest.sidebarExtra).toBeDefined();
   });
+
+  it('keeps the reports out of the bottom tab bar', () => {
+    const tabs = spendingManifest.views.filter((view) => view.tab).map((view) => view.id);
+    expect(tabs).toEqual(['overview', 'transactions', 'budgets', 'goals']);
+    expect(spendingManifest.views.find((view) => view.id === 'reports')?.tab).toBeUndefined();
+  });
+
+  it('has a background component for recurring transactions and reminders', () => {
+    expect(spendingManifest.background).toBeDefined();
+  });
+
+  it('has a route for the statement import, which is reached from the transactions header', () => {
+    expect(spendingManifest.routes.some((route) => matchPath(route.path, '/spending/import'))).toBe(true);
+  });
 });
 
 describe('new transaction parameter', () => {
-  it.each(['/spending/overview', '/spending/transactions', '/spending/budgets', '/spending/goals'])(
+  it.each(['/spending/overview', '/spending/transactions', '/spending/budgets', '/spending/goals', '/spending/reports'])(
     'opens the add dialog on %s',
     async (path) => {
       renderSpending({ route: `${path}?new=1` });
@@ -57,6 +72,8 @@ describe('screen titles reported to the shell', () => {
     ['/spending/transactions', 'Giao dịch'],
     ['/spending/budgets', 'Ngân sách'],
     ['/spending/goals', 'Mục tiêu'],
+    ['/spending/reports', 'Báo cáo'],
+    ['/spending/import', 'Nhập sao kê'],
   ])('%s is titled %s', async (path, title) => {
     const { screenInfo } = renderSpending({ route: path });
     await screen.findByRole('main', { name: 'Ngăn làm việc' });

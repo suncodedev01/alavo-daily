@@ -13,6 +13,7 @@ import type {
 import { addMonths, daysInMonth, monthOf } from '@alavo-daily/common/format';
 import type { Handlers } from '@alavo-daily/common/testing';
 
+import { automationHandlers } from './fakeAutomation';
 import type { FakeData } from './fixtures';
 
 function validation(message: string): EngineCallError {
@@ -36,7 +37,7 @@ function matchesFilter(item: Transaction, filter: TransactionFilter, data: FakeD
     (!filter.categoryId || item.categoryId === filter.categoryId) &&
     (!filter.walletId || item.walletId === filter.walletId) &&
     (!filter.kind || kind === filter.kind) &&
-    (!filter.recurringOnly || item.recurringRule !== null) &&
+    (!filter.recurringOnly || item.recurringRule !== null || Boolean(item.recurringSourceId)) &&
     (!query || `${item.title} ${item.note}`.toLowerCase().includes(query))
   );
 }
@@ -317,5 +318,6 @@ export function spendingHandlers(data: FakeData): Handlers {
     ...walletHandlers(data),
     ...goalHandlers(data),
     ...billHandlers(data),
+    ...automationHandlers(data),
   };
 }

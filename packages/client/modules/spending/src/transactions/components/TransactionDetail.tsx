@@ -6,12 +6,13 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 
 import { useLookups, type Lookups } from '../../lookups';
-import { useToday } from '../../month';
+import { useToday } from '../../today';
 import { TransactionDialog } from '../../transaction-form';
 import { DeleteConfirm } from '../../form-dialogs';
 import { InlineError } from '../../query-state';
 import { MoneyAmount } from '../../money';
-import { transactionListPath, monthlyRuleDay } from '../../transaction-model';
+import { recurrenceOf, StopRecurrenceButton } from '../../recurring';
+import { transactionListPath } from '../../transaction-model';
 
 export function TransactionDetail({ id }: { id: string }) {
   const t = useT();
@@ -86,8 +87,9 @@ function fullDate(date: string): string {
 }
 
 function recurrenceText(transaction: Transaction, t: (key: string, values?: Record<string, string | number>) => string): string {
-  const day = monthlyRuleDay(transaction.recurringRule);
-  return day === null ? t('Không') : t('Hằng tháng · ngày {{day}}', { day });
+  const recurrence = recurrenceOf(transaction);
+  if (recurrence.kind === 'generated') return t('Tự động tạo từ giao dịch lặp lại hằng tháng');
+  return recurrence.kind === 'none' ? t('Không') : t('Hằng tháng · ngày {{day}}', { day: recurrence.day });
 }
 
 function DetailActions({ transaction }: { transaction: Transaction }) {
@@ -110,6 +112,7 @@ function DetailActions({ transaction }: { transaction: Transaction }) {
       <Button variant="outline" size="sm" leadingIcon="pencil-simple" onClick={() => setEditing(true)}>
         {t('Sửa')}
       </Button>
+      <StopRecurrenceButton transaction={transaction} />
       <Button variant="destructive-outline" size="sm" leadingIcon="trash" onClick={() => setConfirming(true)}>
         {t('Xoá')}
       </Button>

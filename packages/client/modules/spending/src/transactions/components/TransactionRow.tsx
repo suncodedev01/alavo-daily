@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 
 import type { Lookups } from '../../lookups';
 import { MoneyAmount } from '../../money';
+import { AutoBadge, isGenerated } from '../../recurring';
 
 export interface TransactionRowProps {
   transaction: Transaction;
@@ -23,7 +24,10 @@ export function TransactionRow({ transaction, lookups, to, active = false }: Tra
     <Link to={to} aria-current={active ? 'true' : undefined} data-active={active ? '' : undefined} className={ROW_CLASS}>
       <IconTile icon={lookups.categoryIcon(transaction.categoryId)} size="md" />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-text-primary">{transaction.title}</span>
+        <span className="flex items-center gap-1.5">
+          <span className="min-w-0 truncate text-sm font-medium text-text-primary">{transaction.title}</span>
+          {isGenerated(transaction) ? <AutoBadge /> : null}
+        </span>
         <span className="block truncate text-xs text-text-muted">{subtitle}</span>
       </span>
       <MoneyAmount amountVnd={transaction.amountVnd} className="text-sm font-medium" />

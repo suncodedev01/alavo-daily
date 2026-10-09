@@ -4,7 +4,7 @@ import { useT } from '@alavo-daily/common';
 import { Button, Card, ContextSection, EmptyState, useLayout } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
-import { useToday } from '../../month';
+import { useToday } from '../../today';
 import { DeleteConfirm } from '../../form-dialogs';
 import { Loadable, SkeletonRows } from '../../query-state';
 import { SpendingScreen } from '../../spending-screen';

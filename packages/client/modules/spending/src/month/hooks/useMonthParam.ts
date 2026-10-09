@@ -1,15 +1,11 @@
-import { monthOf, toDateText } from '@alavo-daily/common/format';
-import { useCallback, useState } from 'react';
+import { monthOf } from '@alavo-daily/common/format';
+import { useCallback } from 'react';
 import { useSearchParams } from 'react-router';
 
+import { useToday } from '../../today';
 import type { MonthParam } from '../types';
 
 const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
-
-export function useToday(): string {
-  const [today] = useState(() => toDateText(new Date()));
-  return today;
-}
 
 export function useMonthParam(): MonthParam {
   const today = useToday();

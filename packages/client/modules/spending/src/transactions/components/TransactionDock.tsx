@@ -5,7 +5,7 @@ import { ContextSection, Meter } from '@alavo-daily/design-system';
 import { useSearchParams } from 'react-router';
 
 import { useLookups, type Lookups } from '../../lookups';
-import { useToday } from '../../month';
+import { useToday } from '../../today';
 import { Loadable, SkeletonRows } from '../../query-state';
 import { transactionPath } from '../../transaction-model';
 import { TransactionRow } from './TransactionRow';

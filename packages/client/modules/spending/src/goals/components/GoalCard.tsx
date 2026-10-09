@@ -3,7 +3,7 @@ import { formatPercent, formatVnd } from '@alavo-daily/common/format';
 import { useT } from '@alavo-daily/common';
 import { Button, Card, IconButton, IconTile, Menu, MenuItem, Meter, StatusChip } from '@alavo-daily/design-system';
 
-import { useToday } from '../../month';
+import { useToday } from '../../today';
 import { dueText } from '../logic/dueText';
 import { dueLabelOf } from '../logic/goalMath';
 

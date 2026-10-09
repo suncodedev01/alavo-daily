@@ -1,5 +1,6 @@
 import type { ModuleManifest } from '@alavo-daily/common/modules';
 
+import { SpendingBackground } from './reminders';
 import { spendingRoutes } from './routes';
 import { WalletsSidebar } from './wallets';
 
@@ -13,6 +14,7 @@ export const spendingManifest: ModuleManifest = {
     { id: 'transactions', label: 'Giao dịch', icon: 'receipt', path: '/spending/transactions', tab: true },
     { id: 'budgets', label: 'Ngân sách', icon: 'chart-pie-slice', path: '/spending/budgets', tab: true },
     { id: 'goals', label: 'Mục tiêu', icon: 'target', path: '/spending/goals', tab: true },
+    { id: 'reports', label: 'Báo cáo', icon: 'chart-bar', path: '/spending/reports' },
   ],
   quickActions: [
     {
@@ -24,4 +26,5 @@ export const spendingManifest: ModuleManifest = {
   ],
   routes: spendingRoutes,
   sidebarExtra: WalletsSidebar,
+  background: SpendingBackground,
 };

@@ -26,7 +26,7 @@ export function foldText(text: string): string {
 function matchesFilter(item: Transaction, filter: ListFilter): boolean {
   if (filter === 'expense') return item.amountVnd < 0;
   if (filter === 'income') return item.amountVnd > 0;
-  if (filter === 'recurring') return item.recurringRule !== null;
+  if (filter === 'recurring') return item.recurringRule !== null || Boolean(item.recurringSourceId);
   return true;
 }
 

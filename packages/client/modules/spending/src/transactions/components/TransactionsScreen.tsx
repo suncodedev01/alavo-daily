@@ -5,6 +5,8 @@ import { Link, useParams, useSearchParams } from 'react-router';
 
 import { useMonthParam } from '../../month';
 import { SpendingScreen } from '../../spending-screen';
+import { ImportStatementButton } from '../../statement-import';
+import { AddTransactionButton } from '../../transaction-form';
 import { transactionListPath } from '../../transaction-model';
 import { TransactionDetail } from './TransactionDetail';
 import { TransactionDock } from './TransactionDock';
@@ -28,6 +30,7 @@ export function TransactionsScreen() {
     <SpendingScreen
       title={t('Giao dịch')}
       monthParam={monthParam}
+      primaryAction={<HeaderActions />}
       list={list}
       listLabel={t('Danh sách giao dịch')}
       narrowShows={id ? 'main' : 'list'}
@@ -35,6 +38,15 @@ export function TransactionsScreen() {
     >
       {id ? <SelectedTransaction id={id} narrow={narrow} /> : <NothingSelected />}
     </SpendingScreen>
+  );
+}
+
+function HeaderActions() {
+  return (
+    <>
+      <ImportStatementButton />
+      <AddTransactionButton />
+    </>
   );
 }
 

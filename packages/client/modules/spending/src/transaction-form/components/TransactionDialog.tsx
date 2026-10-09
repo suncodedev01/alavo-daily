@@ -7,7 +7,7 @@ import { formatBalance } from '../../money';
 import { CategoryDialog } from '../../categories';
 import { useLookups, type Lookups } from '../../lookups';
 import { DatePicker } from '../../datepicker';
-import { useToday } from '../../month';
+import { useToday } from '../../today';
 import { FormDialog } from '../../form-dialogs';
 import { InlineError } from '../../query-state';
 import { AmountInput } from './AmountInput';
@@ -127,7 +127,9 @@ function TransactionForm({ onOpenChange, editing, lookups, onSaved, title }: For
             {t(errors.wallet)}
           </p>
         ) : null}
-        <RecurringRow checked={draft.recurring} onChange={(recurring) => patch({ recurring })} />
+        {editing?.recurringSourceId ? null : (
+          <RecurringRow checked={draft.recurring} onChange={(recurring) => patch({ recurring })} />
+        )}
         {narrow ? <MoneyKeypad onKey={(key) => patch({ amount: applyKeypadKey(draft.amount, key) })} /> : null}
       </FormDialog>
       <CategoryDialog

@@ -1,4 +1,5 @@
 import { ShellSlotsContext, type ScreenInfo, type ShellSlots } from '@alavo-daily/common/shell';
+import type { PlatformServices } from '@alavo-daily/common/platform';
 import { FakeEngineClient, renderWithProviders, type Handlers } from '@alavo-daily/common/testing';
 import { Toaster } from '@alavo-daily/design-system';
 import { act, type RenderResult } from '@testing-library/react';
@@ -73,6 +74,7 @@ export interface SpendingRenderOptions {
   width?: number;
   data?: FakeData;
   handlers?: Handlers;
+  platform?: PlatformServices;
 }
 
 export interface SpendingRender extends RenderResult {
@@ -91,7 +93,7 @@ export function renderInSpendingShell(ui: ReactElement, options: SpendingRenderO
       <FakeShell infoRef={infoRef}>{ui}</FakeShell>
       <LocationProbe />
     </MemoryRouter>,
-    { engine },
+    { engine, platform: options.platform },
   );
   return Object.assign(result, { engine, data, screenInfo: infoRef });
 }

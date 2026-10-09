@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { GOAL_ICONS } from '../logic/goalIcons';
 import { DatePicker } from '../../datepicker';
 import { describeEngineError } from '../../engine-errors';
-import { useToday } from '../../month';
+import { useToday } from '../../today';
 import { FormDialog, IconGrid } from '../../form-dialogs';
 import { MoneyField } from '../../money';
 
