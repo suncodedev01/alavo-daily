@@ -21,6 +21,23 @@ export interface ScheduledNotification {
   body: string;
 }
 
+export type NotificationPermissionState = 'granted' | 'denied' | 'prompt' | 'unsupported';
+
+export interface GoogleSession {
+  email: string | null;
+}
+
+/** Google sign-in for Drive sync. Each platform signs in its own way. */
+export interface GoogleAuth {
+  /** Opens Google sign-in and resolves once the person is connected. */
+  signIn(): Promise<GoogleSession>;
+  /** The signed-in account, or null when nobody is connected. */
+  session(): Promise<GoogleSession | null>;
+  /** An access token for Drive, or null when the person has to sign in again. */
+  accessToken(): Promise<string | null>;
+  signOut(): Promise<void>;
+}
+
 export interface PlatformServices {
   capabilities: Capabilities;
   /** Keeps the screen on until the returned function is called. */
@@ -35,6 +52,13 @@ export interface PlatformServices {
    * also show while the app is closed; without it only while the app is open.
    */
   scheduleNotifications(items: ScheduledNotification[]): Promise<void>;
+  notificationPermission(): Promise<NotificationPermissionState>;
+  /** Asks the person for permission. Call it from a button press, never on load. */
+  requestNotificationPermission(): Promise<NotificationPermissionState>;
+  /** The HTML of a web page, for recipe import. Rejects where `capabilities.importFromUrl` is false. */
+  fetchPage(url: string): Promise<string>;
+  /** Null where `capabilities.googleSync` is false. */
+  googleAuth: GoogleAuth | null;
 }
 
 const PlatformContext = createContext<PlatformServices | null>(null);

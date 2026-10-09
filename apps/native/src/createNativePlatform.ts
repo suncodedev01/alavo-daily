@@ -1,5 +1,7 @@
 import { createInPageScheduler, type PlatformServices } from '@alavo-daily/common';
 
+import { isPermissionGranted, requestPermission } from '@tauri-apps/plugin-notification';
+
 import { isMobileDevice, scheduleOnDevice, showNow } from './deviceNotifications';
 
 /**
@@ -21,6 +23,12 @@ export function createNativePlatform(): PlatformServices {
     openLink: async (url) => void window.open(url, '_blank', 'noopener,noreferrer'),
     notify: showNow,
     scheduleNotifications: mobile ? scheduleOnDevice : createInPageScheduler(showNow),
+    notificationPermission: async () => ((await isPermissionGranted()) ? 'granted' : 'prompt'),
+    requestNotificationPermission: async () => ((await requestPermission()) === 'granted' ? 'granted' : 'denied'),
+    fetchPage: async () => {
+      throw new Error('Importing from a link is not built for the native app yet');
+    },
+    googleAuth: null,
   };
 }
 

@@ -65,6 +65,12 @@ export function createFakePlatform(overrides: Partial<PlatformServices> = {}): P
     openLink: async () => undefined,
     notify: async () => true,
     scheduleNotifications: async () => undefined,
+    notificationPermission: async () => 'granted',
+    requestNotificationPermission: async () => 'granted',
+    fetchPage: async () => {
+      throw new Error('fetchPage is not available in tests');
+    },
+    googleAuth: null,
     ...overrides,
   };
 }

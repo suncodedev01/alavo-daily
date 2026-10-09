@@ -1,5 +1,5 @@
 import { createInPageScheduler } from './inPageScheduler';
-import type { PlatformServices } from './index';
+import type { NotificationPermissionState, PlatformServices } from './index';
 
 interface WakeLockSentinelLike {
   release(): Promise<void>;
@@ -19,7 +19,25 @@ export function createWebPlatform(): PlatformServices {
     openLink: async (url) => void window.open(url, '_blank', 'noopener,noreferrer'),
     notify: showNotification,
     scheduleNotifications: createInPageScheduler(showNotification),
+    notificationPermission: readNotificationPermission,
+    requestNotificationPermission: askNotificationPermission,
+    fetchPage: async () => {
+      throw new Error('The browser cannot fetch other sites without a server');
+    },
+    googleAuth: null,
   };
+}
+
+function readNotificationPermission(): Promise<NotificationPermissionState> {
+  if (typeof Notification === 'undefined') return Promise.resolve('unsupported');
+  const state = Notification.permission;
+  return Promise.resolve(state === 'default' ? 'prompt' : state);
+}
+
+async function askNotificationPermission(): Promise<NotificationPermissionState> {
+  if (typeof Notification === 'undefined') return 'unsupported';
+  const state = await Notification.requestPermission();
+  return state === 'default' ? 'prompt' : state;
 }
 
 async function requestWakeLock(): Promise<() => void> {
