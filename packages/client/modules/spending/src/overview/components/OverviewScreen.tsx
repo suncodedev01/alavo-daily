@@ -1,4 +1,4 @@
-import { useT } from '@alavo-daily/common';
+import { longDateLabel, useLanguage, useT } from '@alavo-daily/common';
 import { Card, useLayout } from '@alavo-daily/design-system';
 
 import { useMonthParam } from '../../month';
@@ -26,7 +26,14 @@ export function OverviewScreen() {
   );
 
   return (
-    <SpendingScreen title={t('Tổng quan')} monthParam={scope} dock={narrow ? undefined : dock}>
+    <SpendingScreen
+      title={t('Tổng quan')}
+      hideNarrowTitle
+      monthParam={narrow ? undefined : scope}
+      primaryAction={narrow ? null : undefined}
+      dock={narrow ? undefined : dock}
+    >
+      {narrow ? <OverviewGreeting today={today} /> : null}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-9">
         <OverviewStats month={month} today={today} />
       </div>
@@ -35,12 +42,13 @@ export function OverviewScreen() {
           <DecisionSection decision={decision} />
         </Card>
       ) : null}
+      {narrow ? <RecentTransactionsCard month={month} /> : null}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <DailySpendingCard month={month} today={today} isCurrentMonth={scope.isCurrentMonth} />
         <BudgetsSummaryCard month={month} today={today} />
       </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <RecentTransactionsCard month={month} />
+        {narrow ? null : <RecentTransactionsCard month={month} />}
         <GoalsSummaryCard />
       </div>
       {narrow ? (
@@ -55,5 +63,16 @@ export function OverviewScreen() {
         </LinkButton>
       ) : null}
     </SpendingScreen>
+  );
+}
+
+function OverviewGreeting({ today }: { today: string }) {
+  const t = useT();
+  const language = useLanguage();
+  return (
+    <div className="px-1">
+      <h2 className="text-2xl font-semibold">{t('Chào bạn')}</h2>
+      <p className="mt-1 text-sm text-text-muted">{longDateLabel(today, language)}</p>
+    </div>
   );
 }

@@ -6,9 +6,10 @@ const PAPER_COLOR = '#FFFAF7F0';
 const STATUS_BAR_ITEMS = [
   `<item name="android:statusBarColor">${PAPER_COLOR}</item>`,
   '<item name="android:windowLightStatusBar">true</item>',
+  `<item name="android:windowBackground">${PAPER_COLOR}</item>`,
 ];
 const APP_STYLE = /(<style name="Theme\.[^"]*"[^>]*>)([\s\S]*?)(<\/style>)/;
-const STATUS_BAR_ITEM = /^[ \t]*<item name="android:(statusBarColor|windowLightStatusBar)">[^<]*<\/item>\r?\n/gm;
+const STATUS_BAR_ITEM = /^[ \t]*<item name="android:(statusBarColor|windowLightStatusBar|windowBackground)">[^<]*<\/item>\r?\n/gm;
 
 export function useLightStatusBar(xml) {
   if (!APP_STYLE.test(xml)) throw new Error('themes.xml has no <style name="Theme.*"> block');

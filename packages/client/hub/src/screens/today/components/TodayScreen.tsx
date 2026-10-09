@@ -29,11 +29,14 @@ export function TodayScreen() {
   return (
     <Screen
       title={t('Hôm nay')}
+      hideNarrowTitle
       actions={
-        <div className="flex items-center gap-2">
-          <SyncNowButton />
-          <QuickAddMenu />
-        </div>
+        wide ? (
+          <div className="flex items-center gap-2">
+            <SyncNowButton />
+            <QuickAddMenu />
+          </div>
+        ) : undefined
       }
       dock={wide && showSide ? <>{decision}{rest}</> : undefined}
     >
@@ -52,11 +55,13 @@ function Greeting({ today }: { today: string }) {
   const t = useT();
   const language = useLanguage();
   const appCount = useModules().length;
+  const wide = useLayout() === 'wide';
+  const dateLabel = longDateLabel(today, language);
   return (
-    <div>
+    <div className="px-1">
       <h2 className="text-2xl font-semibold">{t('Chào bạn')}</h2>
       <p className="mt-1 text-sm text-text-muted">
-        {`${longDateLabel(today, language)} · ${t('{{count}} ứng dụng đang theo dõi', { count: appCount })}`}
+        {wide ? `${dateLabel} · ${t('{{count}} ứng dụng đang theo dõi', { count: appCount })}` : dateLabel}
       </p>
     </div>
   );

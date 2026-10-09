@@ -72,6 +72,19 @@ describe('Dialog layout on short screens', () => {
   });
 });
 
+describe('Dialog closing animation', () => {
+  it('keeps the scrim and the panel faded out until both are removed', async () => {
+    const user = userEvent.setup();
+    render(<DialogHarness />);
+    await user.click(screen.getByRole('button', { name: 'Mở' }));
+    const panel = await screen.findByRole('dialog');
+    const scrim = document.querySelector('[data-slot="dialog-overlay"]');
+    expect(panel.className).toContain('data-closed:fill-mode-forwards');
+    expect(scrim?.className).toContain('data-closed:fill-mode-forwards');
+    expect(scrim?.className).toContain('duration-200');
+  });
+});
+
 describe('Dialog', () => {
   it('is closed until opened and then exposes title and description', async () => {
     render(<DialogHarness />);

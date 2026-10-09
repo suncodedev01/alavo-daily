@@ -1,4 +1,5 @@
 import type { Transaction } from '@alavo-daily/common/engine';
+import { foldText } from '@alavo-daily/common/format';
 
 import type { ListFilter, DayGroup, ListCriteria } from '../types';
 
@@ -14,14 +15,7 @@ export function groupByDay(items: readonly Transaction[]): DayGroup[] {
     .map(([date, bucket]) => ({ date, items: bucket }));
 }
 
-export function foldText(text: string): string {
-  return text
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/gi, 'd')
-    .toLowerCase()
-    .trim();
-}
+export { foldText };
 
 function matchesFilter(item: Transaction, filter: ListFilter): boolean {
   if (filter === 'expense') return item.amountVnd < 0;

@@ -1,7 +1,7 @@
 import { useEngineQuery, type MonthSummary } from '@alavo-daily/common/engine';
 import { addMonths, formatPercent, formatSignedVnd, formatVnd } from '@alavo-daily/common/format';
 import { useT } from '@alavo-daily/common';
-import { Button, Card, Eyebrow, Icon, Skeleton } from '@alavo-daily/design-system';
+import { Button, Card, Eyebrow, Icon, Skeleton, useLayout } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
 import { formatBalance, MoneyAmount } from '../../money';
@@ -22,13 +22,18 @@ function monthNumber(month: string): number {
 export function OverviewStats({ month, today }: OverviewStatsProps) {
   const summary = useEngineQuery('spending.month_summary', { month, today });
   const previous = useEngineQuery('spending.month_summary', { month: addMonths(month, -1), today });
+  const narrow = useLayout() === 'narrow';
   return (
     <Loadable query={summary} skeleton={<StatsSkeleton />} skeletonClassName="col-span-2 lg:col-span-9">
       {(current) => (
         <>
-          <BalanceCard summary={current} />
-          <IncomeCard summary={current} previousIncomeVnd={previous.data?.incomeVnd ?? null} />
-          <ExpenseCard summary={current} />
+          <BalanceCard summary={current} narrow={narrow} />
+          {narrow ? null : (
+            <>
+              <IncomeCard summary={current} previousIncomeVnd={previous.data?.incomeVnd ?? null} />
+              <ExpenseCard summary={current} />
+            </>
+          )}
         </>
       )}
     </Loadable>
@@ -45,7 +50,7 @@ function StatsSkeleton() {
   );
 }
 
-function BalanceCard({ summary }: { summary: MonthSummary }) {
+function BalanceCard({ summary, narrow }: { summary: MonthSummary; narrow: boolean }) {
   const t = useT();
   const lookups = useLookups();
   const [managing, setManaging] = useState(false);
@@ -53,9 +58,17 @@ function BalanceCard({ summary }: { summary: MonthSummary }) {
     <Card className="col-span-2 grid content-between gap-4 lg:col-span-5 lg:row-span-2" aria-label={t('Tổng số dư')}>
       <div>
         <Eyebrow>{t('Tổng số dư')}</Eyebrow>
-        <p className="mt-2 text-display font-semibold whitespace-nowrap max-lg:text-2xl">{formatBalance(summary.totalBalanceVnd)}</p>
+        <p className="mt-2 text-display font-semibold whitespace-nowrap">{formatBalance(summary.totalBalanceVnd)}</p>
       </div>
-      <dl className="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4 border-t border-line-hairline pt-4 text-sm">
+      {narrow ? (
+        <>
+          <MonthWells summary={summary} />
+          <Button variant="ghost" size="sm" leadingIcon="wallet" onClick={() => setManaging(true)}>
+            {t('Quản lý ví')}
+          </Button>
+        </>
+      ) : null}
+      <dl className="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4 border-t border-line-hairline pt-4 text-sm max-lg:hidden">
         <div className="grid gap-1">
           <dt className="text-text-muted">{t('Dòng tiền ròng tháng {{month}}', { month: monthNumber(summary.month) })}</dt>
           <dd className="font-semibold">
@@ -74,6 +87,23 @@ function BalanceCard({ summary }: { summary: MonthSummary }) {
       </dl>
       <WalletsDialog open={managing} onOpenChange={setManaging} />
     </Card>
+  );
+}
+
+function MonthWells({ summary }: { summary: MonthSummary }) {
+  const t = useT();
+  const month = monthNumber(summary.month);
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <div className="grid min-w-0 gap-1 rounded-2xl bg-surface-tint p-3">
+        <span className="text-sm text-text-muted">{t('Thu tháng {{month}}', { month })}</span>
+        <span className="truncate font-semibold text-income-fg">{formatSignedVnd(summary.incomeVnd)}</span>
+      </div>
+      <div className="grid min-w-0 gap-1 rounded-2xl bg-surface-tint p-3">
+        <span className="text-sm text-text-muted">{t('Chi tháng {{month}}', { month })}</span>
+        <span className="truncate font-semibold text-expense-fg">{formatVnd(summary.expenseVnd)}</span>
+      </div>
+    </div>
   );
 }
 

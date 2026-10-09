@@ -304,10 +304,12 @@ describe('Narrow layout', () => {
     expect(screenInfo.current).toMatchObject({ title: 'Tổng quan', hasDock: false });
   });
 
-  it('does not repeat the add button in the header because the tab bar has one', async () => {
-    await overview({ width: NARROW_WIDTH });
+  it('greets with the date instead of a title row, and skips the add button and month switcher', async () => {
+    const { screenInfo } = await overview({ width: NARROW_WIDTH });
+    expect(screen.getByRole('heading', { name: 'Chào bạn' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Thêm giao dịch' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Tháng trước' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Tháng trước' })).not.toBeInTheDocument();
+    expect(screenInfo.current).toMatchObject({ hideNarrowTitle: true });
   });
 
   it('shows the add button and the dock on a wide layout', async () => {

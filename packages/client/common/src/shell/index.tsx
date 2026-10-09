@@ -10,6 +10,8 @@ export interface ScreenInfo {
   listLabel?: string;
   /** On a narrow layout, which of the two the person sees first. */
   narrowShows: 'list' | 'main';
+  /** The screen draws its own heading, so the phone frame skips the title row. */
+  hideNarrowTitle?: boolean;
 }
 
 /** Provided by the hub. Modules never import the hub; they only use `Screen`. */
@@ -33,6 +35,7 @@ export interface ScreenProps {
   dock?: ReactNode;
   actions?: ReactNode;
   narrowShows?: 'list' | 'main';
+  hideNarrowTitle?: boolean;
   children: ReactNode;
 }
 
@@ -48,6 +51,7 @@ export function Screen({
   dock,
   actions,
   narrowShows = 'main',
+  hideNarrowTitle = false,
   children,
 }: ScreenProps) {
   const slots = useContext(ShellSlotsContext);
@@ -55,8 +59,8 @@ export function Screen({
   const hasDock = dock != null;
   const describe = slots?.describeScreen;
   useEffect(
-    () => describe?.({ title, hasList, hasDock, listLabel, narrowShows }),
-    [describe, title, hasList, hasDock, listLabel, narrowShows],
+    () => describe?.({ title, hasList, hasDock, listLabel, narrowShows, hideNarrowTitle }),
+    [describe, title, hasList, hasDock, listLabel, narrowShows, hideNarrowTitle],
   );
   return (
     <>

@@ -1,6 +1,11 @@
+import { useState } from 'react';
+
 import type { Category } from '@alavo-daily/common/engine';
 import { useT } from '@alavo-daily/common';
 import { cn, Icon, StickerTile, useLayout } from '@alavo-daily/design-system';
+
+import { VISIBLE_CATEGORY_COUNT, visibleCategories } from '../../categories/logic/categoryBrowse';
+import { CategoryBrowserDialog } from './CategoryBrowserDialog';
 
 export interface CategoryPickerProps {
   categories: readonly Category[];
@@ -21,25 +26,35 @@ const CHIP_CLASS =
 
 export function CategoryPicker({ categories, selectedId, onSelect, onCreate, error }: CategoryPickerProps) {
   const t = useT();
-  const layout = useLayout();
-  const wide = layout === 'wide';
+  const wide = useLayout() === 'wide';
+  const [browsing, setBrowsing] = useState(false);
+  const buttonClass = wide ? TILE_CLASS : CHIP_CLASS;
+  const iconBoxClass = cn('grid place-items-center text-text-muted', wide ? 'size-12' : 'size-8');
   return (
     <div className="grid gap-2">
       <div role="group" aria-label={t('Hạng mục')} className={wide ? GRID_CLASS : CHIPS_CLASS}>
-        {categories.map((category) => (
+        {visibleCategories(categories, selectedId).map((category) => (
           <button
             key={category.id}
             type="button"
             aria-pressed={category.id === selectedId}
-            className={wide ? TILE_CLASS : CHIP_CLASS}
+            className={buttonClass}
             onClick={() => onSelect(category.id)}
           >
             <StickerTile icon={category.icon} kind="category" size={wide ? 'lg' : 'sm'} />
             <span className="max-w-full text-center leading-tight break-words">{t(category.name)}</span>
           </button>
         ))}
-        <button type="button" className={wide ? TILE_CLASS : CHIP_CLASS} onClick={onCreate}>
-          <span className={cn('grid place-items-center text-text-muted', wide ? 'size-12' : 'size-8')}>
+        {categories.length > VISIBLE_CATEGORY_COUNT ? (
+          <button type="button" className={buttonClass} onClick={() => setBrowsing(true)}>
+            <span className={iconBoxClass}>
+              <Icon name="magnifying-glass" size="lg" />
+            </span>
+            <span className="max-w-full text-center leading-tight break-words text-text-muted">{t('Xem tất cả')}</span>
+          </button>
+        ) : null}
+        <button type="button" className={buttonClass} onClick={onCreate}>
+          <span className={iconBoxClass}>
             <Icon name="plus" size="lg" />
           </span>
           <span className="max-w-full text-center leading-tight break-words text-text-muted">{t('Hạng mục mới')}</span>
@@ -50,6 +65,13 @@ export function CategoryPicker({ categories, selectedId, onSelect, onCreate, err
           {t(error)}
         </p>
       ) : null}
+      <CategoryBrowserDialog
+        open={browsing}
+        categories={categories}
+        selectedId={selectedId}
+        onSelect={onSelect}
+        onOpenChange={setBrowsing}
+      />
     </div>
   );
 }

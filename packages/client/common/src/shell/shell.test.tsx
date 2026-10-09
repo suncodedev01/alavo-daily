@@ -56,6 +56,7 @@ describe('Screen', () => {
       hasDock: true,
       listLabel: undefined,
       narrowShows: 'main',
+      hideNarrowTitle: false,
     });
   });
 

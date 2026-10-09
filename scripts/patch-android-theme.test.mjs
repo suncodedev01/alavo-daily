@@ -21,6 +21,10 @@ test('asks for dark status bar icons on the light paper colour', () => {
   assert.match(patched, /<item name="android:statusBarColor">#FFFAF7F0<\/item>/);
 });
 
+test('paints the window cream so nothing dark shows before the page loads', () => {
+  assert.match(useLightStatusBar(THEMES), /<item name="android:windowBackground">#FFFAF7F0<\/item>/);
+});
+
 test('keeps the parent theme and the existing items', () => {
   const patched = useLightStatusBar(THEMES.replace('</style>', '<item name="colorPrimary">#fff</item>\n    </style>'));
   assert.match(patched, /parent="Theme\.Material3\.DayNight\.NoActionBar"/);

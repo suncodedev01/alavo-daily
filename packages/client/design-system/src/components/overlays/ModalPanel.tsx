@@ -25,10 +25,11 @@ export type ModalDocks = {
   bottom?: ReactNode;
 };
 
-const OVERLAY_CLASS = 'bg-scrim supports-backdrop-filter:backdrop-blur-none';
+const OVERLAY_CLASS =
+  'bg-scrim duration-200 supports-backdrop-filter:backdrop-blur-none data-closed:fill-mode-forwards';
 
 const POPUP_BASE =
-  'fixed z-50 flex flex-col gap-4 bg-surface text-text-primary shadow-overlay outline-none duration-200 motion-reduce:animate-none data-open:animate-in data-closed:animate-out';
+  'fixed z-50 flex flex-col gap-4 bg-surface text-text-primary shadow-overlay outline-none duration-200 motion-reduce:animate-none data-open:animate-in data-closed:animate-out data-closed:fill-mode-forwards';
 
 const POPUP_VARIANT: Record<ModalVariant, string> = {
   dialog:

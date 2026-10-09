@@ -61,6 +61,11 @@ export function dayAndMonth(dateText: string, language: Language = DEFAULT_LANGU
   return `${dayNumberOf(dateText)}/${monthNumberOf(dateText)}`;
 }
 
+/** `2026-10-09` → `Thứ Sáu, 9 tháng 10`, in English `Friday, October 9`. */
+export function longDateLabel(dateText: string, language: Language = DEFAULT_LANGUAGE): string {
+  return `${weekdayName(dateText, language)}, ${dayAndMonthLong(dateText, language)}`;
+}
+
 /** `2026-10-09` → `9 tháng 10`, in English `October 9`. */
 export function dayAndMonthLong(dateText: string, language: Language = DEFAULT_LANGUAGE): string {
   if (language === 'en') {

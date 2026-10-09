@@ -16,7 +16,7 @@ const CIRCLE = 512;
 
 const layer = (name) => resolve(LAYERS, `${name}.svg`);
 const BACKGROUND = [layer('layer-0-background')];
-const GLYPH = ['layer-1-house', 'layer-2-notebook', 'layer-3-pencil'].map(layer);
+const GLYPH = ['layer-1-house'].map(layer);
 
 function write(dir, name, svg, size) {
   mkdirSync(dir, { recursive: true });

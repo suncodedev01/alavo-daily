@@ -5,6 +5,7 @@ import { MobileFrame, ModulePill, TopBar } from '@alavo-daily/design-system';
 
 import { ModuleSwitcherSheet, useCurrentModule } from '../../module-navigation';
 import { NotificationBell } from '../../notifications';
+import { SyncNowButton } from '../../sync-status';
 import { NarrowTabBar } from './TabBars';
 import type { ShellState } from '../types';
 
@@ -27,14 +28,17 @@ export function NarrowFrame({ shell, children }: { shell: ShellState; children: 
             />
           }
         >
+          <SyncNowButton />
           <NotificationBell />
         </TopBar>
       }
       tabBar={<NarrowTabBar manifest={current} />}
     >
-      <div className="flex flex-wrap items-center gap-2 px-1">
-        <h1 className="mr-auto max-w-full min-w-0 truncate text-2xl font-semibold">{info?.title ?? ''}</h1>
-        <div ref={shell.setActions} className="ml-auto flex items-center gap-2 empty:hidden" />
+      <div className={`flex items-center gap-2 px-1 ${info?.hideNarrowTitle ? 'has-[div:empty]:hidden' : ''}`}>
+        {info?.hideNarrowTitle ? null : (
+          <h1 className="min-w-0 flex-1 truncate text-2xl font-semibold">{info?.title ?? ''}</h1>
+        )}
+        <div ref={shell.setActions} className="flex shrink-0 items-center gap-2 empty:hidden" />
       </div>
       {info?.hasList ? (
         <div
