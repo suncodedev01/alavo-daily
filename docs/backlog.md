@@ -24,6 +24,7 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test (và đã xem tr
 - [ ] Android: build APK và chạy thử trên máy ảo (máy có SDK, NDK 27 và JDK 21 ở thư mục cài mặc định; đã tạo được project Android, chưa build)
 - [ ] iOS (cần chứng chỉ Apple Developer, chưa có)
 - [ ] Android: token Google chỉ giữ trong bộ nhớ nên mỗi lần mở app phải đăng nhập lại (chưa có Android Keystore)
+- [ ] Android: đăng nhập Google đúng cách của Google (client loại Android với tên gói và SHA-1 của khoá ký, plugin Kotlin dùng `AuthorizationClient`). Luồng loopback hiện dùng cho Android bị Google ghi là deprecated với client Android và chưa được chạy thử với Google thật
 - [ ] Extension Chrome (`apps/extension`) và popup ghi chi tiêu nhanh (ngoài phạm vi đợt này)
 
 ## Hub
