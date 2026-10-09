@@ -1,8 +1,17 @@
-import { createInPageScheduler, type PlatformServices } from '@alavo-daily/common';
+import {
+  createInPageScheduler,
+  type NotificationPermissionState,
+  type PlatformServices,
+  type ScheduledNotification,
+} from '@alavo-daily/common';
+import { openUrl } from '@tauri-apps/plugin-opener';
 
-import { isPermissionGranted, requestPermission } from '@tauri-apps/plugin-notification';
-
+import { isGoogleConfigured } from './buildConfig';
 import { isMobileDevice, scheduleOnDevice, showNow } from './deviceNotifications';
+import { fetchPage } from './fetchPage';
+import { createGoogleAuth } from './googleAuth';
+import { readPermission, requestPermission } from './notificationPermission';
+import { saveTextFile } from './saveTextFile';
 
 /**
  * Native implementation, used by the Tauri app. Phones hand reminders to the operating system so
@@ -11,32 +20,38 @@ import { isMobileDevice, scheduleOnDevice, showNow } from './deviceNotifications
  */
 export function createNativePlatform(): PlatformServices {
   const mobile = isMobileDevice();
+  const googleSync = isGoogleConfigured();
+  const reminders = createReminderScheduling(mobile);
   return {
-    capabilities: {
-      backgroundReminders: mobile,
-      keepAwake: true,
-      importFromUrl: false,
-      googleSync: false,
-    },
+    capabilities: { backgroundReminders: mobile, keepAwake: true, importFromUrl: true, googleSync },
     keepAwake: async () => () => undefined,
-    saveTextFile: downloadTextFile,
-    openLink: async (url) => void window.open(url, '_blank', 'noopener,noreferrer'),
+    saveTextFile,
+    openLink: openUrl,
     notify: showNow,
-    scheduleNotifications: mobile ? scheduleOnDevice : createInPageScheduler(showNow),
-    notificationPermission: async () => ((await isPermissionGranted()) ? 'granted' : 'prompt'),
-    requestNotificationPermission: async () => ((await requestPermission()) === 'granted' ? 'granted' : 'denied'),
-    fetchPage: async () => {
-      throw new Error('Importing from a link is not built for the native app yet');
-    },
-    googleAuth: null,
+    scheduleNotifications: reminders.schedule,
+    notificationPermission: readPermission,
+    requestNotificationPermission: async () => reminders.rescheduleOnGrant(await requestPermission()),
+    fetchPage,
+    googleAuth: googleSync ? createGoogleAuth() : null,
   };
 }
 
-async function downloadTextFile(filename: string, content: string): Promise<void> {
-  const url = URL.createObjectURL(new Blob([content], { type: 'application/json' }));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
+interface ReminderScheduling {
+  schedule(items: ScheduledNotification[]): Promise<void>;
+  rescheduleOnGrant(permission: NotificationPermissionState): Promise<NotificationPermissionState>;
+}
+
+function createReminderScheduling(mobile: boolean): ReminderScheduling {
+  const deliver = mobile ? scheduleOnDevice : createInPageScheduler(showNow);
+  let latest: ScheduledNotification[] = [];
+  return {
+    schedule: (items) => {
+      latest = items;
+      return deliver(items);
+    },
+    rescheduleOnGrant: async (permission) => {
+      if (permission === 'granted') await deliver(latest);
+      return permission;
+    },
+  };
 }

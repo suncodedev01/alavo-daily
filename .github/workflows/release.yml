@@ -158,6 +158,7 @@ jobs:
           VERSION: ${{ needs.plan.outputs.version }}
           ENVIRONMENT: ${{ matrix.environment }}
           RELEASE_ID: ${{ needs.draft.outputs.release_id }}
+          VITE_GOOGLE_WEB_CLIENT_ID: ${{ vars.VITE_GOOGLE_WEB_CLIENT_ID }}
         run: |
           pnpm --filter @alavo-daily/web build
           zip="alavo-daily-web-$ENVIRONMENT-$VERSION.zip"
@@ -168,13 +169,15 @@ jobs:
         if: matrix.platform == 'linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libdbus-1-dev
 
       - name: Build desktop
         if: matrix.platform != 'web' && matrix.platform != 'android'
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          ALAVO_GOOGLE_DESKTOP_CLIENT_ID: ${{ vars.ALAVO_GOOGLE_DESKTOP_CLIENT_ID }}
+          ALAVO_GOOGLE_DESKTOP_CLIENT_SECRET: ${{ secrets.ALAVO_GOOGLE_DESKTOP_CLIENT_SECRET }}
         with:
           projectPath: apps/native
           tauriScript: pnpm tauri
@@ -191,6 +194,38 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Create Android project
+        if: matrix.platform == 'android'
+        shell: bash
+        working-directory: apps/native
+        run: |
+          echo "NDK_HOME=$ANDROID_NDK_HOME" >> "$GITHUB_ENV"
+          NDK_HOME="$ANDROID_NDK_HOME" pnpm tauri android init --ci
+
+      - name: Allow exact reminder alarms on Android
+        if: matrix.platform == 'android'
+        shell: bash
+        run: |
+          python3 - apps/native/src-tauri/gen/android/app/src/main/AndroidManifest.xml <<'PY'
+          import re
+          import sys
+
+          path = sys.argv[1]
+          manifest = open(path, encoding="utf-8").read()
+          permissions = [
+              '<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />',
+              '<uses-permission android:name="android.permission.USE_EXACT_ALARM" />',
+              '<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />',
+          ]
+          missing = [line for line in permissions if line.split('"')[1] not in manifest]
+          if missing:
+              manifest, count = re.subn(r"(<manifest[^>]*>)", lambda m: m.group(1) + "\n    " + "\n    ".join(missing), manifest, count=1)
+              if count != 1:
+                  sys.exit("AndroidManifest.xml has no <manifest> tag to patch")
+              open(path, "w", encoding="utf-8").write(manifest)
+          PY
+          grep -n "uses-permission" apps/native/src-tauri/gen/android/app/src/main/AndroidManifest.xml
+
       - name: Build Android
         if: matrix.platform == 'android'
         shell: bash
@@ -202,13 +237,17 @@ jobs:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ALAVO_GOOGLE_DESKTOP_CLIENT_ID: ${{ vars.ALAVO_GOOGLE_DESKTOP_CLIENT_ID }}
+          ALAVO_GOOGLE_DESKTOP_CLIENT_SECRET: ${{ secrets.ALAVO_GOOGLE_DESKTOP_CLIENT_SECRET }}
         run: |
-          export NDK_HOME="$ANDROID_NDK_HOME"
           cd apps/native
-          pnpm tauri android init --ci
           pnpm tauri android build --apk --target aarch64
 
           apk=$(find src-tauri/gen/android -name '*-unsigned.apk' | head -n 1)
+          if [ -z "$apk" ]; then
+            echo "::error::The Android build produced no unsigned APK."
+            exit 1
+          fi
           build_tools=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
 
           if [ -n "$KEYSTORE_BASE64" ]; then

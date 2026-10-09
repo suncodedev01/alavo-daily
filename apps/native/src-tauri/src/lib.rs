@@ -1,3 +1,9 @@
+mod address_guard;
+mod command_error;
+mod fetch_page;
+mod google_auth;
+mod save_file;
+
 use std::sync::Mutex;
 
 use alavo_infrastructure::native_env::NativeEnv;
@@ -35,12 +41,25 @@ fn open_engine(app: &tauri::App) -> Result<AppEngine, Box<dyn std::error::Error>
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_opener::init())
+        .manage(google_auth::GoogleAuthState::new())
         .setup(|app| {
             let engine = open_engine(app)?;
             app.manage(engine);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![engine_start, engine_call])
+        .invoke_handler(tauri::generate_handler![
+            engine_start,
+            engine_call,
+            save_file::save_text_file,
+            fetch_page::fetch_page,
+            google_auth::google_sign_in,
+            google_auth::google_session,
+            google_auth::google_access_token,
+            google_auth::google_sign_out,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running the application");
 }

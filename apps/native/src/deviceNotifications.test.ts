@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const plugin = vi.hoisted(() => ({
   isPermissionGranted: vi.fn(),
-  requestPermission: vi.fn(),
   pending: vi.fn(),
   cancel: vi.fn(),
   sendNotification: vi.fn(),
@@ -51,20 +50,11 @@ describe('scheduleOnDevice', () => {
     expect(plugin.sendNotification).not.toHaveBeenCalled();
   });
 
-  it('asks for permission once and schedules nothing when it is refused', async () => {
+  it('schedules nothing while permission is not granted', async () => {
     plugin.isPermissionGranted.mockResolvedValue(false);
-    plugin.requestPermission.mockResolvedValue('denied');
     await scheduleOnDevice([{ id: 3, at: NOW + HOUR, title: 'a', body: 'b' }]);
-    expect(plugin.requestPermission).toHaveBeenCalledTimes(1);
     expect(plugin.cancel).not.toHaveBeenCalled();
     expect(plugin.sendNotification).not.toHaveBeenCalled();
-  });
-
-  it('schedules after the person grants permission', async () => {
-    plugin.isPermissionGranted.mockResolvedValue(false);
-    plugin.requestPermission.mockResolvedValue('granted');
-    await scheduleOnDevice([{ id: 3, at: NOW + HOUR, title: 'a', body: 'b' }]);
-    expect(plugin.sendNotification).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -74,9 +64,8 @@ describe('showNow', () => {
     expect(plugin.sendNotification).toHaveBeenCalledWith({ title: 'Tiêu đề', body: 'Nội dung' });
   });
 
-  it('reports false without showing when permission is refused', async () => {
+  it('reports false without showing when permission is not granted', async () => {
     plugin.isPermissionGranted.mockResolvedValue(false);
-    plugin.requestPermission.mockResolvedValue('denied');
     expect(await showNow('a', 'b')).toBe(false);
     expect(plugin.sendNotification).not.toHaveBeenCalled();
   });

@@ -37,3 +37,4 @@ Thuật ngữ nào lần đầu xuất hiện thì được giải thích ngay t
 | [0013](decisions/0013-engine-trong-worker-va-lenh-json.md) | Engine trong Web Worker, giao tiếp bằng lệnh JSON | Đã chọn |
 | [0014](decisions/0014-man-hinh-ghep-vao-khung-bang-portal.md) | Màn hình ghép vào khung ứng dụng bằng portal | Đã chọn |
 | [0015](decisions/0015-release-github-actions-khong-luu-artifact.md) | Build bản phát hành bằng GitHub Actions, không lưu artifact | Đã chọn |
+| [0016](decisions/0016-giao-thuc-dong-bo-va-nhap-du-lieu.md) | Giao thức đồng bộ qua Drive và nhập dữ liệu | Đã chọn (chưa kiểm chứng với Google thật) |

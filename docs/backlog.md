@@ -22,7 +22,7 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test hoặc đã ki�
 - [ ] Web: PWA manifest và icon (đang ở nhánh `feat/app-icon` của session khác, chưa gộp)
 - [ ] Desktop Tauri: mở cửa sổ thật và kiểm tra (mới `cargo check` và typecheck)
 - [ ] Desktop: hộp thoại lưu file khi xuất dữ liệu (đang tải file bằng trình duyệt)
-- [ ] Android: build APK và chạy thử (workflow đã có, máy này không có Android SDK)
+- [ ] Android: build APK và chạy thử trên máy ảo (máy có SDK, NDK 27 và JDK 21 ở thư mục cài mặc định; chưa build lần nào)
 - [ ] iOS
 - [ ] Extension Chrome (`apps/extension`) và popup ghi chi tiêu nhanh
 
@@ -60,10 +60,11 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test hoặc đã ki�
 - [x] Danh sách đi chợ: gộp nguyên liệu theo khu mua, đánh dấu đã có, thêm món tay, ghi vào Chi tiêu
 - [x] Ảnh hưởng ngân sách khi đi chợ: thẻ "Cần bạn", tăng ngân sách hoặc giữ nguyên
 - [x] Chế độ nấu ăn toàn màn hình: hẹn giờ từng bước, báo khi hết giờ, danh sách nguyên liệu, phím mũi tên, giữ màn hình sáng
-- [ ] Thêm ảnh cho công thức (nút đang tắt)
-- [ ] Nhập công thức từ link (cần bản native hoặc proxy, vì trình duyệt chặn)
-- [ ] Chi phí ước tính khi soạn công thức (công thức tạo từ trình soạn đang có chi phí 0)
-- [ ] Gợi ý thực đơn tuần tự động
+- [x] Ảnh công thức: lưu trong SQLite (`recipes_photos`, lệnh `recipes.set_photo`), thu nhỏ còn tối đa 1024 px JPEG ngay trên trình duyệt, hiện làm ảnh bìa
+- [x] Nhập công thức từ link qua `fetchPage` của nền (chỉ hiện khi `importFromUrl` bật, tức bản native), đọc JSON-LD kể cả `@graph`
+- [ ] Bản web vẫn chưa nhập được từ link (trình duyệt chặn, cần proxy)
+- [x] Chi phí ước tính khi soạn công thức: ô giá từng nguyên liệu, tổng và giá mỗi người hiện ngay trong trình soạn
+- [x] Gợi ý thực đơn tuần tự động: lệnh `recipes.suggest_plan` (không lưu gì), hộp thoại xem trước, đổi từng món, áp dụng
 
 ## Nhắc nhở và thông báo
 
@@ -73,6 +74,6 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test hoặc đã ki�
 - [x] Cổng `scheduleNotifications`: hẹn giờ trong trang cho web và desktop (chỉ hiện khi ứng dụng đang mở), plugin thông báo của Tauri cho điện thoại
 - [ ] Kiểm tra thông báo hiện trên màn hình khoá của điện thoại thật (code và test có rồi, chưa chạy trên thiết bị)
 - [ ] Web: nút bấm xin quyền thông báo (hiện chỉ hỏi lúc thông báo sắp hiện)
-- [ ] Làm mới lịch nhắc khi ứng dụng mở qua đêm (lịch chỉ tính lại khi mở ứng dụng hoặc khi dữ liệu đổi)
-- [ ] Nhắc nấu bữa tối, nhắc đi chợ, nhắc rã đông (quy tắc đã có nhưng chưa có gì kích hoạt)
+- [x] Món ăn: ngày hiện tại tự đổi lúc nửa đêm và khi tab hiện lại, nên lịch nhắc tự tính lại khi ứng dụng mở qua đêm
+- [x] Nhắc nấu bữa tối, nhắc đi chợ (Thứ Bảy, khi còn nguyên liệu chưa mua), nhắc rã đông (tối hôm trước món có thịt hoặc cá), lên lịch 7 ngày tới theo giờ trong Cài đặt
 - [ ] Nhắc hoá đơn trước 2 ngày, tóm tắt chi tiêu cuối tuần (quy tắc đã có nhưng chưa có gì kích hoạt)

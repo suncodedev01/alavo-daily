@@ -11,7 +11,7 @@ Bảng dưới liệt kê công nghệ theo lớp. Cột "Quyết định" trỏ
 | Đa ngôn ngữ | i18next, tiếng Việt là mặc định | `.claude/rules/general-code-style.md` |
 | Lõi nghiệp vụ | Rust, bốn tầng `domain`, `application`, `infrastructure`, `presentation` | [0005](decisions/0005-engine-rust-bon-tang.md) |
 | Cơ sở dữ liệu | SQLite: WASM với OPFS cho web và extension, `rusqlite` cho Tauri | [0004](decisions/0004-sqlite-hai-nen-mot-trait.md) |
-| Đồng bộ | Google Drive (`drive.file`), nhật ký sự kiện, đồng hồ lai HLC | [0006](decisions/0006-dong-bo-google-drive.md), [0007](decisions/0007-gop-du-lieu-hlc-nhat-ky-su-kien.md) |
+| Đồng bộ | Google Drive (`drive.file`), nhật ký sự kiện, đồng hồ lai HLC, định dạng file và xung đột | [0006](decisions/0006-dong-bo-google-drive.md), [0007](decisions/0007-gop-du-lieu-hlc-nhat-ky-su-kien.md), [0016](decisions/0016-giao-thuc-dong-bo-va-nhap-du-lieu.md) |
 | Đăng nhập Google | Theo nền: Google Identity Services, `launchWebAuthFlow`, OAuth Desktop với PKCE và loopback | [0008](decisions/0008-dang-nhap-google-theo-nen.md) |
 | Dữ liệu trong giao diện | TanStack Query, engine trong Web Worker, lệnh JSON | [0013](decisions/0013-engine-trong-worker-va-lenh-json.md) |
 | Khung ứng dụng | Màn hình ghép vào khung bằng portal | [0014](decisions/0014-man-hinh-ghep-vao-khung-bang-portal.md) |
