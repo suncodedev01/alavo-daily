@@ -1,7 +1,7 @@
 node_modules/
 dist/
 .turbo/
-target/
+target*/
 pkg/
 *.log
 .env
