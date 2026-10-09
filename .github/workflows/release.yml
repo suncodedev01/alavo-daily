@@ -34,6 +34,10 @@ on:
         description: Environment personal
         type: boolean
         default: true
+      run_tests:
+        description: Run all tests first (about 12 extra minutes)
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -101,6 +105,7 @@ jobs:
   verify:
     name: Verify
     needs: plan
+    if: ${{ inputs.run_tests }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -113,6 +118,7 @@ jobs:
   draft:
     name: Draft release
     needs: [plan, verify]
+    if: ${{ !cancelled() && needs.plan.result == 'success' && (needs.verify.result == 'success' || needs.verify.result == 'skipped') }}
     runs-on: ubuntu-latest
     outputs:
       release_id: ${{ steps.draft.outputs.release_id }}
