@@ -1,3 +1,4 @@
+import { formatVndInput, parseVndInput } from '@alavo-daily/common/format';
 import { useT } from '@alavo-daily/common';
 import { Button, Card, Field, IconButton, OptionPicker } from '@alavo-daily/design-system';
 
@@ -36,7 +37,8 @@ export function IngredientSection({ draft, dispatch }: SectionProps) {
         {t('Thêm nguyên liệu')}
       </Button>
       <p className="mt-3 text-xs text-text-muted">
-        {t('Nhập số lượng và đơn vị riêng để ứng dụng tự đổi khẩu phần và cộng gộp nguyên liệu trùng khi đi chợ.')}
+        {t('Nhập số lượng và đơn vị riêng để ứng dụng tự đổi khẩu phần và cộng gộp nguyên liệu trùng khi đi chợ.')}{' '}
+        {t('Giá ước tính là tiền mua nguyên liệu đó cho cả công thức, dùng để tính chi phí món ăn.')}
       </p>
     </Card>
   );
@@ -87,6 +89,15 @@ function IngredientRow({ item, onChange, onRemove }: IngredientRowProps) {
           onChange={(aisle) => onChange({ aisle: aisle as IngredientDraft['aisle'] })}
         />
       </div>
+      <Field
+        className="w-36"
+        inputMode="numeric"
+        aria-label={t('Giá ước tính')}
+        placeholder={t('Giá ước tính')}
+        trailing="₫"
+        value={item.costVnd > 0 ? formatVndInput(String(item.costVnd)) : ''}
+        onChange={(event) => onChange({ costVnd: parseVndInput(event.target.value) })}
+      />
       <IconButton icon="trash" label={t('Xoá nguyên liệu')} size="sm" onClick={onRemove} />
     </div>
   );

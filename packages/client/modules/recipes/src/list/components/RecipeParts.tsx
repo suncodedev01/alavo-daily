@@ -8,6 +8,16 @@ import { useReportError } from '../../engine-errors';
 import { LEVEL_LABELS, MAX_SERVINGS, MIN_SERVINGS } from '../../vocabulary';
 
 export function RecipeCover({ recipe }: { recipe: Recipe }) {
+  const t = useT();
+  if (recipe.photo) {
+    return (
+      <img
+        src={recipe.photo}
+        alt={t('Ảnh món {{name}}', { name: recipe.name })}
+        className="h-56 w-full rounded-xl object-cover max-lg:h-44"
+      />
+    );
+  }
   return (
     <div className="grid h-40 place-items-center rounded-xl bg-surface-brand text-cover-fg max-lg:h-32">
       <Icon name={recipe.icon} size={56} />

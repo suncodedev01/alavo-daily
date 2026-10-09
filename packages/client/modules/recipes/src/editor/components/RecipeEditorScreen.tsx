@@ -9,6 +9,7 @@ import { QueryState } from '../../query-state';
 import { blankDraft, draftFromRecipe, isDraftValid } from '../logic/draft';
 import type { Draft } from '../types';
 import { draftReducer } from '../logic/draftReducer';
+import { CostSummary } from './CostSummary';
 import { EditorChecklist, EditorDock } from './EditorDock';
 import { GeneralSection } from './GeneralSection';
 import { ImportEntry } from './ImportEntry';
@@ -40,7 +41,7 @@ function EditorForm({ recipeId, initial }: EditorFormProps) {
   const t = useT();
   const layout = useLayout();
   const [draft, dispatch] = useReducer(draftReducer, initial);
-  const save = useSaveRecipe(recipeId);
+  const save = useSaveRecipe(recipeId, initial.photo);
   return (
     <Screen
       title={recipeId === undefined ? t('Công thức mới') : t('Sửa công thức')}
@@ -54,12 +55,7 @@ function EditorForm({ recipeId, initial }: EditorFormProps) {
         <GeneralSection draft={draft} dispatch={dispatch} />
         <IngredientSection draft={draft} dispatch={dispatch} />
         <StepSection draft={draft} dispatch={dispatch} />
-        {layout === 'narrow' ? (
-          <Card padding="sm">
-            <h2 className="mb-2 text-title font-semibold">{t('Kiểm tra trước khi lưu')}</h2>
-            <EditorChecklist draft={draft} />
-          </Card>
-        ) : null}
+        {layout === 'narrow' ? <NarrowSummary draft={draft} /> : null}
         {save.error ? (
           <p role="alert" className="text-sm text-destructive-fg">
             {save.error}
@@ -73,6 +69,22 @@ function EditorForm({ recipeId, initial }: EditorFormProps) {
         />
       </PageColumn>
     </Screen>
+  );
+}
+
+function NarrowSummary({ draft }: { draft: Draft }) {
+  const t = useT();
+  return (
+    <>
+      <Card padding="sm">
+        <h2 className="mb-2 text-title font-semibold">{t('Chi phí ước tính')}</h2>
+        <CostSummary draft={draft} />
+      </Card>
+      <Card padding="sm">
+        <h2 className="mb-2 text-title font-semibold">{t('Kiểm tra trước khi lưu')}</h2>
+        <EditorChecklist draft={draft} />
+      </Card>
+    </>
   );
 }
 

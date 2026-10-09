@@ -36,6 +36,7 @@ export function recipe(overrides: Partial<Recipe> & Pick<Recipe, 'id' | 'name'>)
     note: '',
     ingredients,
     steps: [],
+    photo: null,
     createdAt: 1,
     updatedAt: 1,
     ...overrides,

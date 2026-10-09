@@ -108,3 +108,20 @@ describe('MorningMenuReminders', () => {
     expect(await lastSchedule()).toEqual([]);
   });
 });
+
+describe('MorningMenuReminders at midnight', () => {
+  it('asks for the menus of the new day without any user action once midnight passes', async () => {
+    vi.useRealTimers();
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] });
+    vi.setSystemTime(new Date(2026, 9, 10, 23, 30));
+    const { engine } = renderReminders([planned], [rule()]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
+    expect(engine.callsTo('recipes.morning_menus')).toEqual([{ from: '2026-10-10', days: 3 }]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31 * 60 * 1000);
+    });
+    expect(engine.callsTo('recipes.morning_menus')).toContainEqual({ from: '2026-10-11', days: 3 });
+  });
+});

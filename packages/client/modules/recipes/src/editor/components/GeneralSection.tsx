@@ -1,7 +1,8 @@
 import { useT } from '@alavo-daily/common';
-import { Button, Card, Eyebrow, Field, Icon, Pill, Stepper } from '@alavo-daily/design-system';
+import { Card, Eyebrow, Field, Icon, Pill, Stepper } from '@alavo-daily/design-system';
 import type { Dispatch } from 'react';
 
+import { PhotoField } from '../../photo';
 import { MAX_SERVINGS, MIN_SERVINGS, RECIPE_TAGS } from '../../vocabulary';
 import type { Draft } from '../types';
 import type { DraftAction } from '../types';
@@ -53,15 +54,7 @@ export function GeneralSection({ draft, dispatch }: SectionProps) {
         </div>
       </div>
       <TagPicker draft={draft} dispatch={dispatch} />
-      <div className="flex items-center gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">{t('Ảnh món ăn')}</p>
-          <p className="text-xs text-text-muted">{t('Chưa lưu được ảnh, tính năng này sẽ có sau.')}</p>
-        </div>
-        <Button variant="outline" size="sm" leadingIcon="plus" disabled>
-          {t('Thêm ảnh — sắp có')}
-        </Button>
-      </div>
+      <PhotoField photo={draft.photo} onChange={(photo) => dispatch({ type: 'set_photo', photo })} />
     </Card>
   );
 }

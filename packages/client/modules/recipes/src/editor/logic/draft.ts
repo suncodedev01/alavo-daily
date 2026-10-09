@@ -38,6 +38,7 @@ export function blankDraft(servings = DEFAULT_SERVINGS): Draft {
     icon: 'cooking-pot',
     kcal: null,
     note: '',
+    photo: null,
     ingredients: [blankIngredient()],
     steps: [blankStep()],
     imported: false,
@@ -55,6 +56,7 @@ export function draftFromInput(input: RecipeInput, imported: boolean): Draft {
     icon: input.icon ?? 'cooking-pot',
     kcal: input.kcal ?? null,
     note: input.note ?? '',
+    photo: null,
     ingredients: input.ingredients.map((item) => ({
       key: nextKey(),
       quantity: String(item.quantity),
@@ -69,7 +71,7 @@ export function draftFromInput(input: RecipeInput, imported: boolean): Draft {
 }
 
 export function draftFromRecipe(recipe: Recipe): Draft {
-  return draftFromInput(recipe, false);
+  return { ...draftFromInput(recipe, false), photo: recipe.photo };
 }
 
 export function parseQuantity(text: string): number {

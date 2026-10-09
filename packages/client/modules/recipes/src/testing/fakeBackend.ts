@@ -8,6 +8,8 @@ import {
   type RecipeInput,
   type ShoppingItem,
   type ShoppingList,
+  type SuggestedEntry,
+  type SuggestPlanRequest,
 } from '@alavo-daily/common/engine';
 
 import { ALL_RECIPES, summaryOf } from './fixtures';
@@ -46,6 +48,8 @@ export class RecipesBackend {
       'recipes.update': ({ id, ...input }) => this.update(id, input),
       'recipes.delete': ({ id }) => this.remove(id),
       'recipes.set_favorite': ({ id, favorite }) => this.update(id, { favorite }),
+      'recipes.set_photo': ({ id, dataUrl }) => this.setPhoto(id, dataUrl),
+      'recipes.suggest_plan': (request) => this.suggestPlan(request),
       'recipes.get_plan': ({ from, days }) => this.planBetween(from, days ?? 7),
       'recipes.add_to_plan': (input) => this.addToPlan(input),
       'recipes.remove_from_plan': ({ id }) => {
@@ -63,6 +67,31 @@ export class RecipesBackend {
         return {};
       },
     };
+  }
+
+  setPhoto(id: string, photo: string | null): Recipe {
+    const next = { ...this.find(id), photo };
+    this.recipes = this.recipes.map((own) => (own.id === id ? next : own));
+    return next;
+  }
+
+  /** A simple stand-in for the engine: fills empty meals by cycling through the recipes. */
+  suggestPlan(request: SuggestPlanRequest): SuggestedEntry[] {
+    const days = request.days ?? 7;
+    const slots = request.slots ?? ['lunch', 'dinner'];
+    const pool = this.recipes.filter((own) => !request.avoid?.includes(own.id));
+    const choices = pool.length > 0 ? pool : this.recipes;
+    const taken = [...this.plan, ...(request.alsoPlanned ?? [])];
+    const entries: SuggestedEntry[] = [];
+    for (let offset = 0; offset < days; offset += 1) {
+      const date = addDaysText(request.from, offset);
+      for (const slot of slots) {
+        if (taken.some((own) => own.date === date && own.slot === slot) || choices.length === 0) continue;
+        const pick = choices[(entries.length + (request.seed ?? 0)) % choices.length]!;
+        entries.push({ date, slot, recipeId: pick.id, recipeName: pick.name, recipeIcon: pick.icon });
+      }
+    }
+    return entries;
   }
 
   seedPlan(date: string, slot: PlanEntry['slot'], recipeId: string, servings = 2): PlanEntry {
@@ -88,6 +117,7 @@ export class RecipesBackend {
     const next: Recipe = {
       ...current,
       ...this.fromInput(id, { ...toInput(current), ...input }, favorite ?? current.favorite),
+      photo: current.photo,
       updatedAt: current.updatedAt + 1,
     };
     this.recipes = this.recipes.map((own) => (own.id === id ? next : own));
@@ -126,6 +156,7 @@ export class RecipesBackend {
       kcal: input.kcal ?? null,
       note: input.note ?? '',
       ingredients,
+      photo: null,
       steps: input.steps.map((own, index) => ({
         id: `${id}-s${index}`,
         text: own.text,

@@ -121,6 +121,27 @@ describe('recipe detail', () => {
     expect(within(steps).getByText('15 phút')).toBeInTheDocument();
   });
 
+  it('shows the photo as the cover when the recipe has one', async () => {
+    const backend = new RecipesBackend();
+    backend.setPhoto('ga-kho', 'data:image/jpeg;base64,AAAA');
+    renderList('/recipes/list/ga-kho', { backend });
+    const cover = await screen.findByRole('img', { name: 'Ảnh món Gà kho gừng' });
+    expect(cover).toHaveAttribute('src', 'data:image/jpeg;base64,AAAA');
+  });
+
+  it('keeps the icon cover when the recipe has no photo', async () => {
+    renderList();
+    await screen.findByRole('heading', { name: 'Gà kho gừng' });
+    expect(screen.queryByRole('img', { name: /^Ảnh món/ })).not.toBeInTheDocument();
+  });
+
+  it('shows the estimated cost of the recipe and of one serving', async () => {
+    renderList();
+    await screen.findByRole('heading', { name: 'Gà kho gừng' });
+    expect(await screen.findByText('30.500 ₫')).toBeInTheDocument();
+    expect(screen.getByText('cho 2 người · 15.250 ₫ mỗi người')).toBeInTheDocument();
+  });
+
   it('rescales ingredients and cost when the servings change', async () => {
     renderList();
     const user = userEvent.setup();

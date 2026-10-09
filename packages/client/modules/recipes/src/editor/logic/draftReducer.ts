@@ -12,6 +12,8 @@ export function draftReducer(draft: Draft, action: DraftAction): Draft {
       return { ...draft, servings: clampServings(action.servings) };
     case 'toggle_tag':
       return { ...draft, tags: toggled(draft.tags, action.tag) };
+    case 'set_photo':
+      return { ...draft, photo: action.photo };
     default:
       return reduceRows(draft, action);
   }

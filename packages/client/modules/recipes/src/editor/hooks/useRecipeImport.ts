@@ -1,17 +1,19 @@
 import { EngineCallError, useEngineMutation, type RecipeInput } from '@alavo-daily/common/engine';
-import { useT } from '@alavo-daily/common';
+import { usePlatform, useT } from '@alavo-daily/common';
 import { useState } from 'react';
 
 import { describeEngineError } from '../../engine-errors';
 import { draftFromInput } from '../logic/draft';
+import { InvalidAddress, PageUnreachable, readRecipeFromPage } from '../logic/pageImport';
 import type { Draft } from '../types';
-import { extractJsonLdBlocks } from '../logic/jsonLd';
 import type { RecipeImport } from '../types';
 
-const NO_RECIPE_ON_PAGE = 'Trang này không có công thức mà ứng dụng đọc được.';
+const NO_RECIPE_ON_PAGE = 'Trang này không có công thức mà ứng dụng đọc được. Bạn thử dán JSON-LD hoặc nhập tay nhé.';
+const NO_RECIPE_IN_TEXT = 'Không thấy công thức trong nội dung này.';
 
 export function useRecipeImport(onFill: (draft: Draft) => void): RecipeImport {
   const t = useT();
+  const { fetchPage } = usePlatform();
   const parse = useEngineMutation('recipes.parse_json_ld');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,27 +36,18 @@ export function useRecipeImport(onFill: (draft: Draft) => void): RecipeImport {
   return {
     busy,
     error,
-    fromJson: (json) => attempt(() => parseJson(json), 'Không thấy công thức trong nội dung này.'),
-    fromUrl: (url) => attempt(() => readFirstRecipe(url, parseJson), NO_RECIPE_ON_PAGE),
+    fromJson: (json) => attempt(() => parseJson(json), NO_RECIPE_IN_TEXT),
+    fromUrl: (url) => attempt(() => readRecipeFromPage(url, fetchPage, parseJson), NO_RECIPE_ON_PAGE),
   };
 }
 
-async function readFirstRecipe(
-  url: string,
-  parseJson: (json: string) => Promise<RecipeInput | null>,
-): Promise<RecipeInput | null> {
-  const response = await fetch(url);
-  if (!response.ok) throw new PageUnreadable();
-  for (const block of extractJsonLdBlocks(await response.text())) {
-    const recipe = await parseJson(block).catch(() => null);
-    if (recipe !== null) return recipe;
-  }
-  return null;
-}
-
-class PageUnreadable extends Error {}
-
 function explain(failure: unknown, t: ReturnType<typeof useT>): string {
+  if (failure instanceof InvalidAddress) {
+    return t('Đường dẫn này chưa đúng. Bạn dán địa chỉ đầy đủ của trang công thức nhé.');
+  }
+  if (failure instanceof PageUnreachable) {
+    return t('Không tải được trang này. Bạn kiểm tra kết nối mạng rồi thử lại nhé.');
+  }
   if (failure instanceof EngineCallError && failure.code === 'validation') {
     return t('Nội dung này không phải JSON hợp lệ.');
   }

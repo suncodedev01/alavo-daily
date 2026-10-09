@@ -4,6 +4,7 @@ import { ContextSection, Icon } from '@alavo-daily/design-system';
 
 import { checklistOf, parseMinutes } from '../logic/draft';
 import type { Draft } from '../types';
+import { CostSummary } from './CostSummary';
 
 export function EditorChecklist({ draft }: { draft: Draft }) {
   const t = useT();
@@ -35,6 +36,9 @@ export function EditorDock({ draft }: { draft: Draft }) {
     <>
       <ContextSection title={t('Kiểm tra trước khi lưu')} defaultOpen>
         <EditorChecklist draft={draft} />
+      </ContextSection>
+      <ContextSection title={t('Chi phí ước tính')} defaultOpen>
+        <CostSummary draft={draft} />
       </ContextSection>
       <ContextSection title={t('Tóm tắt')} defaultOpen>
         <p className="text-title font-semibold">{minutes > 0 ? formatMinutes(minutes) : '—'}</p>

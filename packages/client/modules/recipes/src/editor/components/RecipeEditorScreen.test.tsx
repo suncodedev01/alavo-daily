@@ -2,27 +2,11 @@ import { EngineCallError, type RecipeInput } from '@alavo-daily/common/engine';
 import { createFakePlatform } from '@alavo-daily/common/testing';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { renderScreen } from '../../testing/renderScreen';
-import { RecipeEditorScreen } from './RecipeEditorScreen';
+import { renderEdit, renderEditor, fillMinimalRecipe, location } from '../../testing/editorScreens';
 
-const location = () => screen.getByLabelText('Đường dẫn hiện tại');
-
-function renderEditor(route = '/recipes/new', options: Partial<Parameters<typeof renderScreen>[1]> = {}) {
-  return renderScreen(<RecipeEditorScreen />, { path: '/recipes/new', route, ...options });
-}
-
-function renderEdit(id = 'ga-kho') {
-  return renderScreen(<RecipeEditorScreen />, { path: '/recipes/edit/:id', route: `/recipes/edit/${id}` });
-}
-
-async function fillMinimalRecipe(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByRole('textbox', { name: 'Tên món' }), 'Bò kho');
-  await user.type(screen.getByRole('textbox', { name: 'Tên nguyên liệu' }), 'Bắp bò');
-  await user.type(screen.getByRole('textbox', { name: 'Số lượng' }), '0,5');
-  await user.type(screen.getByRole('textbox', { name: 'Bước 1' }), 'Ướp bò');
-}
+const IMPORT_CAPABILITIES = { backgroundReminders: false, keepAwake: true, importFromUrl: true, googleSync: true };
 
 const IMPORTED: RecipeInput = {
   name: 'Bò kho bánh mì',
@@ -33,10 +17,6 @@ const IMPORTED: RecipeInput = {
   ingredients: [{ name: 'Bắp bò', quantity: 500, unit: 'g', aisle: 'meat_fish' }],
   steps: [{ text: 'Ướp bò với gia vị', timerMin: 30 }],
 };
-
-afterEach(() => {
-  vi.unstubAllGlobals();
-});
 
 describe('new recipe form', () => {
   it('starts empty with the checklist unfinished and saving disabled', () => {
@@ -108,10 +88,6 @@ describe('new recipe form', () => {
     expect(location()).toHaveTextContent('/recipes/list');
   });
 
-  it('keeps the photo for later with a disabled button', () => {
-    renderEditor();
-    expect(screen.getByRole('button', { name: 'Thêm ảnh — sắp có' })).toBeDisabled();
-  });
 });
 
 describe('ingredient rows', () => {
@@ -202,39 +178,63 @@ describe('import entry', () => {
 
   it('fills the form from the JSON-LD of a page when the platform can fetch', async () => {
     const html = `<script type="application/ld+json">{"@type":"Recipe"}</script>`;
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(html)));
+    const fetchPage = vi.fn(async () => html);
     const parse = vi.fn(() => IMPORTED);
-    const platform = createFakePlatform({
-      capabilities: { backgroundReminders: false, keepAwake: true, importFromUrl: true, googleSync: true },
-    });
+    const platform = createFakePlatform({ capabilities: IMPORT_CAPABILITIES, fetchPage });
     renderEditor('/recipes/new', { platform, handlers: { 'recipes.parse_json_ld': parse } });
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Dán link' }));
     await user.type(screen.getByRole('textbox', { name: 'Đường dẫn công thức' }), 'https://example.com/bo-kho');
     await user.click(screen.getByRole('button', { name: 'Nhập công thức' }));
     await waitFor(() => expect(screen.getByRole('textbox', { name: 'Tên món' })).toHaveValue('Bò kho bánh mì'));
+    expect(fetchPage).toHaveBeenCalledWith('https://example.com/bo-kho');
     expect(parse).toHaveBeenCalledWith({ json: '{"@type":"Recipe"}' });
     expect(screen.getByText('Đã đọc công thức.')).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Bước 1' })).toHaveValue('Ướp bò với gia vị');
   });
 
-  it('explains when the page cannot be read', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => Promise.reject(new TypeError('network'))));
-    const platform = createFakePlatform({
-      capabilities: { backgroundReminders: false, keepAwake: true, importFromUrl: true, googleSync: true },
-    });
+  it('explains when the page cannot be fetched', async () => {
+    const fetchPage = vi.fn(async () => Promise.reject(new TypeError('network')));
+    const platform = createFakePlatform({ capabilities: IMPORT_CAPABILITIES, fetchPage });
     renderEditor('/recipes/new', { platform });
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Dán link' }));
     await user.type(screen.getByRole('textbox', { name: 'Đường dẫn công thức' }), 'https://example.com');
     await user.click(screen.getByRole('button', { name: 'Nhập công thức' }));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Không đọc được trang này');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Không tải được trang này');
+    expect(screen.getByRole('textbox', { name: 'Đường dẫn công thức' })).toHaveValue('https://example.com');
+  });
+
+  it('explains when the address is not a web address without fetching', async () => {
+    const fetchPage = vi.fn(async () => '');
+    const platform = createFakePlatform({ capabilities: IMPORT_CAPABILITIES, fetchPage });
+    renderEditor('/recipes/new', { platform });
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Dán link' }));
+    await user.type(screen.getByRole('textbox', { name: 'Đường dẫn công thức' }), 'bò kho');
+    await user.click(screen.getByRole('button', { name: 'Nhập công thức' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Đường dẫn này chưa đúng');
+    expect(fetchPage).not.toHaveBeenCalled();
+  });
+
+  it('finds the recipe inside an @graph list of the page', async () => {
+    const graph = '{"@graph":[{"@type":"WebPage"},{"@type":"Recipe","name":"Bò kho"}]}';
+    const html = `<script type="application/ld+json">${graph}</script>`;
+    const platform = createFakePlatform({ capabilities: IMPORT_CAPABILITIES, fetchPage: async () => html });
+    const parse = vi.fn(() => IMPORTED);
+    renderEditor('/recipes/new', { platform, handlers: { 'recipes.parse_json_ld': parse } });
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Dán link' }));
+    await user.type(screen.getByRole('textbox', { name: 'Đường dẫn công thức' }), 'https://example.com/bo-kho');
+    await user.click(screen.getByRole('button', { name: 'Nhập công thức' }));
+    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Tên món' })).toHaveValue('Bò kho bánh mì'));
+    expect(parse).toHaveBeenCalledWith({ json: '{"@type":"Recipe","name":"Bò kho"}' });
   });
 
   it('explains when the page holds no recipe', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response('<p>no data</p>')));
     const platform = createFakePlatform({
-      capabilities: { backgroundReminders: false, keepAwake: true, importFromUrl: true, googleSync: true },
+      capabilities: IMPORT_CAPABILITIES,
+      fetchPage: async () => '<p>no data</p>',
     });
     renderEditor('/recipes/new', { platform });
     const user = userEvent.setup();

@@ -25,6 +25,7 @@ export interface Draft {
   icon: string;
   kcal: number | null;
   note: string;
+  photo: string | null;
   ingredients: IngredientDraft[];
   steps: StepDraft[];
   imported: boolean;
@@ -42,6 +43,7 @@ export type DraftAction =
   | { type: 'set_field'; field: GeneralField; value: string }
   | { type: 'set_servings'; servings: number }
   | { type: 'toggle_tag'; tag: string }
+  | { type: 'set_photo'; photo: string | null }
   | { type: 'add_ingredient' }
   | { type: 'edit_ingredient'; key: string; changes: Partial<Omit<IngredientDraft, 'key'>> }
   | { type: 'remove_ingredient'; key: string }

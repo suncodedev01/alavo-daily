@@ -39,6 +39,10 @@ describe('recipesManifest', () => {
     expect(fullscreen).toEqual(['/recipes/cook/:id']);
   });
 
+  it('keeps the reminders scheduled from one background component', () => {
+    expect(recipesManifest.background).toBeTypeOf('function');
+  });
+
   it('adds the meals of today to the sidebar', () => {
     expect(recipesManifest.sidebarExtra).toBeTypeOf('function');
   });
