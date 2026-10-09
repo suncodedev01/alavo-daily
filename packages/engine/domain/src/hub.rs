@@ -16,7 +16,7 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             language: "vi".to_string(),
-            theme: "system".to_string(),
+            theme: "light".to_string(),
             household_size: 2,
             pinned_modules: vec!["spending".to_string(), "recipes".to_string()],
             recent_modules: Vec::new(),

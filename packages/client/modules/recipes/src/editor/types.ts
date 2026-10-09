@@ -56,7 +56,6 @@ export type DraftAction =
 export interface RecipeImport {
   busy: boolean;
   error: string | null;
-  fromJson: (json: string) => Promise<void>;
   fromUrl: (url: string) => Promise<void>;
 }
 

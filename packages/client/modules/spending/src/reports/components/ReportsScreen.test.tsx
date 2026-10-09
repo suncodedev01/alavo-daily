@@ -162,14 +162,14 @@ describe('CSV export', () => {
   it('saves the range as a CSV file that opens correctly in Excel', async () => {
     const { saveTextFile, platform } = platformWithSave();
     const { engine } = await open({ platform });
-    await userEvent.click(screen.getByRole('button', { name: 'Xuất file CSV' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Xuất ra bảng tính' }));
     await waitFor(() => expect(saveTextFile).toHaveBeenCalledTimes(1));
     const [filename = '', content = ''] = saveTextFile.mock.calls[0] ?? [];
     expect(filename).toBe('alavo-giao-dich-2026-10-01_2026-10-09.csv');
     expect(content.startsWith('﻿date,title,category,wallet,amount_vnd,note')).toBe(true);
     expect(content).toContain('2026-10-06,Phở Thìn,Ăn uống,Tiền mặt,-70000,');
     expect(engine.callsTo('spending.export_csv')).toEqual([{ from: '2026-10-01', to: '2026-10-09' }]);
-    expect(await screen.findByText('Đã xuất 13 giao dịch ra file CSV')).toBeInTheDocument();
+    expect(await screen.findByText('Đã xuất 13 giao dịch ra file bảng tính')).toBeInTheDocument();
   });
 
   it('exports the custom range that is on screen', async () => {
@@ -177,7 +177,7 @@ describe('CSV export', () => {
     await open({ platform });
     await userEvent.click(screen.getByRole('radio', { name: '3 tháng' }));
     await screen.findByRole('img', { name: 'Thu và chi theo tháng, từ T8 đến T10' });
-    await userEvent.click(screen.getByRole('button', { name: 'Xuất file CSV' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Xuất ra bảng tính' }));
     await waitFor(() => expect(saveTextFile).toHaveBeenCalled());
     expect(saveTextFile.mock.calls[0]?.[0]).toBe('alavo-giao-dich-2026-08-01_2026-10-09.csv');
   });
@@ -185,7 +185,7 @@ describe('CSV export', () => {
   it('does not save an empty file and says so', async () => {
     const { saveTextFile, platform } = platformWithSave();
     renderSpending({ route: '/spending/reports', data: createEmptyData(), platform });
-    await userEvent.click(await screen.findByRole('button', { name: 'Xuất file CSV' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Xuất ra bảng tính' }));
     expect(await screen.findByText('Không có giao dịch nào trong khoảng này để xuất.')).toBeInTheDocument();
     expect(saveTextFile).not.toHaveBeenCalled();
   });
@@ -197,7 +197,7 @@ describe('CSV export', () => {
       },
     });
     await open({ platform });
-    await userEvent.click(screen.getByRole('button', { name: 'Xuất file CSV' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Xuất ra bảng tính' }));
     expect(await screen.findByText('Không lưu được file. Bạn thử lại nhé.')).toBeInTheDocument();
   });
 });

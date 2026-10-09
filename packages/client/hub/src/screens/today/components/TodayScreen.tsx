@@ -4,6 +4,7 @@ import { Screen, useLanguage, useT } from '@alavo-daily/common';
 import { PageColumn, Skeleton, useLayout } from '@alavo-daily/design-system';
 
 import { useModules } from '../../../module-registry';
+import { SyncNowButton } from '../../../sync-status';
 import { FirstRunState } from './FirstRunState';
 import { DinnerCard, MealsCard, ShoppingCard, SpendingCard } from './TodayCards';
 import {
@@ -27,7 +28,12 @@ export function TodayScreen() {
   return (
     <Screen
       title={t('Hôm nay')}
-      actions={<QuickAddMenu />}
+      actions={
+        <div className="flex items-center gap-2">
+          <SyncNowButton />
+          <QuickAddMenu />
+        </div>
+      }
       dock={wide && showSide ? <>{decision}{rest}</> : undefined}
     >
       <PageColumn>

@@ -8,8 +8,7 @@ import { InvalidAddress, PageUnreachable, readRecipeFromPage } from '../logic/pa
 import type { Draft } from '../types';
 import type { RecipeImport } from '../types';
 
-const NO_RECIPE_ON_PAGE = 'Trang này không có công thức mà ứng dụng đọc được. Bạn thử dán JSON-LD hoặc nhập tay nhé.';
-const NO_RECIPE_IN_TEXT = 'Không thấy công thức trong nội dung này.';
+const NO_RECIPE_ON_PAGE = 'Trang này không có công thức mà ứng dụng đọc được. Bạn thử trang khác hoặc nhập tay nhé.';
 
 export function useRecipeImport(onFill: (draft: Draft) => void): RecipeImport {
   const t = useT();
@@ -36,7 +35,6 @@ export function useRecipeImport(onFill: (draft: Draft) => void): RecipeImport {
   return {
     busy,
     error,
-    fromJson: (json) => attempt(() => parseJson(json), NO_RECIPE_IN_TEXT),
     fromUrl: (url) => attempt(() => readRecipeFromPage(url, fetchPage, parseJson), NO_RECIPE_ON_PAGE),
   };
 }
@@ -48,9 +46,6 @@ function explain(failure: unknown, t: ReturnType<typeof useT>): string {
   if (failure instanceof PageUnreachable) {
     return t('Không tải được trang này. Bạn kiểm tra kết nối mạng rồi thử lại nhé.');
   }
-  if (failure instanceof EngineCallError && failure.code === 'validation') {
-    return t('Nội dung này không phải JSON hợp lệ.');
-  }
   if (failure instanceof EngineCallError) return describeEngineError(failure, t);
-  return t('Không đọc được trang này. Bạn thử dán JSON-LD hoặc nhập tay nhé.');
+  return t('Không đọc được trang này. Bạn thử trang khác hoặc nhập tay nhé.');
 }

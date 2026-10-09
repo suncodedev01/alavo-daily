@@ -20,7 +20,7 @@ export function useExportCsv(): CsvExporter {
   const save = async (range: DateRange, csv: string, rowCount: number) => {
     if (rowCount === 0) return toast(t('Không có giao dịch nào trong khoảng này để xuất.'));
     await platform.saveTextFile(csvFilename(range), withByteOrderMark(csv));
-    toast(t('Đã xuất {{count}} giao dịch ra file CSV', { count: rowCount }));
+    toast(t('Đã xuất {{count}} giao dịch ra file bảng tính', { count: rowCount }));
   };
 
   const exportRange = (range: DateRange) =>

@@ -30,12 +30,12 @@ export function StatementInput({ draft }: { draft: StatementDraft }) {
       <div className="grid gap-1">
         <h2 className="text-title font-semibold">{t('Chọn sao kê ngân hàng')}</h2>
         <p className="text-sm text-text-secondary">
-          {t('Dùng file CSV tải từ ứng dụng ngân hàng, hoặc dán nội dung vào ô bên dưới.')}
+          {t('Dùng file sao kê tải từ ứng dụng ngân hàng, hoặc dán nội dung vào ô bên dưới.')}
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="outline" leadingIcon="upload-simple" onClick={() => fileInput.current?.click()}>
-          {t('Chọn file CSV')}
+          {t('Chọn file sao kê')}
         </Button>
         {fileName ? <span className="min-w-0 truncate text-sm text-text-muted">{fileName}</span> : null}
         <input

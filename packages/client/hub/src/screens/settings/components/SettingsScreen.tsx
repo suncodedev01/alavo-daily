@@ -5,6 +5,7 @@ import { PageColumn, Segmented } from '@alavo-daily/design-system';
 
 import { LanguageCard } from './LanguageCard';
 import { NotificationsTab } from './NotificationsTab';
+import { ThemeCard } from './ThemeCard';
 import { SyncDock, SyncTab } from './SyncTab';
 
 type SettingsTab = 'sync' | 'notifications';
@@ -31,6 +32,7 @@ export function SettingsScreen() {
           className="justify-self-start"
         />
         {tab === 'sync' ? <SyncTab /> : <NotificationsTab />}
+        <ThemeCard />
         <LanguageCard />
       </PageColumn>
     </Screen>

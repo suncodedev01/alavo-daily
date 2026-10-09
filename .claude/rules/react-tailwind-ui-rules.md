@@ -45,6 +45,7 @@
 ## Giọng và nội dung chữ
 
 - Chuỗi hiển thị nói **hành động hoặc lợi ích**, không lộ tên công nghệ, giao thức, tên bảng hay tên hàm. Ví dụ viết "Sao lưu dữ liệu lên Google Drive", không viết "Đẩy delta log lên Drive". Tên thương hiệu người dùng đã biết (Google Drive) thì được.
+- **Người đọc là người không biết lập trình.** Cấm trong chữ hiển thị (nhãn, nút, tiêu đề, thông báo, lỗi, gợi ý trong ô nhập, `aria-label`) các thuật ngữ kỹ thuật: JSON, JSON-LD, CSV, SQL, API, OAuth, token, HTML, URL, ID, cache, wasm, mã hoá, giao thức, tên bảng, tên hàm, mã lỗi. Mô tả việc người dùng làm hoặc thứ họ nhận được: "Xuất ra bảng tính" thay vì "Xuất file CSV", "Chọn file sao kê" thay vì "Chọn file CSV", "Trang này không có công thức, bạn thử trang khác" thay vì "Dán JSON-LD". Nếu một tính năng chỉ dùng được khi người dùng biết thuật ngữ đó (ví dụ dán JSON-LD copy từ mã nguồn trang web), thì **không đưa tính năng ấy lên giao diện**, vì người dùng thường không thể làm theo. Thuật ngữ vẫn được dùng trong code, tài liệu kỹ thuật, tên test và tên lệnh engine, chỉ không lên màn hình. Test kiểm điều này: `pnpm test` trong `packages/client/common` quét mọi khoá dịch và fail khi gặp thuật ngữ trong danh sách cấm.
 - Người dùng được gọi là "người dùng" hoặc "bạn". Phần việc ứng dụng tự làm thì chủ thể là tên ứng dụng.
 - Không dùng từ sáo rỗng như "liền mạch", "cách mạng", "AI-powered".
 

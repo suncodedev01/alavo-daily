@@ -39,6 +39,11 @@ mod tests {
     }
 
     #[test]
+    fn a_fresh_install_starts_with_the_light_theme() {
+        with_ctx(|ctx| assert_eq!(get(ctx).unwrap().theme, "light"));
+    }
+
+    #[test]
     fn update_persists_only_the_given_fields() {
         with_ctx(|ctx| {
             update(ctx, UpdateSettings { theme: Some("dark".into()), ..Default::default() })

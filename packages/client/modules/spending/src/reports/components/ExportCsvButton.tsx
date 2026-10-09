@@ -9,7 +9,7 @@ export function ExportCsvButton({ range }: { range: DateRange }) {
   const { exportRange, pending } = useExportCsv();
   return (
     <Button variant="outline" leadingIcon="download-simple" disabled={pending} onClick={() => exportRange(range)}>
-      {t('Xuất file CSV')}
+      {t('Xuất ra bảng tính')}
     </Button>
   );
 }

@@ -170,20 +170,25 @@ describe('step rows', () => {
 });
 
 describe('import entry', () => {
-  it('only offers typing by hand on a platform that cannot fetch pages', () => {
+  it('does not show the import card on a platform that cannot fetch pages', () => {
     renderEditor();
-    expect(screen.getByRole('button', { name: 'Tự nhập' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.queryByRole('button', { name: 'Dán link' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Nhập từ trang web' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'Đường dẫn công thức' })).not.toBeInTheDocument();
   });
 
-  it('fills the form from the JSON-LD of a page when the platform can fetch', async () => {
+  it('shows the address field right away on a platform that can fetch pages', () => {
+    const platform = createFakePlatform({ capabilities: IMPORT_CAPABILITIES, fetchPage: async () => '' });
+    renderEditor('/recipes/new', { platform });
+    expect(screen.getByRole('textbox', { name: 'Đường dẫn công thức' })).toBeInTheDocument();
+  });
+
+  it('fills the form from the recipe data of a page when the platform can fetch', async () => {
     const html = `<script type="application/ld+json">{"@type":"Recipe"}</script>`;
     const fetchPage = vi.fn(async () => html);
     const parse = vi.fn(() => IMPORTED);
     const platform = createFakePlatform({ capabilities: IMPORT_CAPABILITIES, fetchPage });
     renderEditor('/recipes/new', { platform, handlers: { 'recipes.parse_json_ld': parse } });
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: 'Dán link' }));
     await user.type(screen.getByRole('textbox', { name: 'Đường dẫn công thức' }), 'https://example.com/bo-kho');
     await user.click(screen.getByRole('button', { name: 'Nhập công thức' }));
     await waitFor(() => expect(screen.getByRole('textbox', { name: 'Tên món' })).toHaveValue('Bò kho bánh mì'));
@@ -198,7 +203,6 @@ describe('import entry', () => {
     const platform = createFakePlatform({ capabilities: IMPORT_CAPABILITIES, fetchPage });
     renderEditor('/recipes/new', { platform });
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: 'Dán link' }));
     await user.type(screen.getByRole('textbox', { name: 'Đường dẫn công thức' }), 'https://example.com');
     await user.click(screen.getByRole('button', { name: 'Nhập công thức' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Không tải được trang này');
@@ -210,7 +214,6 @@ describe('import entry', () => {
     const platform = createFakePlatform({ capabilities: IMPORT_CAPABILITIES, fetchPage });
     renderEditor('/recipes/new', { platform });
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: 'Dán link' }));
     await user.type(screen.getByRole('textbox', { name: 'Đường dẫn công thức' }), 'bò kho');
     await user.click(screen.getByRole('button', { name: 'Nhập công thức' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Đường dẫn này chưa đúng');
@@ -224,7 +227,6 @@ describe('import entry', () => {
     const parse = vi.fn(() => IMPORTED);
     renderEditor('/recipes/new', { platform, handlers: { 'recipes.parse_json_ld': parse } });
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: 'Dán link' }));
     await user.type(screen.getByRole('textbox', { name: 'Đường dẫn công thức' }), 'https://example.com/bo-kho');
     await user.click(screen.getByRole('button', { name: 'Nhập công thức' }));
     await waitFor(() => expect(screen.getByRole('textbox', { name: 'Tên món' })).toHaveValue('Bò kho bánh mì'));
@@ -238,59 +240,9 @@ describe('import entry', () => {
     });
     renderEditor('/recipes/new', { platform });
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: 'Dán link' }));
     await user.type(screen.getByRole('textbox', { name: 'Đường dẫn công thức' }), 'https://example.com');
     await user.click(screen.getByRole('button', { name: 'Nhập công thức' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('không có công thức');
-  });
-});
-
-describe('JSON-LD box', () => {
-  async function openBox(handlers: Parameters<typeof renderEditor>[1] = {}) {
-    const view = renderEditor('/recipes/new', handlers);
-    const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: 'Dán JSON-LD (nâng cao)' }));
-    return { view, user };
-  }
-
-  function paste(text: string) {
-    fireEvent.change(screen.getByRole('textbox', { name: 'Nội dung JSON-LD' }), { target: { value: text } });
-  }
-
-  it('is collapsed until asked for', () => {
-    renderEditor();
-    expect(screen.queryByRole('textbox', { name: 'Nội dung JSON-LD' })).not.toBeInTheDocument();
-  });
-
-  it('fills the form from pasted JSON-LD', async () => {
-    const { user } = await openBox({ handlers: { 'recipes.parse_json_ld': () => IMPORTED } });
-    expect(screen.getByRole('button', { name: 'Điền vào form' })).toBeDisabled();
-    paste('{"@type":"Recipe"}');
-    await user.click(screen.getByRole('button', { name: 'Điền vào form' }));
-    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Tên món' })).toHaveValue('Bò kho bánh mì'));
-    expect(screen.getByRole('textbox', { name: 'Phút nấu' })).toHaveValue('90');
-    expect(screen.getByRole('textbox', { name: 'Tên nguyên liệu' })).toHaveValue('Bắp bò');
-    expect(screen.getByRole('textbox', { name: 'Phút hẹn giờ' })).toHaveValue('30');
-  });
-
-  it('says when the JSON holds no recipe', async () => {
-    const { user } = await openBox({ handlers: { 'recipes.parse_json_ld': () => null } });
-    paste('{"@type":"Article"}');
-    await user.click(screen.getByRole('button', { name: 'Điền vào form' }));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Không thấy công thức trong nội dung này.');
-  });
-
-  it('says when the text is not JSON', async () => {
-    const { user } = await openBox({
-      handlers: {
-        'recipes.parse_json_ld': () => {
-          throw new EngineCallError('validation', 'expected value at line 1');
-        },
-      },
-    });
-    paste('{');
-    await user.click(screen.getByRole('button', { name: 'Điền vào form' }));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Nội dung này không phải JSON hợp lệ.');
   });
 });
 

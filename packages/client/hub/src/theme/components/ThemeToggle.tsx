@@ -8,7 +8,7 @@ export function ThemeToggle() {
   const t = useT();
   const settings = useSettings();
   const { mutate: updateSettings } = useUpdateSettings();
-  const theme = settings.data?.theme ?? 'system';
+  const theme = settings.data?.theme ?? 'light';
   return (
     <IconButton
       icon={isDarkTheme(theme) ? 'sun' : 'moon'}

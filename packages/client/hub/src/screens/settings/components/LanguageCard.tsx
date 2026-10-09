@@ -13,15 +13,16 @@ export function LanguageCard() {
   const language = useLanguage();
   const update = useUpdateSettings();
   return (
-    <Card padding="lg" className="flex items-center gap-3">
-      <IconTile icon="globe" />
-      <div className="min-w-0 flex-1">
-        <h2 className="text-title font-semibold">{t('Ngôn ngữ')}</h2>
-        <p className="mt-1 text-sm text-text-muted">{t('Ngôn ngữ hiển thị của ứng dụng.')}</p>
+    <Card padding="lg" className="grid gap-4">
+      <div className="flex items-center gap-3">
+        <IconTile icon="globe" />
+        <div className="min-w-0 flex-1">
+          <h2 className="text-title font-semibold">{t('Ngôn ngữ')}</h2>
+          <p className="mt-1 text-sm text-text-muted">{t('Ngôn ngữ hiển thị của ứng dụng.')}</p>
+        </div>
       </div>
       <OptionPicker
-        className="w-40 shrink-0"
-        align="end"
+        className="w-full lg:w-64"
         label={t('Ngôn ngữ')}
         value={language}
         options={LANGUAGE_OPTIONS}

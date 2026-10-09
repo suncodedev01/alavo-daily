@@ -220,6 +220,10 @@
 @layer base {
   * {
     @apply border-line-hairline;
+    scrollbar-width: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
   }
   html {
     background: var(--paper);
@@ -275,6 +279,13 @@
 
 @utility pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility scrollbar-visible {
+  scrollbar-width: auto;
+  &::-webkit-scrollbar {
+    display: block;
+  }
 }
 
 @utility scrollbar-none {

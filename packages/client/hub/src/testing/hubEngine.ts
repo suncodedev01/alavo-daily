@@ -131,7 +131,7 @@ export function defaultState(): HubState {
   return {
     settings: {
       language: 'vi',
-      theme: 'system',
+      theme: 'light',
       householdSize: 2,
       pinnedModules: ['alpha', 'beta'],
       recentModules: [],
