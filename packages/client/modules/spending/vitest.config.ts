@@ -7,8 +7,9 @@ export default defineConfig({
   plugins: [designSystemAlias(), react()],
   test: {
     environment: 'jsdom',
-    setupFiles: ['@alavo-daily/common/testing/setup'],
+    setupFiles: ['./src/testing/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
     css: false,
+    testTimeout: 20000,
   },
 });

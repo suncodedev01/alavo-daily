@@ -1,5 +1,8 @@
 import type { ModuleManifest } from '@alavo-daily/common/modules';
 
+import { spendingRoutes } from './routes';
+import { WalletsSidebar } from './wallets';
+
 export const spendingManifest: ModuleManifest = {
   id: 'spending',
   name: 'Chi tiêu',
@@ -19,5 +22,6 @@ export const spendingManifest: ModuleManifest = {
       path: '/spending/transactions?new=1',
     },
   ],
-  routes: [],
+  routes: spendingRoutes,
+  sidebarExtra: WalletsSidebar,
 };
