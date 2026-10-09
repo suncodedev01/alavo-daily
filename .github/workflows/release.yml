@@ -1,0 +1,214 @@
+name: Release
+
+run-name: Release (${{ inputs.bump }} bump)
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump level
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+      build_web:
+        description: Build web (zip)
+        type: boolean
+        default: true
+      build_windows:
+        description: Build Windows desktop
+        type: boolean
+        default: true
+      build_macos:
+        description: Build macOS desktop (universal)
+        type: boolean
+        default: false
+      build_linux:
+        description: Build Linux desktop
+        type: boolean
+        default: false
+      env_personal:
+        description: Environment personal
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: plan
+        env:
+          BUMP: ${{ inputs.bump }}
+          BUILD_WEB: ${{ inputs.build_web }}
+          BUILD_WINDOWS: ${{ inputs.build_windows }}
+          BUILD_MACOS: ${{ inputs.build_macos }}
+          BUILD_LINUX: ${{ inputs.build_linux }}
+          ENV_PERSONAL: ${{ inputs.env_personal }}
+        run: |
+          version=$(node scripts/bump-version.mjs "$BUMP" --dry-run)
+
+          platforms=()
+          [ "$BUILD_WEB" = true ] && platforms+=(web)
+          [ "$BUILD_WINDOWS" = true ] && platforms+=(windows)
+          [ "$BUILD_MACOS" = true ] && platforms+=(macos)
+          [ "$BUILD_LINUX" = true ] && platforms+=(linux)
+
+          environments=()
+          [ "$ENV_PERSONAL" = true ] && environments+=(personal)
+
+          if [ ${#platforms[@]} -eq 0 ] || [ ${#environments[@]} -eq 0 ]; then
+            echo "::error::Tick at least one version to build and one environment."
+            exit 1
+          fi
+
+          to_json() { printf '%s\n' "$@" | jq -R . | jq -cs .; }
+
+          matrix=$(jq -cn \
+            --argjson environments "$(to_json "${environments[@]}")" \
+            --argjson platforms "$(to_json "${platforms[@]}")" '
+              {
+                web:     { os: "ubuntu-latest",  rust_targets: "",  args: "" },
+                windows: { os: "windows-latest", rust_targets: "",  args: "" },
+                macos:   { os: "macos-latest",   rust_targets: "aarch64-apple-darwin,x86_64-apple-darwin", args: "--target universal-apple-darwin" },
+                linux:   { os: "ubuntu-latest",  rust_targets: "",  args: "" }
+              } as $spec
+              | { include: [ $environments[] as $e | $platforms[] as $p
+                  | { environment: $e, platform: $p } + $spec[$p] ] }')
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "Next version: $version" >> "$GITHUB_STEP_SUMMARY"
+
+  verify:
+    name: Verify
+    needs: plan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: cargo test --manifest-path packages/engine/Cargo.toml
+      - run: pnpm -r typecheck
+      - run: pnpm -r test
+      - run: pnpm test:scripts
+
+  draft:
+    name: Draft release
+    needs: [plan, verify]
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.draft.outputs.release_id }}
+    steps:
+      - id: draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.plan.outputs.version }}
+        run: |
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" \
+            -f tag_name="v$VERSION" \
+            -f target_commitish="$GITHUB_SHA" \
+            -f name="Alavo Daily v$VERSION" \
+            -F draft=true \
+            -F generate_release_notes=true \
+            --jq .id)
+          echo "release_id=$id" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build ${{ matrix.platform }} (${{ matrix.environment }})
+    needs: [plan, draft]
+    runs-on: ${{ matrix.os }}
+    environment: ${{ matrix.environment }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+        with:
+          rust-targets: ${{ matrix.rust_targets }}
+
+      - name: Apply version
+        shell: bash
+        run: node scripts/bump-version.mjs "${{ inputs.bump }}"
+
+      - name: Build web
+        if: matrix.platform == 'web'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.plan.outputs.version }}
+          ENVIRONMENT: ${{ matrix.environment }}
+          RELEASE_ID: ${{ needs.draft.outputs.release_id }}
+        run: |
+          pnpm --filter @alavo-daily/web build
+          zip="alavo-daily-web-$ENVIRONMENT-$VERSION.zip"
+          (cd apps/web/dist && zip -qr "$GITHUB_WORKSPACE/$zip" .)
+          gh api --method POST             "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?name=$zip"             -H "Content-Type: application/zip"             --input "$zip"
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Build desktop
+        if: matrix.platform != 'web'
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          projectPath: apps/native
+          tauriScript: pnpm tauri
+          releaseId: ${{ needs.draft.outputs.release_id }}
+          args: ${{ matrix.args }}
+          releaseAssetNamePattern: '[name]-${{ matrix.environment }}-[version]-[platform]-[arch][setup][ext]'
+          uploadWorkflowArtifacts: false
+          uploadUpdaterSignatures: false
+
+  publish:
+    name: Publish
+    needs: [plan, draft, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Commit the new version and tag it
+        env:
+          VERSION: ${{ needs.plan.outputs.version }}
+          BUMP: ${{ inputs.bump }}
+        run: |
+          node scripts/bump-version.mjs "$BUMP"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(release): v$VERSION"
+          git tag "v$VERSION"
+          git push origin "HEAD:$GITHUB_REF_NAME" "v$VERSION"
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ needs.draft.outputs.release_id }}
+        run: gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" -F draft=false
+
+  discard_draft:
+    name: Discard draft
+    needs: [draft, build]
+    if: ${{ always() && needs.draft.result == 'success' && needs.build.result != 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ needs.draft.outputs.release_id }}
+        run: gh api --method DELETE "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID"

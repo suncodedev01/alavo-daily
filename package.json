@@ -12,7 +12,8 @@
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "test:engine": "cargo test --manifest-path packages/engine/Cargo.toml"
+    "test:engine": "cargo test --manifest-path packages/engine/Cargo.toml",
+    "test:scripts": "node --test scripts/bump-version.test.mjs"
   },
   "devDependencies": {
     "turbo": "^2.11.7",
