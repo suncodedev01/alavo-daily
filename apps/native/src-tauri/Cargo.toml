@@ -1,0 +1,28 @@
+[package]
+name = "alavo-daily-native"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+name = "alavo_daily_native_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde_json = "1"
+alavo-domain = { path = "../../../packages/engine/domain" }
+alavo-presentation = { path = "../../../packages/engine/presentation" }
+alavo-infrastructure = { path = "../../../packages/engine/infrastructure", features = ["native"] }
+
+# Not part of the engine workspace: the native app has its own lockfile and target directory.
+[workspace]
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
