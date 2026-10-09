@@ -1,28 +1,17 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { EngineGate, EngineProvider, useEngineQuery } from '@alavo-daily/common/engine';
+import { createWebPlatform } from '@alavo-daily/common';
 import { WorkerEngineClient } from '@alavo-daily/common/engine/worker';
+import { AlavoApp } from '@alavo-daily/hub';
 
-const client = new WorkerEngineClient();
-if (import.meta.env.DEV) (window as unknown as { __engine: unknown }).__engine = client;
+import './index.css';
 
-function Probe() {
-  const settings = useEngineQuery('hub.get_settings');
-  const rules = useEngineQuery('hub.list_notification_rules');
-  return (
-    <pre id="probe">
-      {JSON.stringify({ settings: settings.data, rules: rules.data?.length }, null, 2)}
-    </pre>
-  );
-}
+const engine = new WorkerEngineClient();
+if (import.meta.env.DEV) (window as unknown as { __engine: unknown }).__engine = engine;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <EngineProvider client={client}>
-      <EngineGate loading={<p>loading</p>} failed={(message) => <p id="failed">{message}</p>}>
-        <Probe />
-      </EngineGate>
-    </EngineProvider>
+    <AlavoApp engine={engine} platform={createWebPlatform()} />
   </StrictMode>,
 );

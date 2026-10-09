@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@alavo-daily/common": "workspace:*",
+    "@alavo-daily/design-system": "workspace:*",
+    "@alavo-daily/hub": "workspace:*",
     "@tauri-apps/api": "^2.12.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"

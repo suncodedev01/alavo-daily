@@ -1,22 +1,14 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { EngineGate, EngineProvider, useEngineQuery } from '@alavo-daily/common/engine';
 import { TauriEngineClient } from '@alavo-daily/common/engine/tauri';
+import { AlavoApp } from '@alavo-daily/hub';
 
-const client = new TauriEngineClient();
-
-function Probe() {
-  const settings = useEngineQuery('hub.get_settings');
-  return <pre id="probe">{JSON.stringify(settings.data, null, 2)}</pre>;
-}
+import { createNativePlatform } from './createNativePlatform';
+import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <EngineProvider client={client}>
-      <EngineGate loading={<p>loading</p>} failed={(message) => <p id="failed">{message}</p>}>
-        <Probe />
-      </EngineGate>
-    </EngineProvider>
+    <AlavoApp engine={new TauriEngineClient()} platform={createNativePlatform()} />
   </StrictMode>,
 );

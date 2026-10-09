@@ -1,0 +1,4 @@
+@import "@alavo-daily/design-system/styles.css";
+
+@source "../../../packages/client/hub/src";
+@source "../../../packages/client/modules";
