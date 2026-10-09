@@ -1,30 +1,31 @@
 # Backlog
 
-Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test hoặc đã kiểm tra trên trình duyệt. `[ ]` là chưa làm, hoặc đã viết nhưng chưa chạy thử thật (ghi chú ngay sau mục).
+Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test (và đã xem trên trình duyệt khi có ghi chú). `[ ]` là chưa làm, hoặc đã viết nhưng chưa chạy thử thật (ghi chú ngay sau mục). Extension nằm ngoài phạm vi đợt này.
 
 ## Nền tảng
 
-- [x] Monorepo pnpm và Turborepo, rule trong `.claude/rules`, tài liệu quyết định kỹ thuật (ADR 0001 đến 0015)
+- [x] Monorepo pnpm và Turborepo, rule trong `.claude/rules`, tài liệu quyết định kỹ thuật (ADR 0001 đến 0016)
 - [x] Engine Rust bốn tầng, giao tiếp bằng lệnh JSON `module.verb`
 - [x] SQLite trên máy: `rusqlite` cho native, SQLite WASM lưu vào OPFS cho web (chạy trong Web Worker, chỉ cho một tab mở cùng lúc)
 - [x] Migration theo dải version từng module, đồng hồ HLC, xoá mềm, nhật ký sự kiện `hub_delta_events`
 - [x] Chính sách gộp dữ liệu theo từng bảng (theo trường, cả dòng), có test giao hoán và lặp lại được
 - [x] Design system dựa trên shadcn (`base-maia`, Base UI), có trang showcase
 - [x] Giao diện React dùng chung cho mọi vỏ: bố cục chọn theo chiều rộng, khác biệt nền tảng đi qua cổng `PlatformServices`
-- [x] Test: engine 630, giao diện 894 (common, design system, hub, chi tiêu, công thức, native)
+- [x] Test: engine 940, giao diện 1339 (common, design system, hub, chi tiêu, công thức, native) cộng 53 test Rust của vỏ native
 - [x] Workflow build bản phát hành: chọn mức bump version, chọn bản build (web, Windows, macOS, Linux, Android), chọn môi trường, đẩy file vào GitHub Releases, không dùng artifact. Đã viết, chưa chạy thử trên GitHub
 - [ ] Lint giới hạn kích thước hàm, file, tham số trong CI (rule đã ghi, chưa cấu hình ESLint và clippy)
 - [ ] Test end to end bằng Playwright trên bản web thật
 
 ## Vỏ ứng dụng
 
-- [x] Web chạy được và đã kiểm tra trên trình duyệt: khung rộng và hẹp, sáng và tối
-- [ ] Web: PWA manifest và icon (đang ở nhánh `feat/app-icon` của session khác, chưa gộp)
-- [ ] Desktop Tauri: mở cửa sổ thật và kiểm tra (mới `cargo check` và typecheck)
-- [ ] Desktop: hộp thoại lưu file khi xuất dữ liệu (đang tải file bằng trình duyệt)
-- [ ] Android: build APK và chạy thử trên máy ảo (máy có SDK, NDK 27 và JDK 21 ở thư mục cài mặc định; chưa build lần nào)
-- [ ] iOS
-- [ ] Extension Chrome (`apps/extension`) và popup ghi chi tiêu nhanh
+- [x] Web chạy được và đã kiểm tra trên trình duyệt: khung rộng và hẹp, sáng và tối (chưa xem lại các màn mới của đợt này)
+- [x] Web: icon và PWA manifest
+- [ ] Desktop Tauri: mở cửa sổ thật và kiểm tra
+- [x] Desktop: hộp thoại lưu file khi xuất dữ liệu (lệnh Rust `save_text_file`, có test; chưa chạy cửa sổ thật)
+- [ ] Android: build APK và chạy thử trên máy ảo (máy có SDK, NDK 27 và JDK 21 ở thư mục cài mặc định; đã tạo được project Android, chưa build)
+- [ ] iOS (cần chứng chỉ Apple Developer, chưa có)
+- [ ] Android: token Google chỉ giữ trong bộ nhớ nên mỗi lần mở app phải đăng nhập lại (chưa có Android Keystore)
+- [ ] Extension Chrome (`apps/extension`) và popup ghi chi tiêu nhanh (ngoài phạm vi đợt này)
 
 ## Hub
 
@@ -32,10 +33,11 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test hoặc đã ki�
 - [x] Màn Hôm nay: bữa tối, chi tiêu hôm nay, đi chợ, thẻ "Cần bạn quyết định", thông báo gần đây, sắp đến hạn, trạng thái lần đầu mở
 - [x] Màn Khám phá: tìm kiếm, ứng dụng gần đây, ghim ứng dụng
 - [x] Cài đặt: giao diện sáng, tối, theo hệ thống; xuất dữ liệu JSON; nạp dữ liệu mẫu; bật tắt và đổi giờ từng quy tắc thông báo
-- [x] Màn trạng thái đồng bộ ở dạng tắt (nói thật là chưa kết nối)
 - [x] Thông báo trong ứng dụng khi ngân sách chạm 85% và 100%
-- [ ] Đồng bộ Google Drive: đăng nhập, đẩy và nhận nhật ký sự kiện, màn xung đột
-- [ ] Nhập dữ liệu từ file đã xuất
+- [x] Đồng bộ qua Google Drive: engine áp sự kiện từ máy khác theo chính sách gộp, máy khách Drive, bộ điều phối (khi mở, sau khi ghi, mỗi 5 phút, "Đồng bộ ngay"), màn kết nối, đăng nhập lại, xung đột. Đã kiểm với Drive giả và hai máy giả lập hội tụ
+- [ ] Kiểm chứng đồng bộ với Google Drive thật (cần OAuth client ID của bạn; chưa biết `drive.file` có cho bản web và bản native thấy file của nhau không)
+- [ ] Màn Hôm nay chưa có dòng trạng thái đồng bộ (mới có ở thanh bên và Cài đặt)
+- [x] Nhập dữ liệu từ file đã xuất (xem trước số dòng, gộp qua cùng đường áp sự kiện, nhập hai lần không đổi gì)
 - [ ] Đa ngôn ngữ (hiện chỉ tiếng Việt)
 
 ## Chi tiêu
@@ -48,9 +50,10 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test hoặc đã ki�
 - [x] Mục tiêu tiết kiệm: tạo, thêm tiền, sửa, xoá
 - [x] Ví: tạo, đổi tên, số dư đầu kỳ, xoá
 - [x] Hoá đơn định kỳ: tạo, sửa, xoá, hiện sắp đến hạn
-- [ ] Giao dịch lặp lại hằng tháng tự sinh ra (mới lưu quy tắc, chưa tự tạo giao dịch)
-- [ ] Báo cáo theo khoảng thời gian tuỳ chọn và biểu đồ theo hạng mục
-- [ ] Nhập sao kê, xuất CSV
+- [x] Giao dịch lặp lại hằng tháng tự sinh ra (`spending.generate_recurring`, không tạo trùng giữa hai máy, có nút "Dừng lặp lại")
+- [x] Báo cáo theo khoảng thời gian (Tháng này, 3 tháng, Năm nay, tuỳ chọn) với biểu đồ tròn theo hạng mục và cột theo tháng
+- [x] Xuất CSV
+- [x] Nhập sao kê CSV: nhận dạng dấu phân cách, cột ngày, số tiền, ghi nợ, ghi có, nội dung; gợi ý hạng mục; bỏ qua dòng đã có
 
 ## Món ăn
 
@@ -61,7 +64,7 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test hoặc đã ki�
 - [x] Ảnh hưởng ngân sách khi đi chợ: thẻ "Cần bạn", tăng ngân sách hoặc giữ nguyên
 - [x] Chế độ nấu ăn toàn màn hình: hẹn giờ từng bước, báo khi hết giờ, danh sách nguyên liệu, phím mũi tên, giữ màn hình sáng
 - [x] Ảnh công thức: lưu trong SQLite (`recipes_photos`, lệnh `recipes.set_photo`), thu nhỏ còn tối đa 1024 px JPEG ngay trên trình duyệt, hiện làm ảnh bìa
-- [x] Nhập công thức từ link qua `fetchPage` của nền (chỉ hiện khi `importFromUrl` bật, tức bản native), đọc JSON-LD kể cả `@graph`
+- [x] Nhập công thức từ link trên bản native (lệnh Rust `fetch_page` có chặn địa chỉ nội bộ, đọc JSON-LD kể cả `@graph`; chưa thử với trang thật)
 - [ ] Bản web vẫn chưa nhập được từ link (trình duyệt chặn, cần proxy)
 - [x] Chi phí ước tính khi soạn công thức: ô giá từng nguyên liệu, tổng và giá mỗi người hiện ngay trong trình soạn
 - [x] Gợi ý thực đơn tuần tự động: lệnh `recipes.suggest_plan` (không lưu gì), hộp thoại xem trước, đổi từng món, áp dụng
@@ -69,11 +72,11 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test hoặc đã ki�
 ## Nhắc nhở và thông báo
 
 - [x] Danh sách quy tắc thông báo trong Cài đặt
-- [x] Engine: lệnh `recipes.morning_menus` trả món đã lên thực đơn của từng ngày, hoặc một món gợi ý cố định theo ngày khi chưa có món; quy tắc `recipes.morning_menu` mặc định 06:00
-- [x] Nhắc món ăn buổi sáng: lên lịch 4 lần mỗi sáng (giờ đặt trong Cài đặt rồi mỗi giờ một lần, mặc định 6, 7, 8, 9 giờ) cho 3 ngày tới, tự lên lịch lại mỗi khi đổi thực đơn hoặc công thức
+- [x] Nhắc món ăn buổi sáng: lên lịch 4 lần mỗi sáng (giờ đặt trong Cài đặt rồi mỗi giờ một lần, mặc định 6, 7, 8, 9 giờ) cho 3 ngày tới; ngày chưa có món thì gợi ý một món cố định theo ngày
+- [x] Mọi module báo lịch nhắc qua một bộ gom chung (`useReminderSource`), hub lên lịch một lần để không module nào xoá lịch của module khác
 - [x] Cổng `scheduleNotifications`: hẹn giờ trong trang cho web và desktop (chỉ hiện khi ứng dụng đang mở), plugin thông báo của Tauri cho điện thoại
-- [ ] Kiểm tra thông báo hiện trên màn hình khoá của điện thoại thật (code và test có rồi, chưa chạy trên thiết bị)
-- [ ] Web: nút bấm xin quyền thông báo (hiện chỉ hỏi lúc thông báo sắp hiện)
-- [x] Món ăn: ngày hiện tại tự đổi lúc nửa đêm và khi tab hiện lại, nên lịch nhắc tự tính lại khi ứng dụng mở qua đêm
-- [x] Nhắc nấu bữa tối, nhắc đi chợ (Thứ Bảy, khi còn nguyên liệu chưa mua), nhắc rã đông (tối hôm trước món có thịt hoặc cá), lên lịch 7 ngày tới theo giờ trong Cài đặt
-- [ ] Nhắc hoá đơn trước 2 ngày, tóm tắt chi tiêu cuối tuần (quy tắc đã có nhưng chưa có gì kích hoạt)
+- [x] Nút "Cho phép thông báo" trong Cài đặt (web và native)
+- [x] Nhắc nấu bữa tối, nhắc đi chợ (Thứ Bảy, khi còn nguyên liệu chưa mua), nhắc rã đông (tối hôm trước món có thịt hoặc cá)
+- [x] Nhắc hoá đơn trước 2 ngày, tóm tắt chi tiêu cuối tuần (Chủ Nhật)
+- [x] Ngày hiện tại tự đổi lúc nửa đêm và khi tab hiện lại, nên lịch nhắc tự tính lại khi ứng dụng mở qua đêm
+- [ ] Kiểm tra thông báo hiện trên màn hình khoá của điện thoại (code và test có rồi; thử trên máy ảo Android là bước kế tiếp)
