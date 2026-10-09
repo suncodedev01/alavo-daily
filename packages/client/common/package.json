@@ -1,0 +1,47 @@
+{
+  "name": "@alavo-daily/common",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./engine": "./src/engine/index.ts",
+    "./engine/worker": "./src/engine/worker/WorkerEngineClient.ts",
+    "./engine/tauri": "./src/engine/tauri/TauriEngineClient.ts",
+    "./platform": "./src/platform/index.ts",
+    "./format": "./src/format/index.ts",
+    "./i18n": "./src/i18n/index.ts",
+    "./testing": "./src/testing/index.tsx",
+    "./shell": "./src/shell/index.tsx",
+    "./modules": "./src/modules/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@alavo-daily/engine": "workspace:*",
+    "@sqlite.org/sqlite-wasm": "^3.53.4-build2",
+    "@tanstack/react-query": "^5.104.1",
+    "i18next": "^26.4.2",
+    "react-i18next": "^17.0.16"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/api": "^2.12.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "~5.9.3",
+    "vitest": "^5.0.3",
+    "vite": "^8.3.4",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "jsdom": "^27.0.0"
+  }
+}
