@@ -49,7 +49,8 @@ jobs:
     outputs:
       version: ${{ steps.plan.outputs.version }}
       matrix: ${{ steps.plan.outputs.matrix }}
-      release_id: ${{ steps.draft.outputs.release_id }}
+      release_id: ${{ steps.release.outputs.release_id }}
+      sha: ${{ steps.release.outputs.sha }}
     steps:
       - uses: actions/checkout@v7
 
@@ -99,13 +100,21 @@ jobs:
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
           echo "Next version: $version" >> "$GITHUB_STEP_SUMMARY"
 
-      - id: draft
+      - id: release
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.plan.outputs.version }}
+          BUMP: ${{ inputs.bump }}
         run: |
-          id=$(gh api "repos/$GITHUB_REPOSITORY/releases"             -f tag_name="v$VERSION"             -f target_commitish="$GITHUB_SHA"             -f name="Alavo Daily v$VERSION"             -F draft=true             -F generate_release_notes=true             --jq .id)
-          echo "release_id=$id" >> "$GITHUB_OUTPUT"
+          node scripts/bump-version.mjs "$BUMP"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(release): v$VERSION"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+          sha=$(git rev-parse HEAD)
+          gh release create "v$VERSION" --target "$sha" --title "Alavo Daily v$VERSION" --generate-notes
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "release_id=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v$VERSION" --jq .id)" >> "$GITHUB_OUTPUT"
 
   build:
     name: Build ${{ matrix.platform }} (${{ matrix.environment }})
@@ -117,14 +126,12 @@ jobs:
       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
 
       - uses: ./.github/actions/setup
         with:
           rust-targets: ${{ matrix.rust_targets }}
-
-      - name: Apply version
-        shell: bash
-        run: node scripts/bump-version.mjs "${{ inputs.bump }}"
 
       - name: Build web
         if: matrix.platform == 'web'
@@ -232,32 +239,3 @@ jobs:
             "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?name=$name" \
             -H "Content-Type: application/vnd.android.package-archive" \
             --input "$name"
-
-  finish:
-    name: Finish
-    needs: [plan, build]
-    if: ${{ always() && needs.plan.result == 'success' }}
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ github.token }}
-      RELEASE_ID: ${{ needs.plan.outputs.release_id }}
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Commit the new version, tag it and publish the release
-        if: ${{ needs.build.result == 'success' }}
-        env:
-          VERSION: ${{ needs.plan.outputs.version }}
-          BUMP: ${{ inputs.bump }}
-        run: |
-          node scripts/bump-version.mjs "$BUMP"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "chore(release): v$VERSION"
-          git tag "v$VERSION"
-          git push origin "HEAD:$GITHUB_REF_NAME" "v$VERSION"
-          gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" -F draft=false
-
-      - name: Delete the draft release after a failed build
-        if: ${{ needs.build.result != 'success' }}
-        run: gh api --method DELETE "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID"
