@@ -15,11 +15,22 @@ pub const TEST_NOW_MS: i64 = 1_791_532_800_000;
 pub struct TestEnv {
     now: Mutex<i64>,
     next_id: AtomicI64,
+    prefix: String,
 }
 
 impl TestEnv {
     pub fn new() -> Self {
-        Self { now: Mutex::new(TEST_NOW_MS), next_id: AtomicI64::new(1) }
+        Self::with_prefix("id")
+    }
+
+    /// An environment whose ids start with `prefix`, so two simulated devices never create the
+    /// same id.
+    pub fn with_prefix(prefix: &str) -> Self {
+        Self {
+            now: Mutex::new(TEST_NOW_MS),
+            next_id: AtomicI64::new(1),
+            prefix: prefix.to_string(),
+        }
     }
 
     pub fn advance(&self, ms: i64) {
@@ -39,7 +50,7 @@ impl Env for TestEnv {
     }
 
     fn new_id(&self) -> String {
-        format!("id-{:04}", self.next_id.fetch_add(1, Ordering::SeqCst))
+        format!("{}-{:04}", self.prefix, self.next_id.fetch_add(1, Ordering::SeqCst))
     }
 }
 

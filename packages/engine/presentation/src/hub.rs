@@ -1,9 +1,10 @@
-use alavo_application::hub::{export, load_demo_data, notifications, rules, settings, sync_status};
+use alavo_application::hub::{export, load_demo_data, notifications, rules, settings};
 use alavo_application::Ctx;
 use alavo_domain::hub::{UpdateNotificationRule, UpdateSettings};
 use serde::Deserialize;
 use serde_json::json;
 
+use crate::sync;
 use crate::util::{respond, with_input, Handled};
 
 #[derive(Deserialize, Default)]
@@ -14,6 +15,9 @@ struct MarkRead {
 
 /// Commands named `hub.*` and `sync.*`.
 pub fn handle(ctx: &Ctx, command: &str, payload: &str) -> Handled {
+    if let Some(handled) = sync::handle(ctx, command, payload) {
+        return Some(handled);
+    }
     Some(match command {
         "hub.get_settings" => respond(settings::get(ctx)),
         "hub.update_settings" => {
@@ -30,7 +34,6 @@ pub fn handle(ctx: &Ctx, command: &str, payload: &str) -> Handled {
         "hub.export_data" => respond(export::export_data(ctx)),
         "hub.load_demo_data" => respond(load_demo_data(ctx).map(|_| json!({}))),
         "hub.device_info" => respond(Ok(json!({ "deviceId": ctx.device_id }))),
-        "sync.status" => respond(sync_status::status(ctx)),
         _ => return None,
     })
 }

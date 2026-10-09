@@ -76,3 +76,7 @@ pub fn custom_item_payload(item: &CustomItem, updated_at: i64) -> Value {
 pub fn have_flag_payload(key: &str, have: bool, updated_at: i64) -> Value {
     json!({ "id": key, "have": have, "updated_at": updated_at })
 }
+
+pub fn photo_payload(recipe_id: &str, data_url: &str, updated_at: i64) -> Value {
+    json!({ "id": recipe_id, "data_url": data_url, "updated_at": updated_at })
+}

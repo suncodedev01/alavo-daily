@@ -38,6 +38,10 @@ impl<'a> Entity<'a> {
     pub fn shopping_state(key: &'a str) -> Self {
         Self { kind: "shopping_state", id: key }
     }
+
+    pub fn photo(recipe_id: &'a str) -> Self {
+        Self { kind: "photo", id: recipe_id }
+    }
 }
 
 pub fn record_insert(ctx: &Ctx, entity: Entity, payload: &Value) -> Result<(), EngineError> {

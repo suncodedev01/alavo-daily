@@ -3,6 +3,7 @@ pub mod export;
 pub mod notifications;
 pub mod rules;
 pub mod settings;
+pub mod sync;
 pub mod sync_status;
 
 use alavo_domain::shared::error::EngineError;

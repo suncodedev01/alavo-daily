@@ -1,6 +1,11 @@
-use alavo_application::spending::{bills, budget, categories, goals, transactions, wallets};
+use alavo_application::spending::import::{ImportRequest, PreviewRequest};
+use alavo_application::spending::recurring::GenerateRecurring;
+use alavo_application::spending::{
+    bills, budget, categories, goals, import, recurring, reports, transactions, wallets,
+};
 use alavo_application::Ctx;
 use alavo_domain::shared::error::EngineError;
+use alavo_domain::spending::report::ReportRange;
 use alavo_domain::spending::{
     CategoryKind, ContributeGoal, MonthQuery, NewCategory, NewGoal, NewTransaction, NewWallet,
     SaveBill, TransactionFilter, UpdateCategory, UpdateGoal, UpdateTransaction, UpdateWallet,
@@ -32,6 +37,8 @@ pub fn handle(ctx: &Ctx, command: &str, payload: &str) -> Handled {
         .or_else(|| wallet_command(ctx, command, payload))
         .or_else(|| transaction_command(ctx, command, payload))
         .or_else(|| report_command(ctx, command, payload))
+        .or_else(|| recurring_command(ctx, command, payload))
+        .or_else(|| statement_command(ctx, command, payload))
         .or_else(|| goal_command(ctx, command, payload))
         .or_else(|| bill_command(ctx, command, payload))
 }
@@ -93,6 +100,31 @@ fn report_command(ctx: &Ctx, command: &str, payload: &str) -> Handled {
         "spending.budget_status" => {
             with_input(payload, |input: MonthQuery| budget::budget_status(ctx, input))
         }
+        "spending.report" => with_input(payload, |input: ReportRange| reports::report(ctx, input)),
+        "spending.export_csv" => {
+            with_input(payload, |input: ReportRange| reports::export_csv(ctx, input))
+        }
+        _ => return None,
+    })
+}
+
+fn recurring_command(ctx: &Ctx, command: &str, payload: &str) -> Handled {
+    Some(match command {
+        "spending.generate_recurring" => {
+            with_input(payload, |input: GenerateRecurring| recurring::generate(ctx, input))
+        }
+        _ => return None,
+    })
+}
+
+fn statement_command(ctx: &Ctx, command: &str, payload: &str) -> Handled {
+    Some(match command {
+        "spending.import_preview" => {
+            with_input(payload, |input: PreviewRequest| import::preview(ctx, input))
+        }
+        "spending.import_transactions" => {
+            with_input(payload, |input: ImportRequest| import::import(ctx, input))
+        }
         _ => return None,
     })
 }
@@ -126,6 +158,12 @@ mod harness;
 #[cfg(test)]
 mod tests_engine;
 #[cfg(test)]
+mod tests_import;
+#[cfg(test)]
 mod tests_ledger;
+#[cfg(test)]
+mod tests_recurring;
+#[cfg(test)]
+mod tests_reports;
 #[cfg(test)]
 mod tests_setup;

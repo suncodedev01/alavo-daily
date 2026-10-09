@@ -3,9 +3,8 @@ use alavo_domain::shared::error::EngineError;
 use alavo_infrastructure::persistence::repositories::hub::{dump_table, exportable_tables};
 use serde_json::{json, Map, Value as Json};
 
+use super::sync::import::{EXPORT_FORMAT, EXPORT_VERSION};
 use crate::context::Ctx;
-
-const EXPORT_VERSION: i64 = 1;
 
 /// Every row of every module table as one JSON document, for the "export my data" button.
 pub fn export_data(ctx: &Ctx) -> Result<Json, EngineError> {
@@ -15,6 +14,7 @@ pub fn export_data(ctx: &Ctx) -> Result<Json, EngineError> {
         tables.insert(table, Json::Array(rows.iter().map(row_to_json).collect()));
     }
     Ok(json!({
+        "format": EXPORT_FORMAT,
         "version": EXPORT_VERSION,
         "exportedAt": ctx.now_ms(),
         "deviceId": ctx.device_id,

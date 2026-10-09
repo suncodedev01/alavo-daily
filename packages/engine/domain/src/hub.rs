@@ -92,6 +92,9 @@ pub struct SyncStatus {
     pub pending_events: i64,
     pub last_synced_at: Option<i64>,
     pub device_id: String,
+    pub account_email: Option<String>,
+    pub error: Option<String>,
+    pub conflict_count: i64,
 }
 
 #[cfg(test)]

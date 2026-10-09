@@ -111,6 +111,37 @@ VALUES
      'Nhắc từ giờ này, rồi lặp lại mỗi giờ trong 3 giờ tiếp theo. Chưa có món thì gợi ý một món', 'time', '06:00', 1, 0);
 ```
 
+### v007_hub_sync_peers.sql
+
+```sql
+CREATE TABLE IF NOT EXISTS hub_sync_peers (
+    device_id TEXT PRIMARY KEY NOT NULL,
+    high_water_hlc INTEGER NOT NULL DEFAULT 0,
+    remote_marker TEXT,
+    applied_at INTEGER NOT NULL
+);
+```
+
+### v008_hub_sync_conflicts.sql
+
+```sql
+CREATE TABLE IF NOT EXISTS hub_sync_conflicts (
+    id TEXT PRIMARY KEY NOT NULL,
+    table_name TEXT NOT NULL,
+    module TEXT NOT NULL,
+    entity_type TEXT NOT NULL,
+    entity_id TEXT NOT NULL,
+    local_json TEXT NOT NULL,
+    remote_json TEXT NOT NULL,
+    remote_hlc INTEGER NOT NULL,
+    remote_device_id TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_hub_sync_conflicts_row
+    ON hub_sync_conflicts (table_name, entity_id);
+```
+
 ## Chi tiêu (v100–v199)
 
 ### v100_spending_categories.sql
@@ -230,6 +261,15 @@ CREATE TABLE IF NOT EXISTS spending_bills (
 );
 ```
 
+### v105_spending_recurring_source.sql
+
+```sql
+ALTER TABLE spending_transactions ADD COLUMN recurring_source_id TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_spending_transactions_recurring_source
+    ON spending_transactions (recurring_source_id);
+```
+
 ## Món ăn (v200–v299)
 
 ### v200_recipes_recipes.sql
@@ -337,6 +377,17 @@ CREATE INDEX IF NOT EXISTS idx_recipes_shopping_items_active
 CREATE TABLE IF NOT EXISTS recipes_shopping_state (
     id TEXT PRIMARY KEY NOT NULL,
     have INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    deleted_at INTEGER
+);
+```
+
+### v206_recipes_photos.sql
+
+```sql
+CREATE TABLE IF NOT EXISTS recipes_photos (
+    id TEXT PRIMARY KEY NOT NULL,
+    data_url TEXT NOT NULL,
     updated_at INTEGER NOT NULL,
     deleted_at INTEGER
 );

@@ -9,8 +9,10 @@ pub mod demo;
 pub mod expense;
 pub mod import;
 pub mod morning_menu;
+pub mod photo;
 pub mod plan;
 pub mod shopping;
+pub mod suggest;
 
 #[cfg(test)]
 mod test_support;

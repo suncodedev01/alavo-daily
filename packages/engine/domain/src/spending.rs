@@ -6,9 +6,13 @@ pub mod bill;
 pub mod budget;
 pub mod calendar;
 pub mod category;
+pub mod csv_export;
 pub mod entity;
 pub mod goal;
 pub mod notice;
+pub mod recurring;
+pub mod report;
+pub mod statement;
 pub mod summary;
 pub mod transaction;
 pub mod validation;
@@ -37,6 +41,7 @@ pub struct Transaction {
     pub amount_vnd: Money,
     pub note: String,
     pub recurring_rule: Option<String>,
+    pub recurring_source_id: Option<String>,
     pub created_at: i64,
     pub updated_at: i64,
 }

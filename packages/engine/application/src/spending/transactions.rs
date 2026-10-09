@@ -27,15 +27,36 @@ pub fn get(ctx: &Ctx, id: &str) -> Result<Transaction, EngineError> {
 pub fn record(ctx: &Ctx, input: NewTransaction) -> Result<Transaction, EngineError> {
     ctx.transaction(|| {
         let transaction = input.into_transaction(ctx.new_id(), ctx.now_ms(), 0);
-        let category = check_references(ctx, &transaction)?;
-        let watch = BudgetWatch::start(ctx, category, month_of(&transaction)?)?;
-        let stamp = stamp_insert(ctx, Entity::Transaction);
-        let transaction = Transaction { updated_at: stamp.updated_at, ..transaction };
-        insert_transaction(ctx.db, &transaction, &stamp)?;
-        log_insert(ctx, Entity::Transaction, &transaction.id)?;
-        watch.finish(ctx)?;
-        Ok(transaction)
+        insert_checked(ctx, transaction, Alerts::Raise)
     })
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum Alerts {
+    Raise,
+    Skip,
+}
+
+/// Validates `transaction` and inserts it with its sync event. With `Alerts::Raise` it also
+/// raises the budget alert the new amount causes.
+pub(super) fn insert_checked(
+    ctx: &Ctx,
+    transaction: Transaction,
+    alerts: Alerts,
+) -> Result<Transaction, EngineError> {
+    let category = check_references(ctx, &transaction)?;
+    let watch = match alerts {
+        Alerts::Raise => Some(BudgetWatch::start(ctx, category, month_of(&transaction)?)?),
+        Alerts::Skip => None,
+    };
+    let stamp = stamp_insert(ctx, Entity::Transaction);
+    let transaction = Transaction { updated_at: stamp.updated_at, ..transaction };
+    insert_transaction(ctx.db, &transaction, &stamp)?;
+    log_insert(ctx, Entity::Transaction, &transaction.id)?;
+    if let Some(watch) = watch {
+        watch.finish(ctx)?;
+    }
+    Ok(transaction)
 }
 
 pub fn update(ctx: &Ctx, input: UpdateTransaction) -> Result<Transaction, EngineError> {

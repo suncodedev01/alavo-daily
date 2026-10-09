@@ -8,6 +8,9 @@ pub mod contract;
 pub mod demo;
 mod demo_data;
 pub mod goals;
+pub mod import;
+pub mod recurring;
+pub mod reports;
 #[cfg(test)]
 mod test_support;
 pub mod transactions;

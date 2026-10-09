@@ -5,9 +5,9 @@ use alavo_domain::spending::{Transaction, TransactionFilter};
 
 use super::rows::{money_value, query_one, query_rows, query_total, Stamp};
 
-const TRANSACTION_COLUMNS: &str = r#"
+pub(super) const TRANSACTION_COLUMNS: &str = r#"
     t.id, t.occurred_on, t.title, t.category_id, t.wallet_id, t.amount_vnd, t.note,
-    t.recurring_rule, t.created_at, t.updated_at
+    t.recurring_rule, t.recurring_source_id, t.created_at, t.updated_at
 "#;
 
 pub fn list_transactions(
@@ -48,8 +48,8 @@ pub fn insert_transaction(
     let sql = r#"
         INSERT INTO spending_transactions
             (id, occurred_on, title, category_id, wallet_id, amount_vnd, note, recurring_rule,
-             created_at, updated_at, deleted_at, field_updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)
+             recurring_source_id, created_at, updated_at, deleted_at, field_updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)
     "#;
     let params = [
         Value::from(transaction.id.as_str()),
@@ -60,6 +60,7 @@ pub fn insert_transaction(
         money_value(transaction.amount_vnd),
         Value::from(transaction.note.as_str()),
         Value::from(transaction.recurring_rule.as_deref()),
+        Value::from(transaction.recurring_source_id.as_deref()),
         Value::from(transaction.created_at),
         Value::from(stamp.updated_at),
         Value::from(stamp.field_updated_at.as_str()),
@@ -131,7 +132,7 @@ fn filter_clauses(filter: &TransactionFilter) -> (Vec<&'static str>, Vec<Value>)
         params.push(Value::from(kind.as_str()));
     }
     if filter.recurring_only == Some(true) {
-        clauses.push("t.recurring_rule IS NOT NULL");
+        clauses.push("(t.recurring_rule IS NOT NULL OR t.recurring_source_id IS NOT NULL)");
     }
     (clauses, params)
 }
@@ -158,7 +159,7 @@ fn keep_text_matches(rows: Vec<Transaction>, needle: &str, limit: Option<i64>) -
     }
 }
 
-fn transaction_from_row(row: &Row) -> Result<Transaction, EngineError> {
+pub(super) fn transaction_from_row(row: &Row) -> Result<Transaction, EngineError> {
     Ok(Transaction {
         id: row.text("id")?,
         occurred_on: row.text("occurred_on")?,
@@ -168,6 +169,7 @@ fn transaction_from_row(row: &Row) -> Result<Transaction, EngineError> {
         amount_vnd: Money(row.int("amount_vnd")?),
         note: row.text("note")?,
         recurring_rule: row.opt_text("recurring_rule")?,
+        recurring_source_id: row.opt_text("recurring_source_id")?,
         created_at: row.int("created_at")?,
         updated_at: row.int("updated_at")?,
     })

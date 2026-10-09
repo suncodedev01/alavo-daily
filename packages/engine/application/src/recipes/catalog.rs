@@ -10,6 +10,7 @@ use alavo_domain::sync::events::stamp_fields;
 use alavo_infrastructure::persistence::repositories::recipes::ingredients::{
     ingredient_totals, list_ingredients,
 };
+use alavo_infrastructure::persistence::repositories::recipes::photos::find_photo;
 use alavo_infrastructure::persistence::repositories::recipes::records::{
     insert_recipe, list_recipes, soft_delete_recipe, update_recipe,
 };
@@ -20,6 +21,7 @@ use crate::recipes::changes::{record_delete, record_insert, record_update, Entit
 use crate::recipes::children::{insert_children, retire_children};
 use crate::recipes::lookup::require_recipe;
 use crate::recipes::payloads::recipe_payload;
+use crate::recipes::photo::retire_photo;
 use crate::recipes::plan::retire_entries_of_recipe;
 
 pub fn list(ctx: &Ctx, filter: RecipeFilter) -> Result<Vec<RecipeSummary>, EngineError> {
@@ -36,7 +38,8 @@ pub fn list(ctx: &Ctx, filter: RecipeFilter) -> Result<Vec<RecipeSummary>, Engin
 pub fn get(ctx: &Ctx, id: &str) -> Result<Recipe, EngineError> {
     let record = require_recipe(ctx, id)?;
     let ingredients = list_ingredients(ctx.db, id)?;
-    Ok(record.into_recipe(ingredients, list_steps(ctx.db, id)?))
+    let recipe = record.into_recipe(ingredients, list_steps(ctx.db, id)?);
+    Ok(recipe.with_photo(find_photo(ctx.db, id)?))
 }
 
 pub fn create(ctx: &Ctx, input: RecipeInput) -> Result<Recipe, EngineError> {
@@ -91,13 +94,14 @@ pub fn set_favorite(ctx: &Ctx, id: &str, favorite: bool) -> Result<Recipe, Engin
     })
 }
 
-/// Soft-deletes the recipe together with its ingredients, steps and plan entries.
+/// Soft-deletes the recipe together with its ingredients, steps, photo and plan entries.
 pub fn delete(ctx: &Ctx, id: &str) -> Result<(), EngineError> {
     require_recipe(ctx, id)?;
     ctx.transaction(|| {
         let hlc = ctx.tick().value();
         retire_children(ctx, id, hlc)?;
         retire_entries_of_recipe(ctx, id, hlc)?;
+        retire_photo(ctx, id, hlc)?;
         soft_delete_recipe(ctx.db, id, hlc)?;
         record_delete(ctx, Entity::recipe(id), hlc)
     })

@@ -27,6 +27,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "spending_bills",
         sql: include_str!("spending/v104_spending_bills.sql"),
     },
+    Migration {
+        version: 105,
+        name: "spending_recurring_source",
+        sql: include_str!("spending/v105_spending_recurring_source.sql"),
+    },
 ];
 
 #[cfg(all(test, feature = "native"))]
@@ -99,9 +104,17 @@ mod tests {
     }
 
     #[test]
+    fn transactions_remember_which_recurring_transaction_produced_them() {
+        let db = migrated_memory_db();
+        let rows = db.query("PRAGMA table_info(spending_transactions)", &[]).unwrap();
+        let columns: Vec<String> = rows.iter().map(|row| row.text("name").unwrap()).collect();
+        assert!(columns.iter().any(|name| name == "recurring_source_id"));
+    }
+
+    #[test]
     fn migrations_are_recorded_so_they_do_not_run_again() {
         let db = migrated_memory_db();
         let sql = "SELECT COUNT(*) AS total FROM hub_migrations WHERE version BETWEEN 100 AND 199";
-        assert_eq!(count(&db, sql), SPENDING_TABLES.len() as i64);
+        assert_eq!(count(&db, sql), super::MIGRATIONS.len() as i64);
     }
 }

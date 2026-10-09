@@ -1,6 +1,10 @@
 pub mod bills;
 pub mod categories;
+pub mod duplicates;
+pub mod export;
 pub mod goals;
+pub mod range_reports;
+pub mod recurring;
 pub mod reports;
 pub mod rows;
 pub mod transactions;

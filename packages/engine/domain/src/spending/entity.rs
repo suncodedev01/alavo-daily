@@ -42,6 +42,7 @@ impl Entity {
                 "amount_vnd",
                 "note",
                 "recurring_rule",
+                "recurring_source_id",
                 "created_at",
             ],
             Entity::Goal => &["name", "icon", "target_vnd", "saved_vnd", "due_on", "created_at"],

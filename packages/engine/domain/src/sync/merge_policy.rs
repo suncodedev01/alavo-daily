@@ -21,6 +21,7 @@ pub const TABLE_POLICIES: &[(&str, MergePolicy)] = &[
     ("recipes_plan_entries", MergePolicy::WholeRow),
     ("recipes_shopping_items", MergePolicy::WholeRow),
     ("recipes_shopping_state", MergePolicy::WholeRow),
+    ("recipes_photos", MergePolicy::WholeRow),
 ];
 
 pub fn policy_for(table: &str) -> Option<MergePolicy> {

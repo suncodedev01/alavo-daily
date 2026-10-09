@@ -2,3 +2,4 @@
 pub mod hub;
 pub mod recipes;
 pub mod spending;
+pub mod sync;

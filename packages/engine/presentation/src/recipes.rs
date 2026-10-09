@@ -1,10 +1,13 @@
-use alavo_application::recipes::{catalog, expense, import, morning_menu, plan, shopping};
+use alavo_application::recipes::{
+    catalog, expense, import, morning_menu, photo, plan, shopping, suggest,
+};
 use alavo_application::Ctx;
 use alavo_domain::recipes::expense::LogShoppingExpense;
 use alavo_domain::recipes::filter::RecipeFilter;
 use alavo_domain::recipes::plan::NewPlanEntry;
 use alavo_domain::recipes::recipe::RecipeInput;
 use alavo_domain::recipes::shopping::NewShoppingItem;
+use alavo_domain::recipes::suggest::SuggestRequest;
 use serde::Deserialize;
 use serde_json::json;
 
@@ -26,6 +29,14 @@ struct UpdateRecipe {
 struct SetFavorite {
     id: String,
     favorite: bool,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SetPhoto {
+    id: String,
+    #[serde(default)]
+    data_url: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -79,15 +90,18 @@ pub fn handle(ctx: &Ctx, command: &str, payload: &str) -> Handled {
         "recipes.set_favorite" => with_input(payload, |input: SetFavorite| {
             catalog::set_favorite(ctx, &input.id, input.favorite)
         }),
+        "recipes.set_photo" => with_input(payload, |input: SetPhoto| {
+            photo::set_photo(ctx, &input.id, input.data_url.as_deref())
+        }),
         "recipes.parse_json_ld" => {
             with_input(payload, |input: JsonLd| import::parse_json_ld(&input.json))
         }
-        _ => return handle_plan_and_shopping(ctx, command, payload),
+        _ => return handle_plan(ctx, command, payload),
     };
     Some(result)
 }
 
-fn handle_plan_and_shopping(ctx: &Ctx, command: &str, payload: &str) -> Handled {
+fn handle_plan(ctx: &Ctx, command: &str, payload: &str) -> Handled {
     Some(match command {
         "recipes.get_plan" => {
             with_input(payload, |input: PlanRange| plan::get_plan(ctx, &input.from, input.days))
@@ -101,6 +115,15 @@ fn handle_plan_and_shopping(ctx: &Ctx, command: &str, payload: &str) -> Handled 
         "recipes.remove_from_plan" => with_input(payload, |input: Id| {
             plan::remove_from_plan(ctx, &input.id).map(|_| json!({}))
         }),
+        "recipes.suggest_plan" => {
+            with_input(payload, |input: SuggestRequest| suggest::suggest_plan(ctx, input))
+        }
+        _ => return handle_shopping(ctx, command, payload),
+    })
+}
+
+fn handle_shopping(ctx: &Ctx, command: &str, payload: &str) -> Handled {
+    Some(match command {
         "recipes.get_shopping_list" => with_input(payload, |input: DateRange| {
             shopping::get_list(ctx, &input.from, &input.to)
         }),
@@ -124,5 +147,7 @@ fn handle_plan_and_shopping(ctx: &Ctx, command: &str, payload: &str) -> Handled 
 mod test_harness;
 #[cfg(test)]
 mod catalog_tests;
+#[cfg(test)]
+mod photo_tests;
 #[cfg(test)]
 mod planning_tests;

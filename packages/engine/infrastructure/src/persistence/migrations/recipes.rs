@@ -32,6 +32,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "recipes_shopping_state",
         sql: include_str!("recipes/v205_recipes_shopping_state.sql"),
     },
+    Migration {
+        version: 206,
+        name: "recipes_photos",
+        sql: include_str!("recipes/v206_recipes_photos.sql"),
+    },
 ];
 
 #[cfg(all(test, feature = "native"))]
@@ -51,6 +56,7 @@ mod tests {
         "recipes_plan_entries",
         "recipes_shopping_items",
         "recipes_shopping_state",
+        "recipes_photos",
     ];
 
     fn table_names(db: &NativeDb) -> Vec<String> {
@@ -127,8 +133,8 @@ mod tests {
     }
 
     #[test]
-    fn declared_tables_have_merge_policies_except_the_have_flags() {
-        for table in &TABLES[..5] {
+    fn declared_tables_have_merge_policies() {
+        for table in TABLES {
             assert!(policy_for(table).is_some(), "{table}");
         }
     }

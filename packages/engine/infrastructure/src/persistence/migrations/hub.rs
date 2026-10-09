@@ -31,4 +31,14 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "hub_morning_menu_rule",
         sql: include_str!("hub/v006_hub_morning_menu_rule.sql"),
     },
+    Migration {
+        version: 7,
+        name: "hub_sync_peers",
+        sql: include_str!("hub/v007_hub_sync_peers.sql"),
+    },
+    Migration {
+        version: 8,
+        name: "hub_sync_conflicts",
+        sql: include_str!("hub/v008_hub_sync_conflicts.sql"),
+    },
 ];

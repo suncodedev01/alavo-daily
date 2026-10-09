@@ -18,6 +18,7 @@ fn sample(id: &str, date: &str, created_at: i64) -> Transaction {
         amount_vnd: Money(-70_000),
         note: "".into(),
         recurring_rule: None,
+        recurring_source_id: None,
         created_at,
         updated_at: 9,
     }
@@ -37,6 +38,7 @@ fn insert_then_find_round_trips_every_field() {
     let stored = Transaction {
         note: "ghi chú".into(),
         recurring_rule: Some("monthly:5".into()),
+        recurring_source_id: Some("template".into()),
         ..sample("t1", "2026-10-06", 1)
     };
     insert(&db, &stored);
@@ -180,4 +182,20 @@ fn update_rewrites_every_editable_column() {
         Transaction { updated_at: 9, ..edited }
     );
     assert_eq!(stored.updated_at, 20);
+}
+
+#[test]
+fn the_recurring_filter_includes_generated_instances_as_well_as_templates() {
+    let db = migrated_memory_db();
+    insert(&db, &sample("plain", "2026-10-01", 1));
+    let template =
+        Transaction { recurring_rule: Some("monthly:3".into()), ..sample("t", "2026-09-03", 2) };
+    insert(&db, &template);
+    let instance = Transaction {
+        recurring_source_id: Some("t".into()),
+        ..sample("t@2026-10-03", "2026-10-03", 3)
+    };
+    insert(&db, &instance);
+    let recurring = TransactionFilter { recurring_only: Some(true), ..Default::default() };
+    assert_eq!(ids_where(&db, recurring), vec!["t@2026-10-03", "t"]);
 }

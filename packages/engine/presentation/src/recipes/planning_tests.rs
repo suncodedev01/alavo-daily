@@ -217,3 +217,83 @@ fn morning_menus_reject_a_bad_date_and_a_bad_day_count() {
     let too_many = app.fail("recipes.morning_menus", json!({ "from": "2026-10-10", "days": 99 }));
     assert_eq!(error_code(&too_many), "validation");
 }
+
+fn suggest(app: &Harness, payload: Value) -> Vec<Value> {
+    app.call("recipes.suggest_plan", payload).as_array().unwrap().clone()
+}
+
+#[test]
+fn suggest_plan_returns_unsaved_entries_in_camel_case() {
+    let app = Harness::start();
+    for name in ["Gà kho", "Bún chả", "Canh chua", "Phở bò"] {
+        app.create(name);
+    }
+    let payload = json!({ "from": "2026-10-05", "days": 2, "slots": ["dinner"] });
+    let entries = suggest(&app, payload);
+    assert_eq!(entries.len(), 2);
+    assert_eq!(entries[0]["date"], "2026-10-05");
+    assert_eq!(entries[0]["slot"], "dinner");
+    for key in ["recipeId", "recipeName", "recipeIcon"] {
+        assert!(entries[0][key].is_string(), "{key}");
+    }
+    assert_eq!(app.call("recipes.get_plan", json!({ "from": "2026-10-05" })), json!([]));
+}
+
+#[test]
+fn suggest_plan_is_the_same_for_the_same_seed_and_changes_with_another() {
+    let app = Harness::start();
+    for index in 0..8 {
+        app.create(&format!("Món {index}"));
+    }
+    let with_seed = |seed: u64| json!({ "from": "2026-10-05", "slots": ["dinner"], "seed": seed });
+    assert_eq!(suggest(&app, with_seed(1)), suggest(&app, with_seed(1)));
+    let differs = (2..12).any(|seed| suggest(&app, with_seed(seed)) != suggest(&app, with_seed(1)));
+    assert!(differs);
+}
+
+#[test]
+fn suggest_plan_skips_meals_that_are_planned_and_defaults_to_lunch_and_dinner() {
+    let app = Harness::start();
+    let id = app.create("Gà kho")["id"].clone();
+    for index in 0..6 {
+        app.create(&format!("Món {index}"));
+    }
+    plan_dinner(&app, &id, "2026-10-05");
+    let entries = suggest(&app, json!({ "from": "2026-10-05", "days": 2 }));
+    assert_eq!(entries.len(), 3);
+    let slots: Vec<_> = entries.iter().map(|entry| entry["slot"].as_str().unwrap()).collect();
+    assert_eq!(slots, ["lunch", "lunch", "dinner"]);
+}
+
+#[test]
+fn suggest_plan_honours_also_planned_and_avoid() {
+    let app = Harness::start();
+    let first = app.create("Gà kho")["id"].clone();
+    let second = app.create("Bún chả")["id"].clone();
+    let third = app.create("Canh chua")["id"].clone();
+    let payload = json!({
+        "from": "2026-10-05", "days": 1, "slots": ["dinner"],
+        "alsoPlanned": [{ "date": "2026-10-06", "slot": "dinner", "recipeId": first }],
+        "avoid": [second],
+    });
+    let entries = suggest(&app, payload);
+    assert_eq!(entries.len(), 1);
+    assert_eq!(entries[0]["recipeId"], third);
+}
+
+#[test]
+fn suggest_plan_with_no_recipes_is_an_empty_list() {
+    let app = Harness::start();
+    assert_eq!(suggest(&app, json!({ "from": "2026-10-05" })), Vec::<Value>::new());
+}
+
+#[test]
+fn suggest_plan_rejects_bad_input() {
+    let app = Harness::start();
+    let bad_date = app.fail("recipes.suggest_plan", json!({ "from": "2026-13-01" }));
+    assert_eq!(error_code(&bad_date), "validation");
+    let no_slots = app.fail("recipes.suggest_plan", json!({ "from": "2026-10-05", "slots": [] }));
+    assert_eq!(error_code(&no_slots), "validation");
+    let bad_slot = app.fail("recipes.suggest_plan", json!({ "from": "2026-10-05", "slots": ["brunch"] }));
+    assert_eq!(error_code(&bad_slot), "validation");
+}

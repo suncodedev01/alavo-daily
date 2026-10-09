@@ -71,6 +71,7 @@ impl NewTransaction {
             amount_vnd: self.amount_vnd,
             note: self.note,
             recurring_rule: self.recurring_rule,
+            recurring_source_id: None,
             created_at,
             updated_at,
         }

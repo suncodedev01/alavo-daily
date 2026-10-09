@@ -119,8 +119,16 @@ pub struct Recipe {
     pub note: String,
     pub ingredients: Vec<Ingredient>,
     pub steps: Vec<Step>,
+    /// A data URL. Only `recipes.get` carries it: the list stays light.
+    pub photo: Option<String>,
     pub created_at: i64,
     pub updated_at: i64,
+}
+
+impl Recipe {
+    pub fn with_photo(self, photo: Option<String>) -> Recipe {
+        Recipe { photo, ..self }
+    }
 }
 
 /// One row of `recipes_recipes`. `updated_at` is a clock value, `created_at` is milliseconds.
@@ -175,6 +183,7 @@ impl RecipeRecord {
             note: self.body.note,
             ingredients,
             steps,
+            photo: None,
             created_at: self.created_at,
             updated_at: Hlc(self.updated_at).physical_ms(),
         }
@@ -286,6 +295,14 @@ pub(crate) mod tests {
         assert_eq!(value["ingredientCount"], 1);
         assert_eq!(value["favorite"], true);
         assert_eq!(value["updatedAt"], HLC_EPOCH_MS + 7_000);
+    }
+
+    #[test]
+    fn a_recipe_has_no_photo_until_one_is_attached() {
+        let bare = record("r1", "Gà kho").into_recipe(vec![], vec![]);
+        assert_eq!(serde_json::to_value(&bare).unwrap()["photo"], serde_json::Value::Null);
+        let with = bare.with_photo(Some("data:image/jpeg;base64,AAAA".into()));
+        assert_eq!(serde_json::to_value(&with).unwrap()["photo"], "data:image/jpeg;base64,AAAA");
     }
 
     #[test]
