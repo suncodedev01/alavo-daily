@@ -15,7 +15,8 @@
     "./i18n": "./src/i18n/index.ts",
     "./testing": "./src/testing/index.tsx",
     "./shell": "./src/shell/index.tsx",
-    "./modules": "./src/modules/index.ts"
+    "./modules": "./src/modules/index.ts",
+    "./testing/setup": "./src/testing/setup.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

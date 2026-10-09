@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 
 /** One entry in a module's navigation: a sidebar row on wide layouts, a tab on narrow ones. */
 export interface ModuleView {
@@ -26,6 +26,8 @@ export interface ModuleRoute {
   /** Path pattern relative to the router root, e.g. `/recipes/plan` or `/recipes/list/:id?`. */
   path: string;
   element: ReactElement;
+  /** Drawn without the sidebar, header and tab bar, e.g. the cooking mode. */
+  fullscreen?: boolean;
 }
 
 /**
@@ -44,4 +46,6 @@ export interface ModuleManifest {
   views: ModuleView[];
   routes: ModuleRoute[];
   quickActions?: QuickAction[];
+  /** Extra content under the module's navigation in the wide sidebar (wallets, today's meals). */
+  sidebarExtra?: ComponentType;
 }
