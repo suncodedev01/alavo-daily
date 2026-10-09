@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logo Alavo Daily</title>
+<link rel="stylesheet" href="assets/tokens.css">
+<style>
+  body { padding: 32px 16px 64px; }
+  main { max-width: 960px; margin: 0 auto; display: grid; gap: 32px; }
+  h1 { font-size: 24px; line-height: 1.2; font-weight: 600; }
+  h2 { font-size: 17px; line-height: 1.3; font-weight: 600; }
+  p { max-width: 68ch; color: var(--text-secondary); }
+  .concepts { display: grid; gap: 24px; }
+  .card { background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--elevation-card); padding: 24px; display: grid; gap: 16px; }
+  .card-head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .badge { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: var(--r-4xl);
+           background: var(--accent); color: var(--accent-fg); font-size: 13px; font-weight: 500; }
+  .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end; }
+  .figure { display: grid; gap: 8px; justify-items: center; text-align: center; }
+  .figure span { font-size: 12px; color: var(--text-muted); }
+  .icon { border-radius: 22.37%; overflow: hidden; box-shadow: var(--elevation-overlay); }
+  .icon svg { display: block; width: 100%; height: 100%; }
+  .stage { background: #000; border-radius: var(--r-xl); padding: 24px; }
+  .stage .figure span { color: #AEB4C4; }
+  .note { font-size: 12px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">Alavo Daily · Nhận diện</p>
+    <h1>Logo ứng dụng: ba hướng có dấu ấn riêng</h1>
+    <p style="margin-top:8px">Alavo Daily là hub chứa nhiều ứng dụng, số lượng sẽ tăng, nên logo không được gắn với "hai" hay "ba" thứ. Cả ba hướng dưới đây đúng với số module bất kỳ. Màu lấy từ dải <b>click</b> (nền) và <b>ozone</b> (nhận diện) của design system.</p>
+  </header>
+  <div class="concepts" id="concepts"></div>
+</main>
+
+<script>
+const THEMES = {
+  default: { label: 'Mặc định', bg: ['#3373F6', '#1A47B8'], primary: '#FFFFFF', accent: '#00B3ED', soft: '#D4EEFC' },
+  dark: { label: 'Tối', bg: ['#173A96', '#0F1A35'], primary: '#DCE7FD', accent: '#00B3ED', soft: '#6693F8' },
+  tinted: { label: 'Nhuộm màu (mô phỏng)', bg: ['#3A3A3C', '#1C1C1E'], primary: '#FFFFFF', accent: '#A0A0A0', soft: '#8E8E93' },
+};
+
+function circle({ cx, cy, r, fill, opacity = 1 }) {
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" fill-opacity="${opacity}"/>`;
+}
+
+function ring({ cx, cy, r, width, stroke, opacity = 1 }) {
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${stroke}"
+    stroke-width="${width}" stroke-opacity="${opacity}"/>`;
+}
+
+function thickPolyline({ points, width, stroke }) {
+  return `<path d="M${points.join(' L')}" fill="none" stroke="${stroke}" stroke-width="${width}"
+    stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+
+function satellite({ angleDegrees, orbitRadius, radius, fill, opacity = 1 }) {
+  const radians = (angleDegrees * Math.PI) / 180;
+  const cx = Math.round(512 + orbitRadius * Math.sin(radians));
+  const cy = Math.round(512 - orbitRadius * Math.cos(radians));
+  return circle({ cx, cy, r: radius, fill, opacity });
+}
+
+const CONCEPTS = [
+  {
+    title: 'D. A và đồng xu',
+    summary: 'Chữ A có thanh ngang là một đồng xu tròn: đồng xu là tiền, là mặt đĩa, là mặt trời trong ngày. Hình tròn cắt qua hai chân chữ A tạo điểm nhận diện riêng.',
+    foreground: theme => [
+      thickPolyline({ points: ['322,770', '512,300', '702,770'], width: 140, stroke: theme.primary }),
+      circle({ cx: 512, cy: 660, r: 108, fill: theme.accent }) +
+        circle({ cx: 512, cy: 660, r: 52, fill: theme.primary, opacity: 0.4 }),
+    ],
+  },
+  {
+    title: 'E. Bình minh',
+    summary: 'Ba vòng đồng tâm trồi lên từ đáy icon như mặt trời mọc, mỗi vòng là một lớp của một ngày. "Daily" là điểm chung của mọi module nên không đếm app nào.',
+    foreground: theme => [
+      circle({ cx: 512, cy: 700, r: 360, fill: theme.soft, opacity: 0.5 }),
+      circle({ cx: 512, cy: 700, r: 250, fill: theme.accent }),
+      circle({ cx: 512, cy: 700, r: 140, fill: theme.primary }),
+    ],
+  },
+  {
+    title: 'G. Hub và vệ tinh',
+    summary: 'Đĩa trắng ở giữa là hub, vòng ozone là quỹ đạo, các chấm to nhỏ khác nhau là các ứng dụng quay quanh. Thêm module chỉ là thêm một chấm trên quỹ đạo.',
+    foreground: theme => [
+      ring({ cx: 512, cy: 512, r: 290, width: 44, stroke: theme.accent }),
+      circle({ cx: 512, cy: 512, r: 150, fill: theme.primary }),
+      satellite({ angleDegrees: 35, orbitRadius: 290, radius: 68, fill: theme.primary }) +
+        satellite({ angleDegrees: 150, orbitRadius: 290, radius: 46, fill: theme.soft }) +
+        satellite({ angleDegrees: 265, orbitRadius: 290, radius: 56, fill: theme.soft }),
+    ],
+  },
+];
+
+let gradientCounter = 0;
+
+function iconSvg(concept, theme) {
+  const id = `bg${gradientCounter++}`;
+  return `<svg viewBox="0 0 1024 1024" aria-hidden="true">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${theme.bg[0]}"/><stop offset="1" stop-color="${theme.bg[1]}"/>
+    </linearGradient></defs>
+    <rect width="1024" height="1024" fill="url(#${id})"/>
+    ${concept.foreground(theme).join('')}
+  </svg>`;
+}
+
+function figure(concept, theme, size, caption) {
+  return `<div class="figure">
+    <div class="icon" style="width:${size}px;height:${size}px">${iconSvg(concept, theme)}</div>
+    <span>${caption}</span>
+  </div>`;
+}
+
+function renderConcept(concept) {
+  const variants = [THEMES.default, THEMES.dark, THEMES.tinted]
+    .map(theme => figure(concept, theme, 120, theme.label)).join('');
+  const sizes = [60, 40, 29].map(size => figure(concept, THEMES.default, size, `${size} px`)).join('');
+  const badge = concept.recommended ? '<span class="badge">Đề xuất</span>' : '';
+  return `<section class="card">
+    <div class="card-head"><h2>${concept.title}</h2>${badge}</div>
+    <p>${concept.summary}</p>
+    <div class="row">${figure(concept, THEMES.default, 200, 'Mặc định')}
+      <div class="stage"><div class="row">${variants}</div></div>
+      <div class="row">${sizes}</div>
+    </div>
+  </section>`;
+}
+
+document.getElementById('concepts').innerHTML = CONCEPTS.map(renderConcept).join('');
+</script>
+</body>
+</html>

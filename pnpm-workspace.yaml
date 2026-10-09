@@ -1,0 +1,8 @@
+packages:
+  - 'apps/*'
+  - 'packages/client/*'
+  - 'packages/client/modules/*'
+  - 'packages/engine'
+minimumReleaseAgeExclude:
+  - '@tauri-apps/api@2.12.2'
+  - vite@8.3.4

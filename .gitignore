@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.turbo/
+target/
+pkg/
+*.log
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.pem
+.playwright-mcp/
+src-tauri/gen/

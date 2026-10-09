@@ -1,0 +1,21 @@
+{
+  "name": "alavo-daily",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local-first hub of small apps: spending and recipes",
+  "packageManager": "pnpm@11.17.0",
+  "scripts": {
+    "dev:web": "pnpm --filter @alavo-daily/web dev",
+    "dev:native": "pnpm --filter @alavo-daily/native tauri dev",
+    "build:wasm": "node scripts/build-wasm.mjs",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:engine": "cargo test --manifest-path packages/engine/Cargo.toml"
+  },
+  "devDependencies": {
+    "turbo": "^2.11.7",
+    "typescript": "~5.9.3"
+  }
+}
