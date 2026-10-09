@@ -206,24 +206,7 @@ jobs:
         if: matrix.platform == 'android'
         shell: bash
         run: |
-          python3 - apps/native/src-tauri/gen/android/app/src/main/AndroidManifest.xml <<'PY'
-          import re
-          import sys
-
-          path = sys.argv[1]
-          manifest = open(path, encoding="utf-8").read()
-          permissions = [
-              '<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />',
-              '<uses-permission android:name="android.permission.USE_EXACT_ALARM" />',
-              '<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />',
-          ]
-          missing = [line for line in permissions if line.split('"')[1] not in manifest]
-          if missing:
-              manifest, count = re.subn(r"(<manifest[^>]*>)", lambda m: m.group(1) + "\n    " + "\n    ".join(missing), manifest, count=1)
-              if count != 1:
-                  sys.exit("AndroidManifest.xml has no <manifest> tag to patch")
-              open(path, "w", encoding="utf-8").write(manifest)
-          PY
+          node scripts/patch-android-manifest.mjs apps/native/src-tauri/gen/android/app/src/main/AndroidManifest.xml
           grep -n "uses-permission" apps/native/src-tauri/gen/android/app/src/main/AndroidManifest.xml
 
       - name: Build Android

@@ -11,8 +11,18 @@ export async function showNow(title: string, body: string): Promise<boolean> {
   return true;
 }
 
-/** Hands the notifications to the operating system, which shows them even when the app is closed. */
-export async function scheduleOnDevice(items: ScheduledNotification[]): Promise<void> {
+let lastSchedule: Promise<void> = Promise.resolve();
+
+/**
+ * Hands the notifications to the operating system, which shows them even when the app is closed.
+ * Calls run one after another, because two overlapping calls would cancel each other's work.
+ */
+export function scheduleOnDevice(items: ScheduledNotification[]): Promise<void> {
+  lastSchedule = lastSchedule.then(() => replaceSchedule(items)).catch(() => undefined);
+  return lastSchedule;
+}
+
+async function replaceSchedule(items: ScheduledNotification[]): Promise<void> {
   if (!(await isPermissionGranted())) return;
   const waiting = await pending();
   await cancel(waiting.map((notification) => notification.id));

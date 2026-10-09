@@ -50,6 +50,19 @@ describe('scheduleOnDevice', () => {
     expect(plugin.sendNotification).not.toHaveBeenCalled();
   });
 
+  it('runs overlapping calls one after another so they cannot cancel each other', async () => {
+    const order: string[] = [];
+    plugin.pending.mockImplementation(async () => {
+      order.push('pending');
+      return [];
+    });
+    plugin.cancel.mockImplementation(async () => void order.push('cancel'));
+    plugin.sendNotification.mockImplementation(() => void order.push('send'));
+    const item = { id: 1, at: NOW + HOUR, title: 'a', body: 'b' };
+    await Promise.all([scheduleOnDevice([item]), scheduleOnDevice([item])]);
+    expect(order).toEqual(['pending', 'cancel', 'send', 'pending', 'cancel', 'send']);
+  });
+
   it('schedules nothing while permission is not granted', async () => {
     plugin.isPermissionGranted.mockResolvedValue(false);
     await scheduleOnDevice([{ id: 3, at: NOW + HOUR, title: 'a', body: 'b' }]);
