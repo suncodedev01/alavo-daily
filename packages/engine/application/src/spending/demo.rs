@@ -15,8 +15,6 @@ use crate::spending::demo_data::{
 use crate::spending::{bills, categories, goals, transactions, wallets};
 
 const DEMO_KEY: &str = "demo.spending";
-const CASH_WALLET_ID: &str = "wallet-cash";
-const CASH_KEY: &str = "cash";
 
 type WalletIds = Vec<(&'static str, String)>;
 
@@ -54,11 +52,11 @@ fn create_wallets(ctx: &Ctx) -> Result<WalletIds, EngineError> {
 
 fn create_wallet(ctx: &Ctx, demo: &DemoWallet) -> Result<String, EngineError> {
     let opening = Money(demo.balance_vnd - transactions_total(demo.key));
-    if demo.key == CASH_KEY && find_wallet(ctx.db, CASH_WALLET_ID)?.is_some() {
+    if find_wallet(ctx.db, demo.seeded_id)?.is_some() {
         let change = UpdateWallet {
-            id: CASH_WALLET_ID.to_string(),
-            name: None,
-            kind: None,
+            id: demo.seeded_id.to_string(),
+            name: Some(demo.name.to_string()),
+            kind: Some(demo.kind),
             opening_balance_vnd: Some(opening),
         };
         return wallets::update(ctx, change).map(|wallet| wallet.id);
@@ -134,6 +132,7 @@ mod tests {
     use super::*;
 
     const DAY_MS: i64 = 86_400_000;
+    const CASH_WALLET_ID: &str = "wallet-cash";
 
     fn loaded() -> Fixture {
         let fixture = Fixture::new();
@@ -300,6 +299,17 @@ mod tests {
         assert_eq!(all[0].due_on, None);
         assert_eq!(all[1].due_on.as_deref(), Some("2026-12-18"));
         assert_eq!(all[2].due_on.as_deref(), Some("2027-04-07"));
+    }
+
+    #[test]
+    fn the_sample_bank_and_ewallet_reuse_the_built_in_payment_methods() {
+        let fixture = loaded();
+        let ctx = fixture.ctx();
+        let bank = wallets::require(&ctx, "wallet-bank").unwrap();
+        let ewallet = wallets::require(&ctx, "wallet-ewallet").unwrap();
+        assert_eq!((bank.name.as_str(), bank.balance_vnd), ("Techcombank", Money(38_420_000)));
+        assert_eq!((ewallet.name.as_str(), ewallet.balance_vnd), ("Ví MoMo", Money(1_250_000)));
+        assert_eq!(wallets::list(&ctx).unwrap().len(), 3);
     }
 
     #[test]

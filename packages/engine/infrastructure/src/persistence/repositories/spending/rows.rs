@@ -116,7 +116,7 @@ mod tests {
     fn next_position_follows_the_largest_one() {
         let db = migrated_memory_db();
         assert_eq!(next_position(&db, Entity::Category).unwrap(), 9);
-        assert_eq!(next_position(&db, Entity::Wallet).unwrap(), 2);
+        assert_eq!(next_position(&db, Entity::Wallet).unwrap(), 4);
     }
 
     #[test]

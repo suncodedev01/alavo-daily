@@ -1,6 +1,7 @@
 use alavo_domain::hub::{Notification, NotificationRule};
 use alavo_domain::ports::{Database, Row, Value};
 use alavo_domain::shared::error::EngineError;
+use alavo_domain::spending::budget_category_id;
 
 pub struct DeviceRow {
     pub device_id: String,
@@ -63,7 +64,7 @@ pub fn set_setting(
 
 pub fn list_notifications(db: &dyn Database, limit: i64) -> Result<Vec<Notification>, EngineError> {
     let sql = r#"
-        SELECT id, module, title, body, created_at, read_at
+        SELECT id, module, title, body, dedupe_key, created_at, read_at
         FROM hub_notifications
         ORDER BY created_at DESC
         LIMIT ?
@@ -202,9 +203,15 @@ fn notification_from_row(row: &Row) -> Result<Notification, EngineError> {
         module: row.text("module")?,
         title: row.text("title")?,
         body: row.text("body")?,
+        subject_id: subject_of(row.opt_text("dedupe_key")?),
         created_at: row.int("created_at")?,
         read: row.opt_int("read_at")?.is_some(),
     })
+}
+
+fn subject_of(dedupe_key: Option<String>) -> Option<String> {
+    let key = dedupe_key?;
+    budget_category_id(&key).map(String::from)
 }
 
 fn rule_from_row(row: &Row) -> Result<NotificationRule, EngineError> {

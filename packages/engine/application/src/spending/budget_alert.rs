@@ -110,6 +110,15 @@ mod tests {
     }
 
     #[test]
+    fn the_warning_names_the_category_it_is_about() {
+        let fixture = Fixture::new();
+        set_food_budget(&fixture, 1_000_000);
+        spend(&fixture, 850_000, TODAY);
+        let notice = notifications::list(&fixture.ctx()).unwrap().remove(0);
+        assert_eq!(notice.subject_id.as_deref(), Some(FOOD));
+    }
+
+    #[test]
     fn the_warning_is_not_repeated_by_later_expenses_below_the_budget() {
         let fixture = Fixture::new();
         set_food_budget(&fixture, 1_000_000);

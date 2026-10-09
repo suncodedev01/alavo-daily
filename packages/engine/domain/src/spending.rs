@@ -24,7 +24,7 @@ pub use calendar::{normalize_month, today_utc, MonthContext, MonthQuery};
 pub use category::{Category, CategoryKind, NewCategory, UpdateCategory};
 pub use entity::Entity;
 pub use goal::{ContributeGoal, Goal, NewGoal, UpdateGoal};
-pub use notice::BudgetAlert;
+pub use notice::{budget_category_id, BudgetAlert};
 pub use summary::{MonthSummary, MonthTotals, SummaryParts};
 pub use transaction::{TransactionFilter, UpdateTransaction};
 pub use wallet::{NewWallet, UpdateWallet, Wallet, WalletKind};

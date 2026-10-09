@@ -69,12 +69,18 @@ mod tests {
     }
 
     #[test]
-    fn a_fresh_install_has_one_cash_wallet_with_a_zero_balance() {
+    fn a_fresh_install_offers_cash_bank_and_ewallet_with_zero_balances() {
         let fixture = Fixture::new();
         let wallets = list(&fixture.ctx()).unwrap();
-        assert_eq!(wallets.len(), 1);
-        assert_eq!((wallets[0].name.as_str(), wallets[0].kind), ("Tiền mặt", WalletKind::Cash));
-        assert_eq!(wallets[0].balance_vnd, Money(0));
+        let summary: Vec<(&str, WalletKind)> =
+            wallets.iter().map(|wallet| (wallet.name.as_str(), wallet.kind)).collect();
+        let expected = [
+            ("Tiền mặt", WalletKind::Cash),
+            ("Chuyển khoản", WalletKind::Bank),
+            ("Ví điện tử", WalletKind::Ewallet),
+        ];
+        assert_eq!(summary, expected);
+        assert!(wallets.iter().all(|wallet| wallet.balance_vnd == Money(0)));
     }
 
     #[test]
@@ -83,7 +89,7 @@ mod tests {
         let created =
             create(&fixture.ctx(), new_wallet("Techcombank", WalletKind::Bank, 5_000_000)).unwrap();
         assert_eq!(created.balance_vnd, Money(5_000_000));
-        assert_eq!(created.position, 2);
+        assert_eq!(created.position, 4);
         let events = fixture.events("wallet");
         assert_eq!(events.len(), 1);
         assert_eq!(events[0].payload["opening_balance_vnd"], 5_000_000);
@@ -167,7 +173,7 @@ mod tests {
         let ctx = fixture.ctx();
         transactions::record(&ctx, expense("Phở", 70_000, "2026-10-06")).unwrap();
         assert_eq!(delete(&ctx, CASH).unwrap_err().code, ErrorCode::Validation);
-        assert_eq!(list(&ctx).unwrap().len(), 1);
+        assert_eq!(list(&ctx).unwrap().len(), 3);
     }
 
     #[test]
@@ -176,7 +182,7 @@ mod tests {
         let ctx = fixture.ctx();
         let bank = create(&ctx, new_wallet("Techcombank", WalletKind::Bank, 0)).unwrap();
         delete(&ctx, &bank.id).unwrap();
-        assert_eq!(list(&ctx).unwrap().len(), 1);
+        assert_eq!(list(&ctx).unwrap().len(), 3);
         let events = fixture.events("wallet");
         assert_eq!(events.last().unwrap().action, "delete");
         assert_eq!(delete(&ctx, &bank.id).unwrap_err().code, ErrorCode::NotFound);

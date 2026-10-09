@@ -32,6 +32,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "spending_recurring_source",
         sql: include_str!("spending/v105_spending_recurring_source.sql"),
     },
+    Migration {
+        version: 106,
+        name: "spending_default_wallets",
+        sql: include_str!("spending/v106_spending_default_wallets.sql"),
+    },
 ];
 
 #[cfg(all(test, feature = "native"))]
@@ -87,7 +92,43 @@ mod tests {
         let db = migrated_memory_db();
         migrations::run(&db, TEST_NOW_MS).unwrap();
         assert_eq!(count(&db, "SELECT COUNT(*) AS total FROM spending_categories"), 8);
-        assert_eq!(count(&db, "SELECT COUNT(*) AS total FROM spending_wallets"), 1);
+        assert_eq!(count(&db, "SELECT COUNT(*) AS total FROM spending_wallets"), 3);
+    }
+
+    #[test]
+    fn a_fresh_install_has_cash_bank_and_ewallet_payment_methods() {
+        let db = migrated_memory_db();
+        let sql = "SELECT id, name, kind, opening_balance_vnd FROM spending_wallets                    ORDER BY position";
+        let rows = db.query(sql, &[]).unwrap();
+        let wallets: Vec<(String, String, String)> = rows
+            .iter()
+            .map(|row| {
+                (row.text("id").unwrap(), row.text("name").unwrap(), row.text("kind").unwrap())
+            })
+            .collect();
+        let expected = [
+            ("wallet-cash", "Tiền mặt", "cash"),
+            ("wallet-bank", "Chuyển khoản", "bank"),
+            ("wallet-ewallet", "Ví điện tử", "ewallet"),
+        ];
+        assert_eq!(wallets.len(), expected.len());
+        for (wallet, (id, name, kind)) in wallets.iter().zip(expected) {
+            assert_eq!((wallet.0.as_str(), wallet.1.as_str(), wallet.2.as_str()), (id, name, kind));
+        }
+        assert!(rows.iter().all(|row| row.int("opening_balance_vnd").unwrap() == 0));
+    }
+
+    #[test]
+    fn a_renamed_or_deleted_default_wallet_is_not_overwritten_or_brought_back() {
+        let db = migrated_memory_db();
+        let edit = "UPDATE spending_wallets SET name = 'Visa', deleted_at = 5                     WHERE id = 'wallet-bank'";
+        db.execute(edit, &[]).unwrap();
+        db.execute_batch(include_str!("spending/v106_spending_default_wallets.sql")).unwrap();
+        let sql = "SELECT name, deleted_at FROM spending_wallets WHERE id = 'wallet-bank'";
+        let bank = &db.query(sql, &[]).unwrap()[0];
+        assert_eq!(bank.text("name").unwrap(), "Visa");
+        assert_eq!(bank.int("deleted_at").unwrap(), 5);
+        assert_eq!(count(&db, "SELECT COUNT(*) AS total FROM spending_wallets"), 3);
     }
 
     #[test]

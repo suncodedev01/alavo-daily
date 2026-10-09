@@ -79,7 +79,9 @@ fn wallets_report_opening_and_current_balance() {
     let wallets = harness.call("spending.list_wallets", Value::Null);
     assert_eq!(wallets[0]["id"], "wallet-cash");
     assert_eq!(wallets[0]["balanceVnd"], -70_000);
-    assert_eq!(wallets[1]["name"], "Techcombank");
+    assert_eq!(wallets[1]["name"], "Chuyển khoản");
+    assert_eq!(wallets[2]["name"], "Ví điện tử");
+    assert_eq!(wallets[3]["name"], "Techcombank");
 }
 
 #[test]

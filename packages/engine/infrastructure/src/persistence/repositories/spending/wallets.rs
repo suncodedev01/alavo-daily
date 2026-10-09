@@ -92,12 +92,12 @@ mod tests {
     }
 
     #[test]
-    fn the_seeded_cash_wallet_starts_at_zero() {
+    fn the_seeded_payment_methods_start_at_zero() {
         let db = migrated_memory_db();
         let wallets = list_wallets(&db).unwrap();
-        assert_eq!(wallets.len(), 1);
-        assert_eq!(wallets[0].id, "wallet-cash");
-        assert_eq!(wallets[0].balance_vnd, Money(0));
+        let ids: Vec<&str> = wallets.iter().map(|wallet| wallet.id.as_str()).collect();
+        assert_eq!(ids, ["wallet-cash", "wallet-bank", "wallet-ewallet"]);
+        assert!(wallets.iter().all(|wallet| wallet.balance_vnd == Money(0)));
     }
 
     #[test]

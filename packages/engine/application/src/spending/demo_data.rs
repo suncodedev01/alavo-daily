@@ -11,15 +11,34 @@ pub const BUDGETS: [(&str, i64); 6] = [
 
 pub struct DemoWallet {
     pub key: &'static str,
+    pub seeded_id: &'static str,
     pub name: &'static str,
     pub kind: WalletKind,
     pub balance_vnd: i64,
 }
 
 pub const WALLETS: [DemoWallet; 3] = [
-    DemoWallet { key: "tcb", name: "Techcombank", kind: WalletKind::Bank, balance_vnd: 38_420_000 },
-    DemoWallet { key: "momo", name: "Ví MoMo", kind: WalletKind::Ewallet, balance_vnd: 1_250_000 },
-    DemoWallet { key: "cash", name: "Tiền mặt", kind: WalletKind::Cash, balance_vnd: 820_000 },
+    DemoWallet {
+        key: "tcb",
+        seeded_id: "wallet-bank",
+        name: "Techcombank",
+        kind: WalletKind::Bank,
+        balance_vnd: 38_420_000,
+    },
+    DemoWallet {
+        key: "momo",
+        seeded_id: "wallet-ewallet",
+        name: "Ví MoMo",
+        kind: WalletKind::Ewallet,
+        balance_vnd: 1_250_000,
+    },
+    DemoWallet {
+        key: "cash",
+        seeded_id: "wallet-cash",
+        name: "Tiền mặt",
+        kind: WalletKind::Cash,
+        balance_vnd: 820_000,
+    },
 ];
 
 pub struct DemoTransaction {

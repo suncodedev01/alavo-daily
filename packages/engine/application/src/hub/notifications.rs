@@ -30,6 +30,7 @@ pub fn add(
         module: module.to_string(),
         title: title.to_string(),
         body: body.to_string(),
+        subject_id: None,
         created_at: ctx.now_ms(),
         read: false,
     };

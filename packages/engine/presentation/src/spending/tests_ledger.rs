@@ -169,4 +169,5 @@ fn crossing_a_budget_through_the_command_adds_one_hub_notification() {
     assert_eq!(notices.as_array().unwrap().len(), 1);
     assert_eq!(notices[0]["module"], "spending");
     assert_eq!(notices[0]["title"], "Ăn uống đã dùng 90% ngân sách");
+    assert_eq!(notices[0]["subjectId"], "category-food");
 }

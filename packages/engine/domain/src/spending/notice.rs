@@ -28,9 +28,18 @@ impl BudgetAlert {
             BudgetTone::Warn => (warn_title(line), warn_body(line, days_left), "warn"),
             BudgetTone::Over => (over_title(line), over_body(line), "over"),
         };
-        let dedupe_key = format!("budget:{}:{month}:{level}", line.category_id);
+        let dedupe_key = format!("{BUDGET_KEY_PREFIX}{}:{month}:{level}", line.category_id);
         Some(BudgetAlert { title, body, dedupe_key })
     }
+}
+
+const BUDGET_KEY_PREFIX: &str = "budget:";
+
+/// The category a budget alert is about, read back from the alert's dedupe key.
+pub fn budget_category_id(dedupe_key: &str) -> Option<&str> {
+    let mut parts = dedupe_key.strip_prefix(BUDGET_KEY_PREFIX)?.rsplitn(3, ':');
+    let (_level, _month, category_id) = (parts.next()?, parts.next()?, parts.next()?);
+    Some(category_id)
 }
 
 fn warn_title(line: &BudgetLine) -> String {
@@ -114,6 +123,17 @@ mod tests {
         assert_eq!(alert.title, "Ăn uống đã vượt ngân sách");
         assert_eq!(alert.body, "Đã vượt 100.000 ₫ so với hạn mức 2.600.000 ₫.");
         assert_eq!(alert.dedupe_key, "budget:category-food:2026-10:over");
+    }
+
+    #[test]
+    fn the_category_is_read_back_from_the_dedupe_key() {
+        assert_eq!(budget_category_id("budget:category-food:2026-10:warn"), Some("category-food"));
+    }
+
+    #[test]
+    fn a_key_that_is_not_a_budget_alert_names_no_category() {
+        assert_eq!(budget_category_id("weekly:2026-10"), None);
+        assert_eq!(budget_category_id("budget:2026-10:warn"), None);
     }
 
     #[test]

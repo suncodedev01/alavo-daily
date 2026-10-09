@@ -66,6 +66,8 @@ pub struct Notification {
     pub module: String,
     pub title: String,
     pub body: String,
+    /// The row the notification is about, such as the category of a budget alert.
+    pub subject_id: Option<String>,
     pub created_at: i64,
     pub read: bool,
 }
