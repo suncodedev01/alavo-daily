@@ -26,6 +26,10 @@ on:
         description: Build Linux desktop
         type: boolean
         default: false
+      build_android:
+        description: Build Android (APK)
+        type: boolean
+        default: false
       env_personal:
         description: Environment personal
         type: boolean
@@ -55,6 +59,7 @@ jobs:
           BUILD_WINDOWS: ${{ inputs.build_windows }}
           BUILD_MACOS: ${{ inputs.build_macos }}
           BUILD_LINUX: ${{ inputs.build_linux }}
+          BUILD_ANDROID: ${{ inputs.build_android }}
           ENV_PERSONAL: ${{ inputs.env_personal }}
         run: |
           version=$(node scripts/bump-version.mjs "$BUMP" --dry-run)
@@ -64,6 +69,7 @@ jobs:
           [ "$BUILD_WINDOWS" = true ] && platforms+=(windows)
           [ "$BUILD_MACOS" = true ] && platforms+=(macos)
           [ "$BUILD_LINUX" = true ] && platforms+=(linux)
+          [ "$BUILD_ANDROID" = true ] && platforms+=(android)
 
           environments=()
           [ "$ENV_PERSONAL" = true ] && environments+=(personal)
@@ -82,7 +88,8 @@ jobs:
                 web:     { os: "ubuntu-latest",  rust_targets: "",  args: "" },
                 windows: { os: "windows-latest", rust_targets: "",  args: "" },
                 macos:   { os: "macos-latest",   rust_targets: "aarch64-apple-darwin,x86_64-apple-darwin", args: "--target universal-apple-darwin" },
-                linux:   { os: "ubuntu-latest",  rust_targets: "",  args: "" }
+                linux:   { os: "ubuntu-latest",  rust_targets: "",  args: "" },
+                android: { os: "ubuntu-latest",  rust_targets: "aarch64-linux-android", args: "" }
               } as $spec
               | { include: [ $environments[] as $e | $platforms[] as $p
                   | { environment: $e, platform: $p } + $spec[$p] ] }')
@@ -164,7 +171,7 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Build desktop
-        if: matrix.platform != 'web'
+        if: matrix.platform != 'web' && matrix.platform != 'android'
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -176,6 +183,55 @@ jobs:
           releaseAssetNamePattern: '[name]-${{ matrix.environment }}-[version]-[platform]-[arch][setup][ext]'
           uploadWorkflowArtifacts: false
           uploadUpdaterSignatures: false
+
+      - name: Set up Java
+        if: matrix.platform == 'android'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build Android
+        if: matrix.platform == 'android'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.plan.outputs.version }}
+          ENVIRONMENT: ${{ matrix.environment }}
+          RELEASE_ID: ${{ needs.draft.outputs.release_id }}
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          export NDK_HOME="$ANDROID_NDK_HOME"
+          cd apps/native
+          pnpm tauri android init --ci
+          pnpm tauri android build --apk --target aarch64
+
+          apk=$(find src-tauri/gen/android -name '*-unsigned.apk' | head -n 1)
+          build_tools=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
+
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > release.jks
+          else
+            echo "::warning::No Android keystore secret found. Signing with a throwaway key: the APK installs, but cannot update an APK signed by another build."
+            KEYSTORE_PASSWORD=android-throwaway
+            KEY_ALIAS=throwaway
+            keytool -genkeypair -keystore release.jks -storepass "$KEYSTORE_PASSWORD" \
+              -alias "$KEY_ALIAS" -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Alavo Daily"
+          fi
+
+          export KEYSTORE_PASSWORD
+          "$build_tools/zipalign" -p -f 4 "$apk" aligned.apk
+          "$build_tools/apksigner" sign --ks release.jks --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass env:KEYSTORE_PASSWORD --out signed.apk aligned.apk
+
+          name="alavo-daily-android-$ENVIRONMENT-$VERSION.apk"
+          mv signed.apk "$name"
+          gh api --method POST \
+            "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?name=$name" \
+            -H "Content-Type: application/vnd.android.package-archive" \
+            --input "$name"
 
   publish:
     name: Publish

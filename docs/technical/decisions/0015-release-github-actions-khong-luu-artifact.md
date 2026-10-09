@@ -2,7 +2,7 @@
 
 Trạng thái: Đã chọn · Ngày: 2026-10-09
 
-Workflow `.github/workflows/release.yml` chỉ chạy bằng tay (`workflow_dispatch`). Người chạy chọn mức tăng version (`patch`, `minor`, `major`), tích các bản muốn build (web, Windows, macOS, Linux) và tích môi trường (hiện chỉ có `personal`). Các ô tích là input kiểu `boolean`, nên GitHub vẽ thành checkbox.
+Workflow `.github/workflows/release.yml` chỉ chạy bằng tay (`workflow_dispatch`). Người chạy chọn mức tăng version (`patch`, `minor`, `major`), tích các bản muốn build (web, Windows, macOS, Linux, Android) và tích môi trường (hiện chỉ có `personal`). Các ô tích là input kiểu `boolean`, nên GitHub vẽ thành checkbox.
 
 Thứ tự chạy: job `plan` tính version kế tiếp và dựng danh sách build từ các ô đã tích (môi trường nhân với bản build), `verify` chạy `cargo test`, typecheck và test của mọi package, `draft` tạo bản phát hành nháp, các job `build` chạy song song và đẩy file vào bản nháp, cuối cùng `publish` commit version mới, gắn tag rồi công bố bản nháp. Nếu một job build hỏng thì `discard_draft` xoá bản nháp và repo không bị đổi gì, vì commit version chỉ được tạo ở bước cuối. Mỗi job `build` khai báo `environment` theo môi trường đã tích, nên secret và biến của môi trường đó chỉ có ở job tương ứng.
 
@@ -10,7 +10,9 @@ Thứ tự chạy: job `plan` tính version kế tiếp và dựng danh sách bu
 
 Cache của `pnpm` và `Swatinem/rust-cache` vẫn dùng, vì cache có giới hạn riêng 10 GB và tự xoá bản cũ nhất khi đầy, không bị tính tiền.
 
-**Chưa có trong workflow:** bản Android và iOS (cần `tauri android init`, khoá ký và chứng chỉ Apple), bản extension (chưa có `apps/extension`), ký số cho Windows và macOS (bản build chưa được ký, hệ điều hành sẽ cảnh báo khi mở lần đầu).
+**Android:** job chạy `tauri android init` rồi build APK arm64 ngay trên runner (thư mục `gen/android` bị `.gitignore` nên được sinh lại mỗi lần). APK được ký bằng khoá trong secret `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD` và `ANDROID_KEY_ALIAS` của environment. Nếu chưa có secret thì ký bằng khoá tạm và in cảnh báo: APK vẫn cài được nhưng không cập nhật đè lên bản ký bằng khoá khác.
+
+**Chưa có trong workflow:** bản iOS (cần chứng chỉ Apple), bản extension (chưa có `apps/extension`), ký số cho Windows và macOS (bản build chưa được ký, hệ điều hành sẽ cảnh báo khi mở lần đầu).
 
 **Đánh đổi:** `publish` đẩy commit thẳng lên nhánh đang chạy workflow bằng `GITHUB_TOKEN`. Nếu sau này bật bảo vệ nhánh `main` thì cần cho phép bot này bỏ qua quy tắc, hoặc đổi bước đó thành mở PR.
 
