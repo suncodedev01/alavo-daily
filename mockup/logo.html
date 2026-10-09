@@ -30,82 +30,171 @@
 <main>
   <header>
     <p class="eyebrow">Alavo Daily · Nhận diện</p>
-    <h1>Logo ứng dụng: ba hướng có dấu ấn riêng</h1>
-    <p style="margin-top:8px">Alavo Daily là hub chứa nhiều ứng dụng, số lượng sẽ tăng, nên logo không được gắn với "hai" hay "ba" thứ. Cả ba hướng dưới đây đúng với số module bất kỳ. Màu lấy từ dải <b>click</b> (nền) và <b>ozone</b> (nhận diện) của design system.</p>
+    <h1>Logo ứng dụng Alavo Daily</h1>
+    <p style="margin-top:8px">Alavo Daily là ứng dụng hằng ngày của gia đình và cá nhân (ghi chú, thu chi, công việc, nấu ăn, và còn thêm nữa), trong đó ghi chú là việc chính. Logo ghép "nhà" và "ghi chú" thành một hình, không gắn với số module cụ thể. Màu lấy từ dải <b>click</b> và <b>ozone</b> của design system. Bóng đổ và độ sáng ở đây là bản xem trước; khi xuất layer cho Icon Composer, Apple muốn layer phẳng (chỉ gradient) và để hệ thống tự thêm hiệu ứng kính.</p>
   </header>
   <div class="concepts" id="concepts"></div>
 </main>
 
 <script>
 const THEMES = {
-  default: { label: 'Mặc định', bg: ['#3373F6', '#1A47B8'], primary: '#FFFFFF', accent: '#00B3ED', soft: '#D4EEFC' },
-  dark: { label: 'Tối', bg: ['#173A96', '#0F1A35'], primary: '#DCE7FD', accent: '#00B3ED', soft: '#6693F8' },
-  tinted: { label: 'Nhuộm màu (mô phỏng)', bg: ['#3A3A3C', '#1C1C1E'], primary: '#FFFFFF', accent: '#A0A0A0', soft: '#8E8E93' },
+  default: {
+    label: 'Mặc định',
+    bg: ['#3A7BFA', '#16379A'],
+    body: ['#FFFFFF', '#E3F4FF', '#8FC4F5'],
+    tool: ['#7FE0FF', '#00B3ED', '#0A6BC0'],
+    ink: ['#00B3ED', '#3373F6'],
+    paper: ['#FFFFFF', '#CFE0F5'],
+    metal: ['#F2F6FB', '#AEBBD0', '#E9EEF5'],
+  },
+  dark: {
+    label: 'Tối',
+    bg: ['#1B3F9E', '#0A1226'],
+    body: ['#EAF2FF', '#B9CFF7', '#5E86D6'],
+    tool: ['#7FDDF8', '#00A2D6', '#075B80'],
+    ink: ['#00A2D6', '#2B5BD0'],
+    paper: ['#EAF2FF', '#9DBBF5'],
+    metal: ['#DCE4F2', '#8C9BB8', '#C9D4E8'],
+  },
+  tinted: {
+    label: 'Nhuộm màu (mô phỏng)',
+    bg: ['#4A4A4C', '#1C1C1E'],
+    body: ['#FFFFFF', '#E5E5EA', '#9A9A9F'],
+    tool: ['#E5E5EA', '#AEAEB2', '#636366'],
+    ink: ['#636366', '#48484A'],
+    paper: ['#FFFFFF', '#D1D1D6'],
+    metal: ['#F2F2F7', '#AEAEB2', '#E5E5EA'],
+  },
 };
 
-function circle({ cx, cy, r, fill, opacity = 1 }) {
-  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" fill-opacity="${opacity}"/>`;
+const HOUSE_OUTLINE = '512,240 790,470 790,770 234,770 234,470';
+const HOUSE_STROKE_WIDTH = 96;
+const PENCIL = { length: 530, thickness: 96 };
+const TRIO_OFFSET = { x: 30, y: -14 };
+
+function stops(colors) {
+  const last = colors.length - 1;
+  return colors.map((color, index) =>
+    `<stop offset="${index / last}" stop-color="${color}"/>`).join('');
 }
 
-function ring({ cx, cy, r, width, stroke, opacity = 1 }) {
-  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${stroke}"
-    stroke-width="${width}" stroke-opacity="${opacity}"/>`;
+function gradient(id, colors, direction) {
+  return `<linearGradient id="${id}" ${direction}>${stops(colors)}</linearGradient>`;
 }
 
-function thickPolyline({ points, width, stroke }) {
-  return `<path d="M${points.join(' L')}" fill="none" stroke="${stroke}" stroke-width="${width}"
-    stroke-linecap="round" stroke-linejoin="round"/>`;
+const TOP_TO_BOTTOM = 'x1="0" y1="0" x2="0" y2="1"';
+const LEFT_TO_RIGHT = 'x1="0" y1="0" x2="1" y2="0"';
+
+function backgroundMarkup(theme, uid) {
+  return {
+    defs: `${gradient(`${uid}-bg`, theme.bg, TOP_TO_BOTTOM)}
+      <radialGradient id="${uid}-glow" cx="0.5" cy="0.3" r="0.75">
+        <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/>
+        <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+      </radialGradient>`,
+    body: `<rect width="1024" height="1024" fill="url(#${uid}-bg)"/>
+      <rect width="1024" height="1024" fill="url(#${uid}-glow)"/>`,
+  };
 }
 
-function satellite({ angleDegrees, orbitRadius, radius, fill, opacity = 1 }) {
-  const radians = (angleDegrees * Math.PI) / 180;
-  const cx = Math.round(512 + orbitRadius * Math.sin(radians));
-  const cy = Math.round(512 - orbitRadius * Math.cos(radians));
-  return circle({ cx, cy, r: radius, fill, opacity });
+function sharedDefs(theme, uid) {
+  return `
+    ${gradient(`${uid}-body`, theme.body, 'x1="0" y1="0" x2="0.4" y2="1"')}
+    ${gradient(`${uid}-tool`, theme.tool, TOP_TO_BOTTOM)}
+    ${gradient(`${uid}-ink`, theme.ink, LEFT_TO_RIGHT)}
+    ${gradient(`${uid}-paper`, theme.paper, TOP_TO_BOTTOM)}
+    ${gradient(`${uid}-metal`, theme.metal, TOP_TO_BOTTOM)}
+    <filter id="${uid}-blur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+    <filter id="${uid}-puff" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="26" result="soft"/>
+      <feSpecularLighting in="soft" surfaceScale="10" specularConstant="0.9" specularExponent="26"
+        lighting-color="#FFFFFF" result="shine">
+        <fePointLight x="260" y="120" z="320"/>
+      </feSpecularLighting>
+      <feComposite in="shine" in2="SourceAlpha" operator="in" result="shineInside"/>
+      <feComposite in="SourceGraphic" in2="shineInside" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
+    </filter>`;
+}
+
+function houseShape(attributes) {
+  return `<polygon points="${HOUSE_OUTLINE}" stroke-width="${HOUSE_STROKE_WIDTH}"
+    stroke-linejoin="round" ${attributes}/>`;
+}
+
+function house(uid) {
+  const shadow = houseShape(`transform="translate(0 30)" fill="#0F1A35" stroke="#0F1A35"
+    fill-opacity="0.4" stroke-opacity="0.4" filter="url(#${uid}-blur)"`);
+  const body = houseShape(`fill="url(#${uid}-body)" stroke="url(#${uid}-body)"
+    filter="url(#${uid}-puff)"`);
+  return shadow + body;
+}
+
+function pencil(uid, { cx, cy, degrees, scale = 1 }) {
+  const { length, thickness } = PENCIL;
+  const fill = name => `fill="url(#${uid}-${name})"`;
+  const roundJoin = 'stroke-width="8" stroke-linejoin="round"';
+  const place = `translate(${cx} ${cy}) rotate(${degrees}) scale(${scale})`;
+  return `<g transform="${place} translate(${-length / 2} ${-thickness / 2})">
+    <rect x="0" y="0" width="${length}" height="${thickness}" rx="24" fill="#0F1A35" fill-opacity="0.38"
+      transform="translate(0 26)" filter="url(#${uid}-blur)"/>
+    <rect x="450" y="0" width="80" height="${thickness}" rx="34" ${fill('paper')}/>
+    <rect x="120" y="0" width="320" height="${thickness}" ${fill('tool')}/>
+    <rect x="120" y="14" width="320" height="14" rx="7" fill="#FFFFFF" fill-opacity="0.4"/>
+    <rect x="440" y="0" width="36" height="${thickness}" ${fill('metal')}/>
+    <polygon points="0,48 124,2 124,94" ${fill('paper')} stroke="#CFE0F5" ${roundJoin}/>
+    <polygon points="0,48 36,33 36,63" fill="#0F1A35" stroke="#0F1A35" ${roundJoin}/>
+  </g>`;
+}
+
+function notebookRings(uid) {
+  return [-120, -20, 80].map(y =>
+    `<rect x="-188" y="${y}" width="76" height="28" rx="14" fill="url(#${uid}-paper)"/>`).join('');
+}
+
+function notebook(uid, { cx, cy, degrees }) {
+  return `<g transform="translate(${cx} ${cy}) rotate(${degrees})">
+    <rect x="-150" y="-190" width="300" height="380" rx="56" fill="#0F1A35" fill-opacity="0.38"
+      transform="translate(0 28)" filter="url(#${uid}-blur)"/>
+    <rect x="-150" y="-190" width="300" height="380" rx="56" fill="url(#${uid}-tool)"/>
+    <rect x="-90" y="-140" width="210" height="130" rx="30" fill="url(#${uid}-paper)"/>
+    <rect x="-60" y="-108" width="150" height="24" rx="12" fill="url(#${uid}-ink)"/>
+    <rect x="-60" y="-66" width="100" height="24" rx="12" fill="url(#${uid}-ink)"/>
+    ${notebookRings(uid)}
+  </g>`;
+}
+
+function houseNotebookPencil(theme, uid) {
+  const shrinkHouse = 'translate(422 442) scale(0.8) translate(-512 -512)';
+  return {
+    defs: sharedDefs(theme, uid),
+    body: `<g transform="translate(${TRIO_OFFSET.x} ${TRIO_OFFSET.y})">
+      <g transform="${shrinkHouse}">${house(uid)}</g>
+      ${notebook(uid, { cx: 640, cy: 650, degrees: 8 })}
+      ${pencil(uid, { cx: 668, cy: 700, degrees: -40, scale: 0.8 })}
+    </g>`,
+  };
 }
 
 const CONCEPTS = [
   {
-    title: 'D. A và đồng xu',
-    summary: 'Chữ A có thanh ngang là một đồng xu tròn: đồng xu là tiền, là mặt đĩa, là mặt trời trong ngày. Hình tròn cắt qua hai chân chữ A tạo điểm nhận diện riêng.',
-    foreground: theme => [
-      thickPolyline({ points: ['322,770', '512,300', '702,770'], width: 140, stroke: theme.primary }),
-      circle({ cx: 512, cy: 660, r: 108, fill: theme.accent }) +
-        circle({ cx: 512, cy: 660, r: 52, fill: theme.primary, opacity: 0.4 }),
-    ],
-  },
-  {
-    title: 'E. Bình minh',
-    summary: 'Ba vòng đồng tâm trồi lên từ đáy icon như mặt trời mọc, mỗi vòng là một lớp của một ngày. "Daily" là điểm chung của mọi module nên không đếm app nào.',
-    foreground: theme => [
-      circle({ cx: 512, cy: 700, r: 360, fill: theme.soft, opacity: 0.5 }),
-      circle({ cx: 512, cy: 700, r: 250, fill: theme.accent }),
-      circle({ cx: 512, cy: 700, r: 140, fill: theme.primary }),
-    ],
-  },
-  {
-    title: 'G. Hub và vệ tinh',
-    summary: 'Đĩa trắng ở giữa là hub, vòng ozone là quỹ đạo, các chấm to nhỏ khác nhau là các ứng dụng quay quanh. Thêm module chỉ là thêm một chấm trên quỹ đạo.',
-    foreground: theme => [
-      ring({ cx: 512, cy: 512, r: 290, width: 44, stroke: theme.accent }),
-      circle({ cx: 512, cy: 512, r: 150, fill: theme.primary }),
-      satellite({ angleDegrees: 35, orbitRadius: 290, radius: 68, fill: theme.primary }) +
-        satellite({ angleDegrees: 150, orbitRadius: 290, radius: 46, fill: theme.soft }) +
-        satellite({ angleDegrees: 265, orbitRadius: 290, radius: 56, fill: theme.soft }),
-    ],
+    title: 'Nhà, cuốn sổ và cây bút',
+    selected: true,
+    summary: 'Ngôi nhà ở sau là gia đình, cuốn sổ ở giữa là nơi ghi chú, cây bút nằm chéo trên cùng như vừa đặt xuống sau khi ghi. Đọc từ sau ra trước là "gia đình, sổ tay, đang ghi chép". Thu chi, nấu ăn, công việc đều là thứ cả nhà ghi vào cuốn sổ này.',
+    build: houseNotebookPencil,
   },
 ];
 
-let gradientCounter = 0;
+let iconCounter = 0;
 
 function iconSvg(concept, theme) {
-  const id = `bg${gradientCounter++}`;
+  const uid = `i${iconCounter++}`;
+  const background = backgroundMarkup(theme, uid);
+  const art = concept.build(theme, uid);
   return `<svg viewBox="0 0 1024 1024" aria-hidden="true">
-    <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="${theme.bg[0]}"/><stop offset="1" stop-color="${theme.bg[1]}"/>
-    </linearGradient></defs>
-    <rect width="1024" height="1024" fill="url(#${id})"/>
-    ${concept.foreground(theme).join('')}
+    <defs>${background.defs}${art.defs}</defs>
+    ${background.body}${art.body}
   </svg>`;
 }
 
@@ -120,11 +209,11 @@ function renderConcept(concept) {
   const variants = [THEMES.default, THEMES.dark, THEMES.tinted]
     .map(theme => figure(concept, theme, 120, theme.label)).join('');
   const sizes = [60, 40, 29].map(size => figure(concept, THEMES.default, size, `${size} px`)).join('');
-  const badge = concept.recommended ? '<span class="badge">Đề xuất</span>' : '';
+  const badge = concept.selected ? '<span class="badge">Đã chọn</span>' : '';
   return `<section class="card">
     <div class="card-head"><h2>${concept.title}</h2>${badge}</div>
     <p>${concept.summary}</p>
-    <div class="row">${figure(concept, THEMES.default, 200, 'Mặc định')}
+    <div class="row">${figure(concept, THEMES.default, 240, 'Mặc định')}
       <div class="stage"><div class="row">${variants}</div></div>
       <div class="row">${sizes}</div>
     </div>

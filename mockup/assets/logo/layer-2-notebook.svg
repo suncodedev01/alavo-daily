@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="cover" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7FE0FF"/>
+      <stop offset="0.5" stop-color="#00B3ED"/>
+      <stop offset="1" stop-color="#0A6BC0"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#CFE0F5"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#00B3ED"/>
+      <stop offset="1" stop-color="#3373F6"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(30 -14) translate(640 650) rotate(8)">
+    <rect x="-150" y="-190" width="300" height="380" rx="56" fill="url(#cover)"/>
+    <rect x="-90" y="-140" width="210" height="130" rx="30" fill="url(#paper)"/>
+    <rect x="-60" y="-108" width="150" height="24" rx="12" fill="url(#ink)"/>
+    <rect x="-60" y="-66" width="100" height="24" rx="12" fill="url(#ink)"/>
+    <rect x="-188" y="-120" width="76" height="28" rx="14" fill="url(#paper)"/>
+    <rect x="-188" y="-20" width="76" height="28" rx="14" fill="url(#paper)"/>
+    <rect x="-188" y="80" width="76" height="28" rx="14" fill="url(#paper)"/>
+  </g>
+</svg>

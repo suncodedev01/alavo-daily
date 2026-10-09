@@ -11,4 +11,4 @@ pkg/
 *.keystore
 *.pem
 .playwright-mcp/
-src-tauri/gen/
+**/src-tauri/gen/
