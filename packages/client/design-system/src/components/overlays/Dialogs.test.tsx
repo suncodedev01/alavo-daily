@@ -83,7 +83,7 @@ describe('Dialog', () => {
       await userEvent.tab();
       expect(document.activeElement).not.toBe(opener);
     }
-    expect(dialog.contains(document.activeElement)).toBe(true);
+    await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true));
   });
 
   it('supports a custom close label', async () => {

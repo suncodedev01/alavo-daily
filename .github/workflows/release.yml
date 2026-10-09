@@ -106,8 +106,8 @@ jobs:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: cargo test --manifest-path packages/engine/Cargo.toml
-      - run: pnpm -r typecheck
-      - run: pnpm -r test
+      - run: pnpm -r --no-bail typecheck
+      - run: pnpm -r --no-bail --workspace-concurrency=1 test
       - run: pnpm test:scripts
 
   draft:
