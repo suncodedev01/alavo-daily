@@ -34,10 +34,6 @@ on:
         description: Environment personal
         type: boolean
         default: true
-      run_tests:
-        description: Run all tests first (about 12 extra minutes)
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -53,6 +49,7 @@ jobs:
     outputs:
       version: ${{ steps.plan.outputs.version }}
       matrix: ${{ steps.plan.outputs.matrix }}
+      release_id: ${{ steps.draft.outputs.release_id }}
     steps:
       - uses: actions/checkout@v7
 
@@ -102,44 +99,17 @@ jobs:
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
           echo "Next version: $version" >> "$GITHUB_STEP_SUMMARY"
 
-  verify:
-    name: Verify
-    needs: plan
-    if: ${{ inputs.run_tests }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/setup
-      - run: cargo test --manifest-path packages/engine/Cargo.toml
-      - run: pnpm -r --no-bail typecheck
-      - run: pnpm -r --no-bail --workspace-concurrency=1 test
-      - run: pnpm test:scripts
-
-  draft:
-    name: Draft release
-    needs: [plan, verify]
-    if: ${{ !cancelled() && needs.plan.result == 'success' && (needs.verify.result == 'success' || needs.verify.result == 'skipped') }}
-    runs-on: ubuntu-latest
-    outputs:
-      release_id: ${{ steps.draft.outputs.release_id }}
-    steps:
       - id: draft
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ needs.plan.outputs.version }}
+          VERSION: ${{ steps.plan.outputs.version }}
         run: |
-          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" \
-            -f tag_name="v$VERSION" \
-            -f target_commitish="$GITHUB_SHA" \
-            -f name="Alavo Daily v$VERSION" \
-            -F draft=true \
-            -F generate_release_notes=true \
-            --jq .id)
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases"             -f tag_name="v$VERSION"             -f target_commitish="$GITHUB_SHA"             -f name="Alavo Daily v$VERSION"             -F draft=true             -F generate_release_notes=true             --jq .id)
           echo "release_id=$id" >> "$GITHUB_OUTPUT"
 
   build:
     name: Build ${{ matrix.platform }} (${{ matrix.environment }})
-    needs: [plan, draft]
+    needs: plan
     runs-on: ${{ matrix.os }}
     environment: ${{ matrix.environment }}
     strategy:
@@ -163,7 +133,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.plan.outputs.version }}
           ENVIRONMENT: ${{ matrix.environment }}
-          RELEASE_ID: ${{ needs.draft.outputs.release_id }}
+          RELEASE_ID: ${{ needs.plan.outputs.release_id }}
           VITE_GOOGLE_WEB_CLIENT_ID: ${{ vars.VITE_GOOGLE_WEB_CLIENT_ID }}
         run: |
           pnpm --filter @alavo-daily/web build
@@ -187,7 +157,7 @@ jobs:
         with:
           projectPath: apps/native
           tauriScript: pnpm tauri
-          releaseId: ${{ needs.draft.outputs.release_id }}
+          releaseId: ${{ needs.plan.outputs.release_id }}
           args: ${{ matrix.args }}
           releaseAssetNamePattern: '[name]-${{ matrix.environment }}-[version]-[platform]-[arch][setup][ext]'
           uploadWorkflowArtifacts: false
@@ -223,7 +193,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.plan.outputs.version }}
           ENVIRONMENT: ${{ matrix.environment }}
-          RELEASE_ID: ${{ needs.draft.outputs.release_id }}
+          RELEASE_ID: ${{ needs.plan.outputs.release_id }}
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -263,14 +233,19 @@ jobs:
             -H "Content-Type: application/vnd.android.package-archive" \
             --input "$name"
 
-  publish:
-    name: Publish
-    needs: [plan, draft, build]
+  finish:
+    name: Finish
+    needs: [plan, build]
+    if: ${{ always() && needs.plan.result == 'success' }}
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_ID: ${{ needs.plan.outputs.release_id }}
     steps:
       - uses: actions/checkout@v7
 
-      - name: Commit the new version and tag it
+      - name: Commit the new version, tag it and publish the release
+        if: ${{ needs.build.result == 'success' }}
         env:
           VERSION: ${{ needs.plan.outputs.version }}
           BUMP: ${{ inputs.bump }}
@@ -281,20 +256,8 @@ jobs:
           git commit -am "chore(release): v$VERSION"
           git tag "v$VERSION"
           git push origin "HEAD:$GITHUB_REF_NAME" "v$VERSION"
+          gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" -F draft=false
 
-      - name: Publish the release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_ID: ${{ needs.draft.outputs.release_id }}
-        run: gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" -F draft=false
-
-  discard_draft:
-    name: Discard draft
-    needs: [draft, build]
-    if: ${{ always() && needs.draft.result == 'success' && needs.build.result != 'success' }}
-    runs-on: ubuntu-latest
-    steps:
-      - env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_ID: ${{ needs.draft.outputs.release_id }}
+      - name: Delete the draft release after a failed build
+        if: ${{ needs.build.result != 'success' }}
         run: gh api --method DELETE "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID"
