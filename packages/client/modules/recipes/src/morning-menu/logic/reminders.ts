@@ -1,4 +1,4 @@
-import type { MorningMenu, ScheduledNotification } from '@alavo-daily/common';
+import { notificationId, type MorningMenu, type ScheduledNotification } from '@alavo-daily/common';
 
 export const MORNING_MENU_RULE_ID = 'recipes.morning_menu';
 export const REMINDERS_PER_MORNING = 4;
@@ -32,7 +32,7 @@ export function localTimeOf(date: string, time: string): number | null {
 
 /** One id per date and reminder, so a later schedule replaces the same reminder. */
 export function reminderId(date: string, index: number): number {
-  return Number(date.replaceAll('-', '')) * 10 + index;
+  return notificationId(`morning:${date}:${index}`);
 }
 
 /**

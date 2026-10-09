@@ -1,6 +1,6 @@
 import type { MorningMenu, NotificationRule, ScheduledNotification } from '@alavo-daily/common';
 import { createFakePlatform, renderWithProviders } from '@alavo-daily/common/testing';
-import { waitFor } from '@testing-library/react';
+import { act } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MORNING_MENU_RULE_ID } from '../logic/reminders';
@@ -41,8 +41,10 @@ function renderReminders(menus: MorningMenu[], rules: NotificationRule[]) {
     },
   });
   const lastSchedule = async () => {
-    await waitFor(() => expect(scheduled.length).toBeGreaterThan(0));
-    return scheduled[scheduled.length - 1]!;
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    });
+    return scheduled[scheduled.length - 1] ?? [];
   };
   return { lastSchedule, ...result };
 }

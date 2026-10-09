@@ -14,6 +14,7 @@ import {
 } from '../engine';
 import { I18nProvider, createI18n } from '../i18n';
 import { PlatformProvider, type PlatformServices } from '../platform';
+import { ReminderProvider } from '../reminders';
 
 export type Handlers = {
   [K in CommandName]?: (payload: CommandPayload<K>) => CommandResult<K> | Promise<CommandResult<K>>;
@@ -85,7 +86,9 @@ export function renderWithProviders(
   const result = render(
     <EngineProvider client={engine}>
       <PlatformProvider platform={platform}>
-        <I18nProvider i18n={i18n}>{ui}</I18nProvider>
+        <I18nProvider i18n={i18n}>
+          <ReminderProvider>{ui}</ReminderProvider>
+        </I18nProvider>
       </PlatformProvider>
     </EngineProvider>,
   );

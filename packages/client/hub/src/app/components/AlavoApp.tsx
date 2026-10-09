@@ -3,6 +3,7 @@ import { HashRouter } from 'react-router';
 
 import {
   EngineGate,
+  ReminderProvider,
   EngineProvider,
   I18nProvider,
   PlatformProvider,
@@ -54,10 +55,12 @@ function ReadyApp({ settings, modules }: { settings: Settings; modules: readonly
   return (
     <I18nProvider i18n={i18n}>
       <ModulesProvider modules={modules}>
-        <ModuleBackgrounds />
-        <HashRouter>
-          <AppRoutes />
-        </HashRouter>
+        <ReminderProvider>
+          <ModuleBackgrounds />
+          <HashRouter>
+            <AppRoutes />
+          </HashRouter>
+        </ReminderProvider>
       </ModulesProvider>
       <Toaster />
     </I18nProvider>

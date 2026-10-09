@@ -33,13 +33,14 @@ describe('localTimeOf', () => {
 
 describe('reminderId', () => {
   it('is stable and different for each date and reminder', () => {
-    expect(reminderId('2026-10-10', 0)).toBe(202610100);
-    expect(reminderId('2026-10-10', 3)).toBe(202610103);
+    expect(reminderId('2026-10-10', 0)).toBe(reminderId('2026-10-10', 0));
+    expect(reminderId('2026-10-10', 3)).not.toBe(reminderId('2026-10-10', 0));
     expect(reminderId('2026-10-11', 0)).not.toBe(reminderId('2026-10-10', 0));
   });
 
   it('fits in a 32-bit integer, which mobile notification ids require', () => {
     expect(reminderId('2099-12-31', 3)).toBeLessThan(2 ** 31);
+    expect(reminderId('2099-12-31', 3)).toBeGreaterThan(0);
   });
 });
 
