@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const LAYER_NAMES = ['layer-0-background', 'layer-1-house'];
+const LAYER_NAMES = ['layer-0-background', 'layer-1-house', 'layer-2-notebook', 'layer-3-pencil'];
 const TARGETS = ['apps/native/app-icon.svg', 'apps/web/public/icon.svg'];
 const ART_SIZE = 1024;
 

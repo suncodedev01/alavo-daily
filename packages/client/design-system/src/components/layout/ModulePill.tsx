@@ -1,6 +1,7 @@
 import type { ComponentProps } from 'react';
 import { cn } from '@/lib/utils';
 import { Icon } from '../foundations/Icon';
+import { StickerTile } from '../stickers/StickerTile';
 
 export type ModulePillVariant = 'chip' | 'row';
 
@@ -15,10 +16,7 @@ const VARIANT_CLASS: Record<ModulePillVariant, string> = {
   row: 'h-10 w-full gap-2 rounded-lg pr-2 pl-3 text-left text-sm font-semibold hover:bg-surface-tint',
 };
 
-const TILE_CLASS: Record<ModulePillVariant, string> = {
-  chip: 'size-8 rounded-full',
-  row: 'size-6 rounded-md',
-};
+const TILE_SIZE: Record<ModulePillVariant, 'sm'> = { chip: 'sm', row: 'sm' };
 
 export function ModulePill({ icon, name, variant = 'chip', className, ...rest }: ModulePillProps) {
   return (
@@ -28,9 +26,7 @@ export function ModulePill({ icon, name, variant = 'chip', className, ...rest }:
       className={cn('focus-ring inline-flex items-center text-text-primary', VARIANT_CLASS[variant], className)}
       {...rest}
     >
-      <span className={cn('grid shrink-0 place-items-center bg-brand-tile text-brand-tile-fg', TILE_CLASS[variant])}>
-        <Icon name={icon} size={variant === 'chip' ? 18 : 16} />
-      </span>
+      <StickerTile icon={icon} kind="module" size={TILE_SIZE[variant]} />
       <span className="min-w-0 truncate">{name}</span>
       <Icon name="caret-down" className={cn('text-text-muted', variant === 'row' && 'ml-auto')} />
     </button>

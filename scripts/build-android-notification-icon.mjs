@@ -9,6 +9,7 @@ const LAYERS = resolve(root, 'mockup/assets/logo');
 const OUT = resolve(root, 'apps/native/src-tauri/icons/android');
 const SMALL_ICON_DP = 24;
 const DENSITIES = { mdpi: 1, hdpi: 1.5, xhdpi: 2, xxhdpi: 3, xxxhdpi: 4 };
+const ART_SIZE = 1024;
 const GLYPH_VIEW_BOX = '150 50 720 720';
 
 const layer = (name) => resolve(LAYERS, `${name}.svg`);
@@ -23,10 +24,12 @@ function flatten(svg, red, green, blue) {
 
 export function notificationGlyphSvg() {
   const house = composeLayers([layer('layer-1-house')], {});
+  const cutout = composeLayers([layer('layer-2-notebook'), layer('layer-3-pencil')], {});
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${GLYPH_VIEW_BOX}">`,
-    `<defs>${FLAT(1, 1, 1)}</defs>`,
-    flatten(house, 1, 1, 1),
+    `<defs>${FLAT(1, 1, 1)}${FLAT(0, 0, 0)}`,
+    `<mask id="cutout"><rect x="0" y="0" width="${ART_SIZE}" height="${ART_SIZE}" fill="white"/>${flatten(cutout, 0, 0, 0)}</mask></defs>`,
+    `<g mask="url(#cutout)">${flatten(house, 1, 1, 1)}</g>`,
     '</svg>',
   ].join('');
 }
