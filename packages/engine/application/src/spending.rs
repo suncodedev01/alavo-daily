@@ -1,0 +1,15 @@
+// Use cases for the spending module. Other modules call spending only through `contract`;
+// the rest is public so the presentation layer can route commands to it.
+pub mod bills;
+pub mod budget;
+pub mod budget_alert;
+pub mod categories;
+pub mod contract;
+pub mod demo;
+mod demo_data;
+pub mod goals;
+#[cfg(test)]
+mod test_support;
+pub mod transactions;
+pub mod wallets;
+mod writes;

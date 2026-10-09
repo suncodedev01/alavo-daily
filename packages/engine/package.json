@@ -1,0 +1,17 @@
+{
+  "name": "@alavo-daily/engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Rust engine compiled to WebAssembly (output of wasm-pack in ./pkg)",
+  "main": "./pkg/engine.js",
+  "types": "./pkg/engine.d.ts",
+  "exports": {
+    ".": { "types": "./pkg/engine.d.ts", "default": "./pkg/engine.js" },
+    "./engine_bg.wasm": "./pkg/engine_bg.wasm"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build-wasm.mjs",
+    "test": "cargo test --manifest-path Cargo.toml"
+  }
+}

@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS hub_device (
+    id TEXT PRIMARY KEY NOT NULL,
+    device_id TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    last_hlc INTEGER NOT NULL DEFAULT 0
+);

@@ -1,0 +1,21 @@
+[workspace]
+resolver = "2"
+members = ["domain", "application", "infrastructure", "presentation"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# The .wasm is downloaded on every app start, so size matters more than speed: the engine is
+# bound by SQLite I/O, not by CPU. panic = "abort" is deliberately not set, because every export
+# returns a Result and aborting would kill the whole module instead of reporting the error to JS.
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
