@@ -218,10 +218,10 @@ jobs:
           fi
           build_tools=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
 
-          if [ -n "$KEYSTORE_BASE64" ]; then
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
             echo "$KEYSTORE_BASE64" | base64 -d > release.jks
           else
-            echo "::warning::No Android keystore secret found. Signing with a throwaway key: the APK installs, but cannot update an APK signed by another build."
+            echo "::warning::The Android keystore or its password secret is missing. Signing with a throwaway key: the APK installs, but cannot update an APK signed by another build."
             KEYSTORE_PASSWORD=android-throwaway
             KEY_ALIAS=throwaway
             keytool -genkeypair -keystore release.jks -storepass "$KEYSTORE_PASSWORD" \
