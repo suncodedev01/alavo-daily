@@ -14,7 +14,6 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test (và đã xem tr
 - [x] Test: engine 940, giao diện 1339 (common, design system, hub, chi tiêu, công thức, native) cộng 53 test Rust của vỏ native
 - [x] Workflow build bản phát hành: chọn mức bump version, chọn bản build (web, Windows, macOS, Linux, Android), chọn môi trường, đẩy file vào GitHub Releases, không dùng artifact. Đã viết, chưa chạy thử trên GitHub
 - [ ] Lint giới hạn kích thước hàm, file, tham số trong CI (rule đã ghi, chưa cấu hình ESLint và clippy)
-- [ ] Test end to end bằng Playwright trên bản web thật
 
 ## Vỏ ứng dụng
 
