@@ -312,6 +312,21 @@ describe('Narrow layout', () => {
     expect(screenInfo.current).toMatchObject({ hideNarrowTitle: true });
   });
 
+  it('lists every wallet with its balance right after the total, with a way to manage them', async () => {
+    await overview({ width: NARROW_WIDTH });
+    const card = await screen.findByRole('region', { name: 'Các khoản tiền' });
+    expect(await within(card).findByText('Techcombank')).toBeInTheDocument();
+    expect(within(card).getByText('Ví MoMo')).toBeInTheDocument();
+    expect(within(card).getByText('Tiền mặt')).toBeInTheDocument();
+    await userEvent.click(within(card).getByRole('link', { name: 'Quản lý' }));
+    expect(location()).toHaveTextContent('/spending/accounts');
+  });
+
+  it('keeps the wallet list in the sidebar, not on the page, on a wide layout', async () => {
+    await overview();
+    expect(screen.queryByRole('region', { name: 'Các khoản tiền' })).not.toBeInTheDocument();
+  });
+
   it('shows the add button and the dock on a wide layout', async () => {
     const { screenInfo } = await overview();
     expect(screen.getByRole('button', { name: 'Thêm giao dịch' })).toBeInTheDocument();

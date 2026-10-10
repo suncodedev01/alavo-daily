@@ -49,6 +49,7 @@ export const EN_SPENDING: Record<string, string> = {
   'Chuyển khoản': 'Bank transfer',
   'Các dòng trong sao kê': 'Statement rows',
   'Các khoản phải trả hằng tháng như tiền mạng, điện hay thẻ tín dụng.': 'Payments due every month, such as internet, electricity or credit card.',
+  'Các khoản tiền': 'Your money',
   'Các ngày trong tháng': 'Days of the month',
   'Các ngày trước': 'Earlier days',
   'Còn lại tháng này': 'Left this month',

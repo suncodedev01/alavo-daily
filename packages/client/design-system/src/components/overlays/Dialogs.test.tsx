@@ -68,7 +68,18 @@ describe('Dialog layout on short screens', () => {
         <p>Nội dung</p>
       </Sheet>,
     );
-    expect(screen.getByRole('dialog').className).toContain('max-h-[92dvh]');
+    expect(screen.getByRole('dialog').className).toContain('max-h-[min(92dvh,');
+  });
+
+  it('keeps a sheet above the keyboard and inside the part of the screen that is still visible', async () => {
+    render(
+      <Sheet open title="Thêm ví">
+        <p>Nội dung</p>
+      </Sheet>,
+    );
+    const { className } = screen.getByRole('dialog');
+    expect(className).toContain('bottom-(--keyboard-inset,0px)');
+    expect(className).toContain('var(--visible-height,100dvh)');
   });
 });
 

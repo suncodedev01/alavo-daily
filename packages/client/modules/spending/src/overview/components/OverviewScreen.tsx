@@ -8,6 +8,7 @@ import { DecisionSection } from './DecisionSection';
 import { MonthComparisonSection, UpcomingBillsSection } from './DockSections';
 import { BudgetsSummaryCard, DailySpendingCard, GoalsSummaryCard, RecentTransactionsCard } from './OverviewCards';
 import { OverviewStats } from './OverviewStats';
+import { WalletBalancesCard } from '../../wallets';
 import { useDecision } from '../hooks/useDecision';
 
 export function OverviewScreen() {
@@ -37,6 +38,7 @@ export function OverviewScreen() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-9">
         <OverviewStats month={month} today={today} />
       </div>
+      {narrow ? <WalletBalancesCard /> : null}
       {narrow && decision ? (
         <Card padding="none">
           <DecisionSection decision={decision} />

@@ -33,12 +33,12 @@ const POPUP_BASE =
 
 const POPUP_VARIANT: Record<ModalVariant, string> = {
   dialog:
-    'inset-x-4 top-1/2 mx-auto max-h-[calc(100dvh-2rem)] max-w-110 -translate-y-1/2 rounded-2xl p-6 data-open:fade-in-0 data-open:zoom-in-95 data-closed:fade-out-0 data-closed:zoom-out-95',
+    'inset-x-4 top-(--visible-center,50%) mx-auto max-h-[min(calc(100dvh-2rem),calc(var(--visible-height,100dvh)-2rem))] max-w-110 -translate-y-1/2 rounded-2xl p-6 data-open:fade-in-0 data-open:zoom-in-95 data-closed:fade-out-0 data-closed:zoom-out-95',
   sheet:
-    'inset-x-0 bottom-0 max-h-[92dvh] rounded-t-4xl px-4 pt-3 pb-sheet data-open:slide-in-from-bottom data-closed:slide-out-to-bottom',
+    'inset-x-0 bottom-(--keyboard-inset,0px) max-h-[min(92dvh,calc(var(--visible-height,100dvh)-3rem))] rounded-t-4xl px-4 pt-3 pb-sheet data-open:slide-in-from-bottom data-closed:slide-out-to-bottom',
 };
 
-const DOCKED_POPUP_CLASS = 'gap-2 max-h-[96dvh] pb-sheet-tight';
+const DOCKED_POPUP_CLASS = 'gap-2 max-h-[min(96dvh,calc(var(--visible-height,100dvh)-3rem))] pb-sheet-tight';
 
 const DOCK_CLASS = 'grid shrink-0 gap-2';
 
