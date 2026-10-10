@@ -9,6 +9,7 @@ use alavo_infrastructure::persistence::repositories::spending::categories::find_
 use alavo_infrastructure::persistence::repositories::spending::transactions::{
     find_transaction, insert_transaction, list_transactions, update_transaction,
 };
+use alavo_infrastructure::persistence::repositories::spending::payment_methods::find_payment_method;
 use alavo_infrastructure::persistence::repositories::spending::wallets::find_wallet;
 
 use crate::context::Ctx;
@@ -91,9 +92,21 @@ fn check_references(ctx: &Ctx, transaction: &Transaction) -> Result<Category, En
         let message = format!("wallet {} does not exist", transaction.wallet_id);
         return Err(EngineError::validation(message));
     }
+    check_payment_method(ctx, transaction)?;
     let amount = transaction.amount_vnd;
     validate_transaction(&transaction.title, &transaction.occurred_on, amount, category.kind)?;
     Ok(category)
+}
+
+fn check_payment_method(ctx: &Ctx, transaction: &Transaction) -> Result<(), EngineError> {
+    let Some(method_id) = transaction.payment_method_id.as_deref() else {
+        return Ok(());
+    };
+    if find_payment_method(ctx.db, method_id)?.is_none() {
+        let message = format!("payment method {method_id} does not exist");
+        return Err(EngineError::validation(message));
+    }
+    Ok(())
 }
 
 fn month_of(transaction: &Transaction) -> Result<String, EngineError> {

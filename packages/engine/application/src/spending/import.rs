@@ -76,6 +76,7 @@ fn date_span(rows: &[ImportRow]) -> Result<Option<(String, String)>, EngineError
 fn record_row(ctx: &Ctx, wallet_id: &str, row: ImportRow) -> Result<(), EngineError> {
     let label = format!("{} ({})", row.title, row.occurred_on);
     let transaction = NewTransaction {
+        payment_method_id: None,
         title: row.title,
         amount_vnd: row.amount_vnd,
         category_id: row.category_id,

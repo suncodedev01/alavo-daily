@@ -7,7 +7,7 @@ use super::rows::{money_value, query_one, query_rows, query_total, Stamp};
 
 pub(super) const TRANSACTION_COLUMNS: &str = r#"
     t.id, t.occurred_on, t.title, t.category_id, t.wallet_id, t.amount_vnd, t.note,
-    t.recurring_rule, t.recurring_source_id, t.created_at, t.updated_at
+    t.recurring_rule, t.recurring_source_id, t.payment_method_id, t.created_at, t.updated_at
 "#;
 
 pub fn list_transactions(
@@ -48,8 +48,9 @@ pub fn insert_transaction(
     let sql = r#"
         INSERT INTO spending_transactions
             (id, occurred_on, title, category_id, wallet_id, amount_vnd, note, recurring_rule,
-             recurring_source_id, created_at, updated_at, deleted_at, field_updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)
+             recurring_source_id, payment_method_id, created_at, updated_at, deleted_at,
+             field_updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)
     "#;
     let params = [
         Value::from(transaction.id.as_str()),
@@ -61,6 +62,7 @@ pub fn insert_transaction(
         Value::from(transaction.note.as_str()),
         Value::from(transaction.recurring_rule.as_deref()),
         Value::from(transaction.recurring_source_id.as_deref()),
+        Value::from(transaction.payment_method_id.as_deref()),
         Value::from(transaction.created_at),
         Value::from(stamp.updated_at),
         Value::from(stamp.field_updated_at.as_str()),
@@ -76,7 +78,8 @@ pub fn update_transaction(
     let sql = r#"
         UPDATE spending_transactions
         SET occurred_on = ?, title = ?, category_id = ?, wallet_id = ?, amount_vnd = ?,
-            note = ?, recurring_rule = ?, updated_at = ?, field_updated_at = ?
+            note = ?, recurring_rule = ?, payment_method_id = ?, updated_at = ?,
+            field_updated_at = ?
         WHERE id = ?
     "#;
     let params = [
@@ -87,6 +90,7 @@ pub fn update_transaction(
         money_value(transaction.amount_vnd),
         Value::from(transaction.note.as_str()),
         Value::from(transaction.recurring_rule.as_deref()),
+        Value::from(transaction.payment_method_id.as_deref()),
         Value::from(stamp.updated_at),
         Value::from(stamp.field_updated_at.as_str()),
         Value::from(transaction.id.as_str()),
@@ -170,6 +174,7 @@ pub(super) fn transaction_from_row(row: &Row) -> Result<Transaction, EngineError
         note: row.text("note")?,
         recurring_rule: row.opt_text("recurring_rule")?,
         recurring_source_id: row.opt_text("recurring_source_id")?,
+        payment_method_id: row.opt_text("payment_method_id")?,
         created_at: row.int("created_at")?,
         updated_at: row.int("updated_at")?,
     })

@@ -214,6 +214,7 @@ fn a_bad_date_is_rejected_before_anything_is_written() {
 
 fn change(id: &str) -> UpdateTransaction {
     UpdateTransaction {
+        payment_method_id: None,
         id: id.into(),
         title: None,
         amount_vnd: None,

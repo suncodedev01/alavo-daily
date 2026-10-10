@@ -138,7 +138,7 @@ fn importing_the_same_statement_twice_adds_nothing_the_second_time() {
 fn a_transaction_with_the_same_title_in_another_wallet_is_not_a_duplicate() {
     let fixture = Fixture::new();
     let bank =
-        NewWallet { name: "TCB".into(), kind: WalletKind::Bank, opening_balance_vnd: Money(0) };
+        NewWallet { account_number: None, name: "TCB".into(), kind: WalletKind::Bank, opening_balance_vnd: Money(0) };
     let bank = wallets::create(&fixture.ctx(), bank).unwrap();
     let rows = || vec![row("2026-10-03", -65_000, "GRAB*TRIP HCM", "category-transport")];
     import(&fixture.ctx(), request(CASH, rows())).unwrap();

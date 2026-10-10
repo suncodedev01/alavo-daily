@@ -130,6 +130,64 @@ fn a_wallet_with_transactions_can_be_deleted_by_moving_or_removing_them() {
 }
 
 #[test]
+fn payment_methods_can_be_created_renamed_and_deleted_but_not_the_default() {
+    let harness = Harness::start();
+    let listed = harness.call("spending.list_payment_methods", json!({}));
+    let names: Vec<&str> = listed.as_array().unwrap().iter().map(|m| m["name"].as_str().unwrap()).collect();
+    assert_eq!(names, ["Tiền mặt", "Chuyển khoản", "Ví điện tử"]);
+    assert_eq!(listed[0]["isDefault"], true);
+    let visa = harness.call("spending.create_payment_method", json!({ "name": "Thẻ Visa", "icon": "credit-card" }));
+    let id = visa["id"].as_str().unwrap().to_string();
+    let renamed = harness.call("spending.update_payment_method", json!({ "id": id, "name": "Visa" }));
+    assert_eq!((renamed["name"].as_str(), renamed["icon"].as_str()), (Some("Visa"), Some("credit-card")));
+    let bad_icon = harness.fail("spending.create_payment_method", json!({ "name": "X", "icon": "rocket" }));
+    assert_eq!(bad_icon["code"], "validation");
+    assert_eq!(harness.call("spending.delete_payment_method", json!({ "id": id })), json!({}));
+    let default = harness.fail("spending.delete_payment_method", json!({ "id": "payment-cash" }));
+    assert_eq!(default["code"], "validation");
+}
+
+#[test]
+fn a_transaction_keeps_its_payment_method_until_the_method_is_deleted() {
+    let harness = Harness::start();
+    let visa = harness.call("spending.create_payment_method", json!({ "name": "Thẻ Visa", "icon": "credit-card" }));
+    let id = visa["id"].as_str().unwrap().to_string();
+    let recorded = harness.call(
+        "spending.record_transaction",
+        json!({
+            "title": "Phở", "amountVnd": -70000, "categoryId": "category-food",
+            "walletId": "wallet-cash", "occurredOn": "2026-10-06", "paymentMethodId": id
+        }),
+    );
+    assert_eq!(recorded["paymentMethodId"], json!(id));
+    let unknown = harness.fail(
+        "spending.update_transaction",
+        json!({ "id": recorded["id"], "paymentMethodId": "nope" }),
+    );
+    assert_eq!(unknown["code"], "validation");
+    harness.call("spending.delete_payment_method", json!({ "id": id }));
+    let after = harness.call("spending.get_transaction", json!({ "id": recorded["id"] }));
+    assert!(after["paymentMethodId"].is_null());
+}
+
+#[test]
+fn a_wallet_can_keep_an_account_number_that_can_be_changed_and_cleared() {
+    let harness = Harness::start();
+    let created = harness.call(
+        "spending.create_wallet",
+        json!({ "name": "Techcombank", "kind": "bank", "openingBalanceVnd": 0, "accountNumber": "1903 4567 8901" }),
+    );
+    assert_eq!(created["accountNumber"], "190345678901");
+    let id = created["id"].as_str().unwrap().to_string();
+    let changed = harness.call("spending.update_wallet", json!({ "id": id, "accountNumber": "123456" }));
+    assert_eq!(changed["accountNumber"], "123456");
+    let untouched = harness.call("spending.update_wallet", json!({ "id": id, "name": "TCB" }));
+    assert_eq!(untouched["accountNumber"], "123456");
+    let cleared = harness.call("spending.update_wallet", json!({ "id": id, "accountNumber": null }));
+    assert!(cleared["accountNumber"].is_null());
+}
+
+#[test]
 fn goals_can_be_created_updated_funded_and_deleted() {
     let harness = Harness::start();
     let goal = harness.call(

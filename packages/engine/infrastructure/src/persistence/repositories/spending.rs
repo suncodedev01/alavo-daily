@@ -3,6 +3,7 @@ pub mod categories;
 pub mod duplicates;
 pub mod export;
 pub mod goals;
+pub mod payment_methods;
 pub mod range_reports;
 pub mod recurring;
 pub mod reports;

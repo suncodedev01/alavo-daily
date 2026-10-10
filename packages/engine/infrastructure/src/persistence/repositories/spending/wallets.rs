@@ -6,7 +6,7 @@ use alavo_domain::spending::{Wallet, WalletKind};
 use super::rows::{money_value, query_one, query_rows, Stamp};
 
 const WALLET_WITH_BALANCE: &str = r#"
-    SELECT w.id, w.name, w.kind, w.opening_balance_vnd, w.position,
+    SELECT w.id, w.name, w.kind, w.opening_balance_vnd, w.position, w.account_number,
            w.opening_balance_vnd + COALESCE(SUM(t.amount_vnd), 0) AS balance_vnd
     FROM spending_wallets w
     LEFT JOIN spending_transactions t ON t.wallet_id = w.id AND t.deleted_at IS NULL
@@ -26,9 +26,9 @@ pub fn find_wallet(db: &dyn Database, id: &str) -> Result<Option<Wallet>, Engine
 pub fn insert_wallet(db: &dyn Database, wallet: &Wallet, stamp: &Stamp) -> Result<(), EngineError> {
     let sql = r#"
         INSERT INTO spending_wallets
-            (id, name, kind, opening_balance_vnd, position,
+            (id, name, kind, opening_balance_vnd, position, account_number,
              updated_at, deleted_at, field_updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, NULL, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?)
     "#;
     let params = [
         Value::from(wallet.id.as_str()),
@@ -36,6 +36,7 @@ pub fn insert_wallet(db: &dyn Database, wallet: &Wallet, stamp: &Stamp) -> Resul
         Value::from(wallet.kind.as_str()),
         money_value(wallet.opening_balance_vnd),
         Value::from(wallet.position),
+        Value::from(wallet.account_number.as_deref()),
         Value::from(stamp.updated_at),
         Value::from(stamp.field_updated_at.as_str()),
     ];
@@ -45,13 +46,15 @@ pub fn insert_wallet(db: &dyn Database, wallet: &Wallet, stamp: &Stamp) -> Resul
 pub fn update_wallet(db: &dyn Database, wallet: &Wallet, stamp: &Stamp) -> Result<(), EngineError> {
     let sql = r#"
         UPDATE spending_wallets
-        SET name = ?, kind = ?, opening_balance_vnd = ?, updated_at = ?, field_updated_at = ?
+        SET name = ?, kind = ?, opening_balance_vnd = ?, account_number = ?,
+            updated_at = ?, field_updated_at = ?
         WHERE id = ?
     "#;
     let params = [
         Value::from(wallet.name.as_str()),
         Value::from(wallet.kind.as_str()),
         money_value(wallet.opening_balance_vnd),
+        Value::from(wallet.account_number.as_deref()),
         Value::from(stamp.updated_at),
         Value::from(stamp.field_updated_at.as_str()),
         Value::from(wallet.id.as_str()),
@@ -67,6 +70,7 @@ fn wallet_from_row(row: &Row) -> Result<Wallet, EngineError> {
         opening_balance_vnd: Money(row.int("opening_balance_vnd")?),
         balance_vnd: Money(row.int("balance_vnd")?),
         position: row.int("position")?,
+        account_number: row.opt_text("account_number")?,
     })
 }
 
@@ -82,6 +86,7 @@ mod tests {
 
     fn bank() -> Wallet {
         Wallet {
+            account_number: None,
             id: "w-bank".into(),
             name: "Techcombank".into(),
             kind: WalletKind::Bank,

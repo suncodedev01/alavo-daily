@@ -54,6 +54,7 @@ fn create_wallet(ctx: &Ctx, demo: &DemoWallet) -> Result<String, EngineError> {
     let opening = Money(demo.balance_vnd - transactions_total(demo.key));
     if find_wallet(ctx.db, demo.seeded_id)?.is_some() {
         let change = UpdateWallet {
+            account_number: None,
             id: demo.seeded_id.to_string(),
             name: Some(demo.name.to_string()),
             kind: Some(demo.kind),
@@ -62,7 +63,7 @@ fn create_wallet(ctx: &Ctx, demo: &DemoWallet) -> Result<String, EngineError> {
         return wallets::update(ctx, change).map(|wallet| wallet.id);
     }
     let input =
-        NewWallet { name: demo.name.to_string(), kind: demo.kind, opening_balance_vnd: opening };
+        NewWallet { account_number: None, name: demo.name.to_string(), kind: demo.kind, opening_balance_vnd: opening };
     wallets::create(ctx, input).map(|wallet| wallet.id)
 }
 
@@ -77,6 +78,7 @@ fn new_transaction(demo: &DemoTransaction, today: Date, wallet_ids: &WalletIds) 
     let day = demo.day.clamp(1, today.day);
     let wallet_id = wallet_ids.iter().find(|(key, _)| *key == demo.wallet_key);
     NewTransaction {
+        payment_method_id: None,
         title: demo.title.to_string(),
         amount_vnd: Money(demo.amount_vnd),
         category_id: demo.category_id.to_string(),

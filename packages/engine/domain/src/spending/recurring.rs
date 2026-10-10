@@ -127,6 +127,7 @@ mod tests {
     #[test]
     fn an_occurrence_copies_the_template_without_its_rule_and_points_back_to_it() {
         let template = Transaction {
+            payment_method_id: None,
             id: "t1".into(),
             occurred_on: "2026-08-05".into(),
             title: "Tiền thuê nhà".into(),

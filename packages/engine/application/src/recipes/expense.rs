@@ -19,6 +19,7 @@ pub fn log_shopping_expense(
 
 fn new_transaction(input: LogShoppingExpense, draft: ExpenseDraft) -> NewTransaction {
     NewTransaction {
+        payment_method_id: None,
         title: draft.title,
         amount_vnd: draft.amount,
         category_id: input.category_id,

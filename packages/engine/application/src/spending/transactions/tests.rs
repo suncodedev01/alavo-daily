@@ -1,6 +1,6 @@
 use alavo_domain::shared::error::ErrorCode;
 use alavo_domain::shared::money::Money;
-use alavo_domain::spending::{CategoryKind, NewWallet, WalletKind};
+use alavo_domain::spending::{CategoryKind, DeleteWallet, NewWallet, WalletKind};
 
 use crate::spending::test_support::{expense, income, Fixture, CASH, FOOD, INCOME, TODAY};
 use crate::spending::{categories, wallets};
@@ -9,6 +9,7 @@ use super::*;
 
 fn change(id: &str) -> UpdateTransaction {
     UpdateTransaction {
+        payment_method_id: None,
         id: id.into(),
         title: None,
         amount_vnd: None,
@@ -97,9 +98,9 @@ fn record_rejects_an_unknown_or_deleted_category_or_wallet() {
     let deleted = NewTransaction { category_id: "category-fun".into(), ..expense("x", 1, TODAY) };
     assert_eq!(error_code(record(&ctx, deleted)), ErrorCode::Validation);
     let spare =
-        NewWallet { name: "Ví".into(), kind: WalletKind::Ewallet, opening_balance_vnd: Money(0) };
+        NewWallet { account_number: None, name: "Ví".into(), kind: WalletKind::Ewallet, opening_balance_vnd: Money(0) };
     let spare = wallets::create(&ctx, spare).unwrap();
-    wallets::delete(&ctx, alavo_domain::spending::DeleteWallet::only(&spare.id)).unwrap();
+    wallets::delete(&ctx, DeleteWallet::only(&spare.id)).unwrap();
     let gone = NewTransaction { wallet_id: spare.id, ..expense("x", 1, TODAY) };
     assert_eq!(error_code(record(&ctx, gone)), ErrorCode::Validation);
 }
@@ -170,7 +171,7 @@ fn list_rejects_a_malformed_month() {
 
 fn seed_filterable_transactions(fixture: &Fixture) -> String {
     let bank =
-        NewWallet { name: "TCB".into(), kind: WalletKind::Bank, opening_balance_vnd: Money(0) };
+        NewWallet { account_number: None, name: "TCB".into(), kind: WalletKind::Bank, opening_balance_vnd: Money(0) };
     let bank = wallets::create(&fixture.ctx(), bank).unwrap();
     record_ok(fixture, expense("food in cash", 1, "2026-10-01"));
     let in_bank =

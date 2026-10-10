@@ -49,6 +49,7 @@ mod tests {
 
     fn sample(id: &str, rule: Option<&str>, source: Option<&str>) -> Transaction {
         Transaction {
+            payment_method_id: None,
             id: id.into(),
             occurred_on: "2026-09-03".into(),
             title: "Internet".into(),

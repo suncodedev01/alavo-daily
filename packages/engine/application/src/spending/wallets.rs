@@ -86,6 +86,7 @@ fn move_transactions(ctx: &Ctx, from: &str, to: &str) -> Result<(), EngineError>
 
 fn move_to_wallet(transaction_id: &str, wallet_id: &str) -> UpdateTransaction {
     UpdateTransaction {
+        payment_method_id: None,
         id: transaction_id.into(),
         title: None,
         amount_vnd: None,
@@ -113,7 +114,7 @@ mod tests {
     use super::*;
 
     fn new_wallet(name: &str, kind: WalletKind, opening: i64) -> NewWallet {
-        NewWallet { name: name.into(), kind, opening_balance_vnd: Money(opening) }
+        NewWallet { account_number: None, name: name.into(), kind, opening_balance_vnd: Money(opening) }
     }
 
     fn only(id: &str) -> DeleteWallet {
@@ -121,7 +122,7 @@ mod tests {
     }
 
     fn change(id: &str) -> UpdateWallet {
-        UpdateWallet { id: id.into(), name: None, kind: None, opening_balance_vnd: None }
+        UpdateWallet { account_number: None, id: id.into(), name: None, kind: None, opening_balance_vnd: None }
     }
 
     #[test]
@@ -170,6 +171,7 @@ mod tests {
         transactions::record(&ctx, income("Freelance", 500_000, "2026-10-07")).unwrap();
         assert_eq!(balance(), Money(1_430_000));
         let edit = alavo_domain::spending::UpdateTransaction {
+            payment_method_id: None,
             id: spent.id.clone(),
             title: None,
             amount_vnd: Some(Money(-100_000)),

@@ -26,6 +26,8 @@ pub struct UpdateTransaction {
     pub note: Option<String>,
     #[serde(default, deserialize_with = "double_option")]
     pub recurring_rule: Option<Option<String>>,
+    #[serde(default, deserialize_with = "double_option")]
+    pub payment_method_id: Option<Option<String>>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -72,6 +74,7 @@ impl NewTransaction {
             note: self.note,
             recurring_rule: self.recurring_rule,
             recurring_source_id: None,
+            payment_method_id: self.payment_method_id,
             created_at,
             updated_at,
         }
@@ -88,6 +91,7 @@ impl Transaction {
             occurred_on: update.occurred_on.unwrap_or(self.occurred_on),
             note: update.note.unwrap_or(self.note),
             recurring_rule: update.recurring_rule.unwrap_or(self.recurring_rule),
+            payment_method_id: update.payment_method_id.unwrap_or(self.payment_method_id),
             ..self
         }
     }
@@ -108,6 +112,7 @@ impl UpdateTransaction {
             ("occurred_on", self.occurred_on.is_some()),
             ("note", self.note.is_some()),
             ("recurring_rule", self.recurring_rule.is_some()),
+            ("payment_method_id", self.payment_method_id.is_some()),
         ];
         given.into_iter().filter(|(_, present)| *present).map(|(column, _)| column).collect()
     }
@@ -130,6 +135,7 @@ mod tests {
 
     fn sample() -> Transaction {
         NewTransaction {
+            payment_method_id: None,
             title: "  Phở  ".into(),
             amount_vnd: Money(-70_000),
             category_id: "category-food".into(),
@@ -143,6 +149,7 @@ mod tests {
 
     fn update() -> UpdateTransaction {
         UpdateTransaction {
+            payment_method_id: None,
             id: "t1".into(),
             title: None,
             amount_vnd: None,

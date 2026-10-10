@@ -12,6 +12,7 @@ pub enum MergePolicy {
 pub const TABLE_POLICIES: &[(&str, MergePolicy)] = &[
     ("spending_categories", MergePolicy::FieldLevel),
     ("spending_wallets", MergePolicy::FieldLevel),
+    ("spending_payment_methods", MergePolicy::FieldLevel),
     ("spending_transactions", MergePolicy::FieldLevel),
     ("spending_bills", MergePolicy::FieldLevel),
     ("spending_goals", MergePolicy::FieldLevel),

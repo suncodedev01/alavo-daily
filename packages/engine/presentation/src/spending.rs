@@ -1,14 +1,16 @@
 use alavo_application::spending::import::{ImportRequest, PreviewRequest};
 use alavo_application::spending::recurring::GenerateRecurring;
 use alavo_application::spending::{
-    bills, budget, categories, goals, import, recurring, reports, transactions, wallets,
+    bills, budget, categories, goals, import, payment_methods, recurring, reports, transactions,
+    wallets,
 };
 use alavo_application::Ctx;
 use alavo_domain::shared::error::EngineError;
 use alavo_domain::spending::report::ReportRange;
 use alavo_domain::spending::{
-    CategoryKind, ContributeGoal, DeleteWallet, MonthQuery, NewCategory, NewGoal, NewTransaction, NewWallet,
-    SaveBill, TransactionFilter, UpdateCategory, UpdateGoal, UpdateTransaction, UpdateWallet,
+    CategoryKind, ContributeGoal, DeleteWallet, MonthQuery, NewCategory, NewGoal, NewPaymentMethod,
+    NewTransaction, NewWallet, SaveBill, TransactionFilter, UpdateCategory, UpdateGoal,
+    UpdatePaymentMethod, UpdateTransaction, UpdateWallet,
 };
 use serde::Deserialize;
 use serde_json::json;
@@ -35,6 +37,7 @@ fn deleted(
 pub fn handle(ctx: &Ctx, command: &str, payload: &str) -> Handled {
     category_command(ctx, command, payload)
         .or_else(|| wallet_command(ctx, command, payload))
+        .or_else(|| payment_method_command(ctx, command, payload))
         .or_else(|| transaction_command(ctx, command, payload))
         .or_else(|| report_command(ctx, command, payload))
         .or_else(|| recurring_command(ctx, command, payload))
@@ -71,6 +74,20 @@ fn wallet_command(ctx: &Ctx, command: &str, payload: &str) -> Handled {
         "spending.delete_wallet" => with_input(payload, |input: DeleteWallet| {
             wallets::delete(ctx, input).map(|_| json!({}))
         }),
+        _ => return None,
+    })
+}
+
+fn payment_method_command(ctx: &Ctx, command: &str, payload: &str) -> Handled {
+    Some(match command {
+        "spending.list_payment_methods" => respond(payment_methods::list(ctx)),
+        "spending.create_payment_method" => with_input(payload, |input: NewPaymentMethod| {
+            payment_methods::create(ctx, input)
+        }),
+        "spending.update_payment_method" => with_input(payload, |input: UpdatePaymentMethod| {
+            payment_methods::update(ctx, input)
+        }),
+        "spending.delete_payment_method" => deleted(payload, |id| payment_methods::delete(ctx, id)),
         _ => return None,
     })
 }

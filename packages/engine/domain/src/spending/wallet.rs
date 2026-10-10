@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::shared::error::EngineError;
 use crate::shared::money::Money;
+use crate::shared::serde_util::double_option;
 use crate::spending::validation::{required_text, updated_text};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -40,6 +41,7 @@ pub struct Wallet {
     pub opening_balance_vnd: Money,
     pub balance_vnd: Money,
     pub position: i64,
+    pub account_number: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -48,6 +50,8 @@ pub struct NewWallet {
     pub name: String,
     pub kind: WalletKind,
     pub opening_balance_vnd: Money,
+    #[serde(default)]
+    pub account_number: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -60,6 +64,8 @@ pub struct UpdateWallet {
     pub kind: Option<WalletKind>,
     #[serde(default)]
     pub opening_balance_vnd: Option<Money>,
+    #[serde(default, deserialize_with = "double_option")]
+    pub account_number: Option<Option<String>>,
 }
 
 /// What to do with the transactions of a wallet that is being deleted.
@@ -80,6 +86,12 @@ impl DeleteWallet {
     }
 }
 
+/// Spaces around or inside an account number are dropped; an empty one means "none".
+fn clean_account_number(number: Option<String>) -> Option<String> {
+    let compact: String = number?.chars().filter(|c| !c.is_whitespace()).collect();
+    (!compact.is_empty()).then_some(compact)
+}
+
 impl Wallet {
     pub fn from_new(id: String, position: i64, input: NewWallet) -> Result<Wallet, EngineError> {
         Ok(Wallet {
@@ -89,6 +101,7 @@ impl Wallet {
             opening_balance_vnd: input.opening_balance_vnd,
             balance_vnd: input.opening_balance_vnd,
             position,
+            account_number: clean_account_number(input.account_number),
         })
     }
 
@@ -100,6 +113,10 @@ impl Wallet {
             kind: update.kind.unwrap_or(self.kind),
             opening_balance_vnd: opening,
             balance_vnd: balance,
+            account_number: match update.account_number {
+                Some(number) => clean_account_number(number),
+                None => self.account_number,
+            },
             ..self
         })
     }
@@ -117,6 +134,9 @@ impl UpdateWallet {
         if self.opening_balance_vnd.is_some() {
             columns.push("opening_balance_vnd");
         }
+        if self.account_number.is_some() {
+            columns.push("account_number");
+        }
         columns
     }
 }
@@ -127,6 +147,7 @@ mod tests {
 
     fn cash(opening: i64) -> Wallet {
         let input = NewWallet {
+            account_number: None,
             name: " Ví ".into(),
             kind: WalletKind::Cash,
             opening_balance_vnd: Money(opening),
@@ -135,7 +156,7 @@ mod tests {
     }
 
     fn update(id: &str) -> UpdateWallet {
-        UpdateWallet { id: id.into(), name: None, kind: None, opening_balance_vnd: None }
+        UpdateWallet { account_number: None, id: id.into(), name: None, kind: None, opening_balance_vnd: None }
     }
 
     #[test]
@@ -148,7 +169,7 @@ mod tests {
     #[test]
     fn new_wallet_rejects_a_blank_name() {
         let input =
-            NewWallet { name: " ".into(), kind: WalletKind::Bank, opening_balance_vnd: Money(0) };
+            NewWallet { account_number: None, name: " ".into(), kind: WalletKind::Bank, opening_balance_vnd: Money(0) };
         assert!(Wallet::from_new("w".into(), 1, input).is_err());
     }
 

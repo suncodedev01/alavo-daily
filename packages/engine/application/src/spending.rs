@@ -9,6 +9,7 @@ pub mod demo;
 mod demo_data;
 pub mod goals;
 pub mod import;
+pub mod payment_methods;
 pub mod recurring;
 pub mod reports;
 #[cfg(test)]

@@ -10,6 +10,7 @@ fn stamp() -> Stamp {
 
 fn sample(id: &str, date: &str, created_at: i64) -> Transaction {
     Transaction {
+        payment_method_id: None,
         id: id.into(),
         occurred_on: date.into(),
         title: "Phở Thìn".into(),

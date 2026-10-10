@@ -2,6 +2,7 @@
 pub enum Entity {
     Category,
     Wallet,
+    PaymentMethod,
     Transaction,
     Goal,
     Bill,
@@ -12,6 +13,7 @@ impl Entity {
         match self {
             Entity::Category => "spending_categories",
             Entity::Wallet => "spending_wallets",
+            Entity::PaymentMethod => "spending_payment_methods",
             Entity::Transaction => "spending_transactions",
             Entity::Goal => "spending_goals",
             Entity::Bill => "spending_bills",
@@ -22,6 +24,7 @@ impl Entity {
         match self {
             Entity::Category => "category",
             Entity::Wallet => "wallet",
+            Entity::PaymentMethod => "payment_method",
             Entity::Transaction => "transaction",
             Entity::Goal => "goal",
             Entity::Bill => "bill",
@@ -33,7 +36,8 @@ impl Entity {
     pub fn columns(self) -> &'static [&'static str] {
         match self {
             Entity::Category => &["name", "icon", "kind", "budget_vnd", "is_fixed", "position"],
-            Entity::Wallet => &["name", "kind", "opening_balance_vnd", "position"],
+            Entity::Wallet => &["name", "kind", "opening_balance_vnd", "position", "account_number"],
+            Entity::PaymentMethod => &["name", "icon", "is_default", "position"],
             Entity::Transaction => &[
                 "occurred_on",
                 "title",
@@ -43,6 +47,7 @@ impl Entity {
                 "note",
                 "recurring_rule",
                 "recurring_source_id",
+                "payment_method_id",
                 "created_at",
             ],
             Entity::Goal => &["name", "icon", "target_vnd", "saved_vnd", "due_on", "created_at"],
@@ -60,8 +65,14 @@ mod tests {
 
     #[test]
     fn every_entity_table_has_a_declared_merge_policy() {
-        let all =
-            [Entity::Category, Entity::Wallet, Entity::Transaction, Entity::Goal, Entity::Bill];
+        let all = [
+            Entity::Category,
+            Entity::Wallet,
+            Entity::PaymentMethod,
+            Entity::Transaction,
+            Entity::Goal,
+            Entity::Bill,
+        ];
         for entity in all {
             assert!(policy_for(entity.table()).is_some(), "{}", entity.table());
         }

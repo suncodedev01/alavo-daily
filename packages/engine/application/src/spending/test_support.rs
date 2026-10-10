@@ -70,6 +70,7 @@ pub struct SyncEvent {
 
 pub fn expense(title: &str, amount_vnd: i64, occurred_on: &str) -> NewTransaction {
     NewTransaction {
+        payment_method_id: None,
         title: title.to_string(),
         amount_vnd: Money(-amount_vnd),
         category_id: FOOD.to_string(),
