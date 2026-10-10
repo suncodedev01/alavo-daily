@@ -14,6 +14,7 @@ import { addMonths, daysInMonth, monthOf } from '@alavo-daily/common/format';
 import type { Handlers } from '@alavo-daily/common/testing';
 
 import { automationHandlers } from './fakeAutomation';
+import { paymentMethodHandlers } from './fakePaymentMethods';
 import type { FakeData } from './fixtures';
 
 function validation(message: string): EngineCallError {
@@ -216,6 +217,11 @@ function categoryHandlers(data: FakeData): Handlers {
   };
 }
 
+function cleanAccountNumber(number: string | null | undefined): string | null {
+  const compact = (number ?? '').replace(/\s+/g, '');
+  return compact === '' ? null : compact;
+}
+
 function walletHandlers(data: FakeData): Handlers {
   return {
     'spending.list_wallets': () => data.wallets.map((item) => withBalance(data, item)),
@@ -226,6 +232,7 @@ function walletHandlers(data: FakeData): Handlers {
         id: nextId('wallet'),
         balanceVnd: input.openingBalanceVnd,
         position: 99,
+        accountNumber: cleanAccountNumber(input.accountNumber),
       };
       data.wallets.push(created);
       return created;
@@ -235,6 +242,7 @@ function walletHandlers(data: FakeData): Handlers {
       const current = data.wallets[index];
       if (!current) throw notFound('wallet');
       const next = { ...current, ...changes };
+      if (changes.accountNumber !== undefined) next.accountNumber = cleanAccountNumber(changes.accountNumber);
       requireText('name', next.name);
       data.wallets[index] = next;
       return withBalance(data, next);
@@ -335,6 +343,7 @@ export function spendingHandlers(data: FakeData): Handlers {
     ...transactionHandlers(data),
     ...categoryHandlers(data),
     ...walletHandlers(data),
+    ...paymentMethodHandlers(data),
     ...goalHandlers(data),
     ...billHandlers(data),
     ...automationHandlers(data),

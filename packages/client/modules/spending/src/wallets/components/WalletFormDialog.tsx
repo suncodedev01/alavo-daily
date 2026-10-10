@@ -26,11 +26,18 @@ function WalletForm({ existing, onClose }: { existing: Wallet | null; onClose: (
   const [name, setName] = useState(existing?.name ?? '');
   const [kind, setKind] = useState<WalletKind>(existing?.kind ?? 'bank');
   const [opening, setOpening] = useState(formatVndInput(String(existing?.openingBalanceVnd ?? '')));
+  const [accountNumber, setAccountNumber] = useState(existing?.accountNumber ?? '');
   const [problem, setProblem] = useState<string | null>(null);
 
   const submit = () => {
     if (name.trim() === '') return setProblem(t('Nhập tên ví.'));
-    const fields = { name: name.trim(), kind, openingBalanceVnd: parseVndInput(opening) };
+    const number = kind === 'bank' ? accountNumber.replace(/\s+/g, '') : '';
+    const fields = {
+      name: name.trim(),
+      kind,
+      openingBalanceVnd: parseVndInput(opening),
+      accountNumber: number === '' ? null : number,
+    };
     const callbacks = {
       onSuccess: onClose,
       onError: (error: unknown) => setProblem(describeEngineError(error, t)),
@@ -71,6 +78,21 @@ function WalletForm({ existing, onClose }: { existing: Wallet | null; onClose: (
         <Eyebrow>{t('Số dư ban đầu')}</Eyebrow>
         <MoneyField value={opening} onValueChange={setOpening} label={t('Số dư ban đầu')} />
       </div>
+      {kind === 'bank' ? (
+        <div className="grid gap-2">
+          <Eyebrow>{t('Số tài khoản (không bắt buộc)')}</Eyebrow>
+          <Field
+            leadingIcon="bank"
+            inputMode="numeric"
+            aria-label={t('Số tài khoản')}
+            placeholder={t('Ví dụ: 1903 4567 8901')}
+            autoComplete="off"
+            value={accountNumber}
+            onChange={(event) => setAccountNumber(event.target.value)}
+          />
+          <p className="text-xs text-text-muted">{t('Chỉ để tra cứu, không dùng để kết nối ngân hàng.')}</p>
+        </div>
+      ) : null}
     </FormDialog>
   );
 }

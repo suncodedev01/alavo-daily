@@ -1,73 +1,36 @@
-import type { Wallet } from '@alavo-daily/common/engine';
+import type { PaymentMethod } from '@alavo-daily/common/engine';
 import { useT } from '@alavo-daily/common';
-import { Eyebrow, Icon, OptionPicker } from '@alavo-daily/design-system';
+import { Icon } from '@alavo-daily/design-system';
 
-import { formatBalance } from '../../money';
-import { walletIcon } from '../../wallets';
+import { PickerHeading } from './PickerHeading';
 
 export interface PaymentMethodPickerProps {
-  wallets: readonly Wallet[];
+  methods: readonly PaymentMethod[];
   selectedId: string;
-  onSelect: (walletId: string) => void;
-  label?: string;
-  error?: string;
+  onSelect: (methodId: string) => void;
+  onManage?: () => void;
 }
-
-const MAX_PILLS = 4;
 
 const PILL_CLASS =
   'focus-ring inline-flex min-h-11 max-w-full items-center gap-2 rounded-4xl bg-surface px-4 py-2 text-sm font-medium leading-tight text-text-secondary inset-ring inset-ring-line-hairline hover:bg-surface-tint aria-pressed:bg-accent aria-pressed:text-accent-fg aria-pressed:inset-ring-0 lg:min-h-9';
 
-export function PaymentMethodPicker({ wallets, selectedId, onSelect, label, error }: PaymentMethodPickerProps) {
+export function PaymentMethodPicker({ methods, selectedId, onSelect, onManage }: PaymentMethodPickerProps) {
   const t = useT();
-  const heading = label ?? t('Chi từ ví');
-  const fitsAsPills = wallets.length > 0 && wallets.length <= MAX_PILLS;
+  const label = t('Thanh toán bằng');
   return (
     <div className="grid gap-2">
-      {fitsAsPills ? (
-        <PaymentPills wallets={wallets} selectedId={selectedId} onSelect={onSelect} label={heading} />
-      ) : (
-        <OptionPicker
-          label={heading}
-          value={selectedId || null}
-          options={wallets.map((wallet) => ({
-            value: wallet.id,
-            label: t(wallet.name),
-            hint: formatBalance(wallet.balanceVnd),
-            icon: walletIcon(wallet.kind),
-          }))}
-          placeholder={t('Chọn ví')}
-          leadingIcon="wallet"
-          onChange={onSelect}
-        />
-      )}
-      {error ? (
-        <p role="alert" className="text-sm text-destructive-fg">
-          {t(error)}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
-type PaymentPillsProps = Omit<PaymentMethodPickerProps, 'error' | 'label'> & { label: string };
-
-function PaymentPills({ wallets, selectedId, onSelect, label }: PaymentPillsProps) {
-  const t = useT();
-  return (
-    <div className="grid gap-2">
-      <Eyebrow as="p">{label}</Eyebrow>
+      <PickerHeading label={label} manageLabel={t('Quản lý')} onManage={onManage} />
       <div role="group" aria-label={label} className="flex flex-wrap gap-2">
-        {wallets.map((wallet) => (
+        {methods.map((method) => (
           <button
-            key={wallet.id}
+            key={method.id}
             type="button"
-            aria-pressed={wallet.id === selectedId}
+            aria-pressed={method.id === selectedId}
             className={PILL_CLASS}
-            onClick={() => onSelect(wallet.id)}
+            onClick={() => onSelect(method.id)}
           >
-            <Icon name={walletIcon(wallet.kind)} size="lg" className="shrink-0" />
-            <span className="min-w-0 break-words text-left">{t(wallet.name)}</span>
+            <Icon name={method.icon} size="lg" className="shrink-0" />
+            <span className="min-w-0 break-words text-left">{t(method.name)}</span>
           </button>
         ))}
       </div>

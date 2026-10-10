@@ -18,6 +18,7 @@ describe('newDraft', () => {
       categoryId: 'category-food',
       title: '',
       walletId: 'wallet-tcb',
+      paymentMethodId: '',
       occurredOn: TODAY,
       recurring: false,
     });

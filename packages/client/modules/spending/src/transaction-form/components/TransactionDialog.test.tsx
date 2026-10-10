@@ -74,7 +74,7 @@ describe('validation', () => {
     const { engine } = openDialog({ data });
     await typeAmount('5000');
     await save();
-    expect(await screen.findByText('Hãy chọn hình thức thanh toán.')).toBeInTheDocument();
+    expect(await screen.findByText('Hãy chọn ví.')).toBeInTheDocument();
     expect(engine.callsTo('spending.record_transaction')).toHaveLength(0);
   });
 
@@ -114,6 +114,7 @@ describe('saving', () => {
         walletId: 'wallet-tcb',
         occurredOn: '2026-10-09',
         recurringRule: null,
+        paymentMethodId: 'payment-cash',
       },
     ]);
     expect(onOpenChange).toHaveBeenCalledWith(false);
@@ -288,5 +289,28 @@ describe('loading state', () => {
     });
     expect(screen.getByRole('dialog', { name: 'Thêm giao dịch' })).toBeInTheDocument();
     expect(screen.getByRole('status', { name: 'Đang tải' })).toBeInTheDocument();
+  });
+});
+
+describe('payment method', () => {
+  it('starts on the default method, saves the one that was picked, and keeps it when editing', async () => {
+    const { engine } = openDialog();
+    await typeAmount('1000');
+    const group = await screen.findByRole('group', { name: 'Thanh toán bằng' });
+    expect(within(group).getByRole('button', { name: 'Tiền mặt', pressed: true })).toBeInTheDocument();
+    await userEvent.click(within(group).getByRole('button', { name: 'Chuyển khoản' }));
+    await save();
+    await waitFor(() => expect(engine.callsTo('spending.record_transaction')).toHaveLength(1));
+    expect(engine.callsTo('spending.record_transaction')[0]).toMatchObject({ paymentMethodId: 'payment-bank' });
+  });
+
+  it('saves no method when the one on the transaction no longer exists', async () => {
+    const data = createDemoData();
+    const grab = data.transactions.find((item) => item.title === 'Grab đi làm')!;
+    grab.paymentMethodId = 'payment-gone';
+    const { engine } = openDialog({ data, editingId: grab.id });
+    await userEvent.click(await screen.findByRole('button', { name: 'Lưu thay đổi' }));
+    await waitFor(() => expect(engine.callsTo('spending.update_transaction')).toHaveLength(1));
+    expect(engine.callsTo('spending.update_transaction')[0]).toMatchObject({ paymentMethodId: null });
   });
 });

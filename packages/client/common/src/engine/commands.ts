@@ -53,6 +53,9 @@ import type {
   UpdateTransaction,
   UpdateWallet,
   DeleteWalletRequest,
+  NewPaymentMethod,
+  PaymentMethod,
+  UpdatePaymentMethod,
   Wallet,
 } from './types/spending';
 
@@ -102,6 +105,10 @@ export interface CommandMap {
   'spending.create_wallet': { payload: NewWallet; result: Wallet };
   'spending.update_wallet': { payload: UpdateWallet; result: Wallet };
   'spending.delete_wallet': { payload: DeleteWalletRequest; result: Empty };
+  'spending.list_payment_methods': { payload: void; result: PaymentMethod[] };
+  'spending.create_payment_method': { payload: NewPaymentMethod; result: PaymentMethod };
+  'spending.update_payment_method': { payload: UpdatePaymentMethod; result: PaymentMethod };
+  'spending.delete_payment_method': { payload: { id: string }; result: Empty };
   /** Newest first: by `occurredOn`, then by creation time. */
   'spending.list_transactions': { payload: TransactionFilter | void; result: Transaction[] };
   'spending.get_transaction': { payload: { id: string }; result: Transaction };

@@ -9,6 +9,7 @@ export interface TransactionDraft {
   categoryId: string;
   title: string;
   walletId: string;
+  paymentMethodId: string;
   occurredOn: string;
   recurring: boolean;
 }

@@ -3,9 +3,9 @@ import { useT } from '@alavo-daily/common';
 import { Button, EmptyState, IconButton, StickerTile, ResponsiveDialog } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
-import { formatBalance } from '../../money';
 import { Loadable, SkeletonRows } from '../../query-state';
-import { walletIcon, walletKindLabel } from '../logic/walletKinds';
+import { walletIcon } from '../logic/walletKinds';
+import { walletSubtitle } from '../logic/walletSubtitle';
 import { WalletDeleteDialog } from './WalletDeleteDialog';
 import { WalletFormDialog } from './WalletFormDialog';
 
@@ -74,7 +74,7 @@ function WalletRow({ wallet, onEdit, onDelete }: WalletRowProps) {
       <StickerTile icon={walletIcon(wallet.kind)} kind="wallet" size="md" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{wallet.name}</p>
-        <p className="text-xs text-text-muted">{`${t(walletKindLabel(wallet.kind))} · ${formatBalance(wallet.balanceVnd)}`}</p>
+        <p className="text-xs text-text-muted">{walletSubtitle(wallet, t)}</p>
       </div>
       <IconButton icon="pencil-simple" label={t('Sửa ví {{name}}', { name: wallet.name })} size="sm" onClick={() => onEdit(wallet)} />
       <IconButton icon="trash" label={t('Xoá ví {{name}}', { name: wallet.name })} size="sm" onClick={() => onDelete(wallet)} />

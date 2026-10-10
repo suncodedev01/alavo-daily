@@ -2,6 +2,7 @@
 export const STICKER_NAMES = [
   'airplane',
   'automobile',
+  'bank',
   'bell',
   'bullseye',
   'calendar',
@@ -11,6 +12,7 @@ export const STICKER_NAMES = [
   'counterclockwise_arrows_button',
   'credit_card',
   'desktop_computer',
+  'dollar_banknote',
   'fire',
   'gear',
   'graduation_cap',

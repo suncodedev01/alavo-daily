@@ -45,7 +45,7 @@ async function typeAmount(text: string) {
 
 const save = () => userEvent.click(screen.getByRole('button', { name: 'Lưu giao dịch' }));
 
-describe('payment method pills', () => {
+describe('wallet pills', () => {
   it('shows every wallet as a pill under "Chi từ ví" and selects the first one', async () => {
     openDialog();
     const group = await paymentGroup();
@@ -60,7 +60,7 @@ describe('payment method pills', () => {
     const { engine } = openDialog();
     await typeAmount('1000');
     await userEvent.click(within(await paymentGroup()).getByRole('button', { name: 'Tiền mặt' }));
-    expect(screen.getByRole('button', { name: 'Tiền mặt', pressed: true })).toBeInTheDocument();
+    expect(within(await paymentGroup()).getByRole('button', { name: 'Tiền mặt', pressed: true })).toBeInTheDocument();
     await save();
     await waitFor(() => expect(engine.callsTo('spending.record_transaction')).toHaveLength(1));
     expect(engine.callsTo('spending.record_transaction')[0]).toMatchObject({ walletId: 'wallet-cash' });
@@ -113,7 +113,7 @@ describe('payment method picker with many wallets', () => {
   });
 });
 
-describe('payment method wording', () => {
+describe('wallet wording', () => {
   it('uses the English words for the label and the built-in wallet names', async () => {
     const data = createDemoData();
     data.wallets = [
@@ -133,7 +133,7 @@ describe('payment method wording', () => {
     const { engine } = openDialog({ data });
     await typeAmount('5000');
     await save();
-    expect(await screen.findByText('Hãy chọn hình thức thanh toán.')).toBeInTheDocument();
+    expect(await screen.findByText('Hãy chọn ví.')).toBeInTheDocument();
     expect(engine.callsTo('spending.record_transaction')).toHaveLength(0);
   });
 });

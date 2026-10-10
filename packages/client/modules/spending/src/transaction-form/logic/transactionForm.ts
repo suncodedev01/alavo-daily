@@ -1,4 +1,12 @@
-import type { Category, CategoryKind, NewTransaction, Transaction, UpdateTransaction, Wallet } from '@alavo-daily/common/engine';
+import type {
+  Category,
+  CategoryKind,
+  NewTransaction,
+  PaymentMethod,
+  Transaction,
+  UpdateTransaction,
+  Wallet,
+} from '@alavo-daily/common/engine';
 import { formatVndInput, parseVndInput } from '@alavo-daily/common/format';
 
 import { isValidDateText } from '../../datepicker';
@@ -11,13 +19,19 @@ export function categoriesOfKind(categories: readonly Category[], kind: Category
   return categories.filter((category) => category.kind === kind);
 }
 
-export function newDraft(today: string, categories: readonly Category[], wallets: readonly Wallet[]): TransactionDraft {
+export function newDraft(
+  today: string,
+  categories: readonly Category[],
+  wallets: readonly Wallet[],
+  methods: readonly PaymentMethod[] = [],
+): TransactionDraft {
   return {
     kind: 'expense',
     amount: '',
     categoryId: categoriesOfKind(categories, 'expense')[0]?.id ?? '',
     title: '',
     walletId: wallets[0]?.id ?? '',
+    paymentMethodId: (methods.find((method) => method.isDefault) ?? methods[0])?.id ?? '',
     occurredOn: today,
     recurring: false,
   };
@@ -31,6 +45,7 @@ export function draftFromTransaction(item: Transaction, categories: readonly Cat
     categoryId: item.categoryId,
     title: item.title,
     walletId: item.walletId,
+    paymentMethodId: item.paymentMethodId ?? '',
     occurredOn: item.occurredOn,
     recurring: monthlyRuleDay(item.recurringRule) !== null,
   };
@@ -62,7 +77,7 @@ export function validateDraft(draft: TransactionDraft): DraftErrors {
   const errors: DraftErrors = {};
   if (parseVndInput(draft.amount) <= 0) errors.amount = 'Nhập số tiền lớn hơn 0.';
   if (draft.categoryId === '') errors.category = 'Chọn một hạng mục.';
-  if (draft.walletId === '') errors.wallet = 'Hãy chọn hình thức thanh toán.';
+  if (draft.walletId === '') errors.wallet = 'Hãy chọn ví.';
   if (!isValidDateText(draft.occurredOn)) errors.date = 'Chọn ngày hợp lệ.';
   return errors;
 }
@@ -87,6 +102,7 @@ export function toNewTransaction(draft: TransactionDraft, categoryName: string):
     amountVnd: signedAmount(draft),
     categoryId: draft.categoryId,
     walletId: draft.walletId,
+    paymentMethodId: draft.paymentMethodId === '' ? null : draft.paymentMethodId,
     occurredOn: draft.occurredOn,
     recurringRule: recurringRuleOf(draft),
   };

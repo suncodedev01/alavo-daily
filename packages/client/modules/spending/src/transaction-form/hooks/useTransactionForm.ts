@@ -11,7 +11,7 @@ export function useTransactionForm({ editing, lookups, today, onSaved }: Transac
   const record = useEngineMutation('spending.record_transaction');
   const update = useEngineMutation('spending.update_transaction');
   const [draft, setDraft] = useState(() =>
-    editing ? draftFromTransaction(editing, lookups.categories) : newDraft(today, lookups.categories, lookups.wallets),
+    editing ? draftFromTransaction(editing, lookups.categories) : newDraft(today, lookups.categories, lookups.wallets, lookups.paymentMethods),
   );
   const [attempted, setAttempted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -20,12 +20,14 @@ export function useTransactionForm({ editing, lookups, today, onSaved }: Transac
     setAttempted(true);
     if (Object.keys(validateDraft(draft)).length > 0) return;
     const categoryName = lookups.categoryName(draft.categoryId);
+    const known = lookups.paymentMethods.some((method) => method.id === draft.paymentMethodId);
+    const saved = known ? draft : { ...draft, paymentMethodId: '' };
     const callbacks = {
       onSuccess: onSaved,
       onError: (error: unknown) => setServerError(describeEngineError(error, t)),
     };
-    if (editing) update.mutate(toUpdateTransaction(editing.id, draft, categoryName), callbacks);
-    else record.mutate(toNewTransaction(draft, categoryName), callbacks);
+    if (editing) update.mutate(toUpdateTransaction(editing.id, saved, categoryName), callbacks);
+    else record.mutate(toNewTransaction(saved, categoryName), callbacks);
   };
 
   return {

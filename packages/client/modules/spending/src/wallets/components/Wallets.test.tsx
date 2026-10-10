@@ -37,7 +37,7 @@ describe('wallets in the sidebar', () => {
     const { container } = renderInSpendingShell(<WalletsSidebar />);
     await screen.findByText('Techcombank');
     const stickers = [...container.querySelectorAll('img')].map((image) => image.dataset.sticker);
-    expect(stickers).toEqual(['credit_card', 'mobile_phone', 'money_bag']);
+    expect(stickers).toEqual(['bank', 'mobile_phone', 'money_bag']);
   });
 
   it('shows skeletons while loading', () => {
@@ -82,9 +82,39 @@ describe('manage wallets dialog', () => {
     await userEvent.type(within(form).getByRole('textbox', { name: 'Số dư ban đầu' }), '1500000');
     expect(within(form).getByRole('textbox', { name: 'Số dư ban đầu' })).toHaveValue('1.500.000');
     await userEvent.click(within(form).getByRole('button', { name: 'Lưu ví' }));
-    await waitFor(() => expect(engine.callsTo('spending.create_wallet')).toEqual([{ name: 'Timo', kind: 'ewallet', openingBalanceVnd: 1_500_000 }]));
+    await waitFor(() => expect(engine.callsTo('spending.create_wallet')).toEqual([{ name: 'Timo', kind: 'ewallet', openingBalanceVnd: 1_500_000, accountNumber: null }]));
     const list = await screen.findByRole('dialog', { name: 'Quản lý ví' });
     expect(await within(list).findByText('Timo')).toBeInTheDocument();
+  });
+
+  it('keeps a bank account number for lookup and shows only its last four digits', async () => {
+    const { engine, dialog } = await openDialog();
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Thêm ví' }));
+    const form = await screen.findByRole('dialog', { name: 'Thêm ví' });
+    await userEvent.type(within(form).getByRole('textbox', { name: 'Tên ví' }), 'Vietcombank');
+    expect(within(form).getByText('Chỉ để tra cứu, không dùng để kết nối ngân hàng.')).toBeInTheDocument();
+    await userEvent.type(within(form).getByRole('textbox', { name: 'Số tài khoản' }), '1903 4567 8901');
+    await userEvent.click(within(form).getByRole('button', { name: 'Lưu ví' }));
+    await waitFor(() =>
+      expect(engine.callsTo('spending.create_wallet')).toEqual([
+        { name: 'Vietcombank', kind: 'bank', openingBalanceVnd: 0, accountNumber: '190345678901' },
+      ]),
+    );
+    const list = await screen.findByRole('dialog', { name: 'Quản lý ví' });
+    expect(await within(list).findByText(/Ngân hàng · •••• 8901/)).toBeInTheDocument();
+  });
+
+  it('asks for an account number only for bank wallets and never saves one for the others', async () => {
+    const { engine, dialog } = await openDialog();
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Thêm ví' }));
+    const form = await screen.findByRole('dialog', { name: 'Thêm ví' });
+    await userEvent.type(within(form).getByRole('textbox', { name: 'Số tài khoản' }), '123456');
+    await userEvent.click(within(form).getByRole('radio', { name: 'Tiền mặt' }));
+    expect(within(form).queryByRole('textbox', { name: 'Số tài khoản' })).not.toBeInTheDocument();
+    await userEvent.type(within(form).getByRole('textbox', { name: 'Tên ví' }), 'Hộp tiền');
+    await userEvent.click(within(form).getByRole('button', { name: 'Lưu ví' }));
+    await waitFor(() => expect(engine.callsTo('spending.create_wallet')).toHaveLength(1));
+    expect(engine.callsTo('spending.create_wallet')[0]).toMatchObject({ accountNumber: null });
   });
 
   it('asks for a name before creating', async () => {
@@ -109,7 +139,7 @@ describe('manage wallets dialog', () => {
     await userEvent.clear(opening);
     await userEvent.type(opening, '800000');
     await userEvent.click(within(form).getByRole('button', { name: 'Lưu ví' }));
-    await waitFor(() => expect(engine.callsTo('spending.update_wallet')).toEqual([{ id: 'wallet-momo', name: 'MoMo', kind: 'ewallet', openingBalanceVnd: 800_000 }]));
+    await waitFor(() => expect(engine.callsTo('spending.update_wallet')).toEqual([{ id: 'wallet-momo', name: 'MoMo', kind: 'ewallet', openingBalanceVnd: 800_000, accountNumber: null }]));
     expect(await within(await screen.findByRole('dialog', { name: 'Quản lý ví' })).findByText(/^Ví điện tử · 490\.000 ₫/)).toBeInTheDocument();
   });
 

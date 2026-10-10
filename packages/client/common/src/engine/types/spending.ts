@@ -26,6 +26,31 @@ export interface Wallet {
   /** Opening balance plus every transaction in this wallet. Computed by the engine. */
   balanceVnd: number;
   position: number;
+  /** Digits only, for lookup. Never used to reach a bank. */
+  accountNumber?: string | null;
+}
+
+/** How a transaction was paid, separate from the wallet it came out of. */
+export interface PaymentMethod {
+  id: string;
+  name: string;
+  icon: PaymentIcon;
+  isDefault: boolean;
+  position: number;
+  transactionCount: number;
+}
+
+export type PaymentIcon = 'money' | 'bank' | 'device-mobile' | 'credit-card' | 'coins';
+
+export interface NewPaymentMethod {
+  name: string;
+  icon: PaymentIcon;
+}
+
+export interface UpdatePaymentMethod {
+  id: string;
+  name?: string;
+  icon?: PaymentIcon;
 }
 
 export interface Transaction {
@@ -41,6 +66,8 @@ export interface Transaction {
   recurringRule: string | null;
   /** Set on a copy that the engine made from a recurring transaction: the id of that transaction. */
   recurringSourceId?: string | null;
+  /** `null` when the method was deleted or never chosen. */
+  paymentMethodId?: string | null;
   createdAt: number;
   updatedAt: number;
 }
@@ -124,6 +151,7 @@ export interface NewTransaction {
   occurredOn: string;
   note?: string;
   recurringRule?: string | null;
+  paymentMethodId?: string | null;
 }
 
 export interface UpdateTransaction {
@@ -135,6 +163,7 @@ export interface UpdateTransaction {
   occurredOn?: string;
   note?: string;
   recurringRule?: string | null;
+  paymentMethodId?: string | null;
 }
 
 export interface NewCategory {
@@ -155,6 +184,7 @@ export interface NewWallet {
   name: string;
   kind: WalletKind;
   openingBalanceVnd: number;
+  accountNumber?: string | null;
 }
 
 /** A wallet with transactions needs one of the two options; an empty wallet needs neither. */
@@ -169,6 +199,8 @@ export interface UpdateWallet {
   name?: string;
   kind?: WalletKind;
   openingBalanceVnd?: number;
+  /** `null` clears the number. */
+  accountNumber?: string | null;
 }
 
 export interface NewGoal {

@@ -13,7 +13,7 @@ import { AmountInput } from './AmountInput';
 import { CategoryPicker } from './CategoryPicker';
 import { KindSwitch, RecurringRow } from './FormRows';
 import { MoneyKeypad } from './MoneyKeypad';
-import { PaymentMethodPicker } from './PaymentMethodPicker';
+import { PaymentRows } from './PaymentRows';
 import { applyKeypadKey, categoriesOfKind } from '../logic/transactionForm';
 import { useTransactionForm } from '../hooks/useTransactionForm';
 
@@ -108,13 +108,7 @@ function TransactionForm({ onOpenChange, editing, lookups, onSaved, title }: For
           value={draft.title}
           onChange={(event) => patch({ title: event.target.value })}
         />
-        <PaymentMethodPicker
-          wallets={lookups.wallets}
-          selectedId={draft.walletId}
-          onSelect={(walletId) => patch({ walletId })}
-          label={draft.kind === 'income' ? t('Nhận vào ví') : t('Chi từ ví')}
-          error={errors.wallet}
-        />
+        <PaymentRows draft={draft} lookups={lookups} errors={errors} patch={patch} />
         <DatePicker
           label={t('Ngày')}
           value={draft.occurredOn}
