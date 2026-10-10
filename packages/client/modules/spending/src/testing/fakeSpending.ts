@@ -239,14 +239,33 @@ function walletHandlers(data: FakeData): Handlers {
       data.wallets[index] = next;
       return withBalance(data, next);
     },
-    'spending.delete_wallet': ({ id }) => {
+    'spending.delete_wallet': ({ id, moveTransactionsTo, deleteTransactions }) => {
       if (data.transactions.some((item) => item.walletId === id)) {
-        throw validation('wallet still has transactions');
+        settleWalletTransactions(data, id, moveTransactionsTo, deleteTransactions);
       }
       data.wallets = data.wallets.filter((item) => item.id !== id);
       return {};
     },
   };
+}
+
+function settleWalletTransactions(
+  data: FakeData,
+  id: string,
+  moveTransactionsTo: string | undefined,
+  deleteTransactions: boolean | undefined,
+): void {
+  if (moveTransactionsTo && deleteTransactions) throw validation('move the transactions or delete them, not both');
+  if (moveTransactionsTo) {
+    if (moveTransactionsTo === id) throw validation('choose a different wallet');
+    data.transactions = data.transactions.map((item) =>
+      item.walletId === id ? { ...item, walletId: moveTransactionsTo } : item,
+    );
+  } else if (deleteTransactions) {
+    data.transactions = data.transactions.filter((item) => item.walletId !== id);
+  } else {
+    throw validation('wallet still has transactions');
+  }
 }
 
 function goalHandlers(data: FakeData): Handlers {

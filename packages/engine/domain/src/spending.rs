@@ -27,7 +27,7 @@ pub use goal::{ContributeGoal, Goal, NewGoal, UpdateGoal};
 pub use notice::{budget_category_id, BudgetAlert};
 pub use summary::{MonthSummary, MonthTotals, SummaryParts};
 pub use transaction::{TransactionFilter, UpdateTransaction};
-pub use wallet::{NewWallet, UpdateWallet, Wallet, WalletKind};
+pub use wallet::{DeleteWallet, NewWallet, UpdateWallet, Wallet, WalletKind};
 
 /// One money movement. Spending is negative, income is positive.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

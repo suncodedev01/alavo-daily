@@ -315,7 +315,7 @@ mod tests {
     #[test]
     fn a_deleted_built_in_cash_wallet_is_replaced_by_a_new_one() {
         let fixture = Fixture::new();
-        wallets::delete(&fixture.ctx(), CASH_WALLET_ID).unwrap();
+        wallets::delete(&fixture.ctx(), alavo_domain::spending::DeleteWallet::only(CASH_WALLET_ID)).unwrap();
         load(&fixture.ctx()).unwrap();
         let all = wallets::list(&fixture.ctx()).unwrap();
         assert_eq!(all.len(), 3);

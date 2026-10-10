@@ -157,6 +157,13 @@ export interface NewWallet {
   openingBalanceVnd: number;
 }
 
+/** A wallet with transactions needs one of the two options; an empty wallet needs neither. */
+export interface DeleteWalletRequest {
+  id: string;
+  moveTransactionsTo?: string;
+  deleteTransactions?: boolean;
+}
+
 export interface UpdateWallet {
   id: string;
   name?: string;

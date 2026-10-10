@@ -1,12 +1,12 @@
-import { useEngineMutation, useEngineQuery, type Wallet } from '@alavo-daily/common/engine';
+import { useEngineQuery, type Wallet } from '@alavo-daily/common/engine';
 import { useT } from '@alavo-daily/common';
 import { Button, EmptyState, IconButton, StickerTile, ResponsiveDialog } from '@alavo-daily/design-system';
 import { useState } from 'react';
 
 import { formatBalance } from '../../money';
-import { DeleteConfirm } from '../../form-dialogs';
 import { Loadable, SkeletonRows } from '../../query-state';
 import { walletIcon, walletKindLabel } from '../logic/walletKinds';
+import { WalletDeleteDialog } from './WalletDeleteDialog';
 import { WalletFormDialog } from './WalletFormDialog';
 
 export interface WalletsDialogProps {
@@ -19,7 +19,6 @@ type Editing = Wallet | 'new' | null;
 export function WalletsDialog({ open, onOpenChange }: WalletsDialogProps) {
   const t = useT();
   const wallets = useEngineQuery('spending.list_wallets');
-  const remove = useEngineMutation('spending.delete_wallet');
   const [editing, setEditing] = useState<Editing>(null);
   const [deleting, setDeleting] = useState<Wallet | null>(null);
   return (
@@ -50,14 +49,14 @@ export function WalletsDialog({ open, onOpenChange }: WalletsDialogProps) {
         </Loadable>
       </ResponsiveDialog>
       <WalletFormDialog editing={editing} onClose={() => setEditing(null)} />
-      <DeleteConfirm
-        open={deleting !== null}
-        onOpenChange={(next) => !next && setDeleting(null)}
-        title={t('Xoá ví {{name}}?', { name: deleting?.name ?? '' })}
-        description={t('Chỉ xoá được ví chưa có giao dịch nào.')}
-        failureTitle={t('Không xoá được ví')}
-        onDelete={() => remove.mutateAsync({ id: deleting?.id ?? '' })}
-      />
+      {deleting ? (
+        <WalletDeleteDialog
+          key={deleting.id}
+          wallet={deleting}
+          otherWallets={(wallets.data ?? []).filter((other) => other.id !== deleting.id)}
+          onClose={() => setDeleting(null)}
+        />
+      ) : null}
     </>
   );
 }

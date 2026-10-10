@@ -52,6 +52,7 @@ import type {
   UpdateGoal,
   UpdateTransaction,
   UpdateWallet,
+  DeleteWalletRequest,
   Wallet,
 } from './types/spending';
 
@@ -100,7 +101,7 @@ export interface CommandMap {
   'spending.list_wallets': { payload: void; result: Wallet[] };
   'spending.create_wallet': { payload: NewWallet; result: Wallet };
   'spending.update_wallet': { payload: UpdateWallet; result: Wallet };
-  'spending.delete_wallet': { payload: { id: string }; result: Empty };
+  'spending.delete_wallet': { payload: DeleteWalletRequest; result: Empty };
   /** Newest first: by `occurredOn`, then by creation time. */
   'spending.list_transactions': { payload: TransactionFilter | void; result: Transaction[] };
   'spending.get_transaction': { payload: { id: string }; result: Transaction };

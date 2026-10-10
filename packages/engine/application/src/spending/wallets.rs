@@ -1,12 +1,17 @@
 use alavo_domain::shared::error::EngineError;
-use alavo_domain::spending::{Entity, NewWallet, UpdateWallet, Wallet};
+use alavo_domain::spending::{
+    DeleteWallet, Entity, NewWallet, TransactionFilter, UpdateTransaction, UpdateWallet, Wallet,
+};
 use alavo_infrastructure::persistence::repositories::spending::rows::next_position;
-use alavo_infrastructure::persistence::repositories::spending::transactions::count_in_wallet;
+use alavo_infrastructure::persistence::repositories::spending::transactions::{
+    count_in_wallet, list_transactions,
+};
 use alavo_infrastructure::persistence::repositories::spending::wallets::{
     find_wallet, insert_wallet, list_wallets, update_wallet,
 };
 
 use crate::context::Ctx;
+use crate::spending::transactions;
 use crate::spending::writes::{delete_row, log_insert, log_update, stamp_insert, stamp_update};
 
 pub fn list(ctx: &Ctx) -> Result<Vec<Wallet>, EngineError> {
@@ -35,14 +40,61 @@ pub fn update(ctx: &Ctx, input: UpdateWallet) -> Result<Wallet, EngineError> {
     })
 }
 
-pub fn delete(ctx: &Ctx, id: &str) -> Result<(), EngineError> {
+pub fn delete(ctx: &Ctx, input: DeleteWallet) -> Result<(), EngineError> {
     ctx.transaction(|| {
-        require(ctx, id)?;
-        if count_in_wallet(ctx.db, id)? > 0 {
-            return Err(EngineError::validation("wallet still has transactions"));
+        require(ctx, &input.id)?;
+        if count_in_wallet(ctx.db, &input.id)? > 0 {
+            settle_transactions(ctx, &input)?;
         }
-        delete_row(ctx, Entity::Wallet, id)
+        delete_row(ctx, Entity::Wallet, &input.id)
     })
+}
+
+fn settle_transactions(ctx: &Ctx, input: &DeleteWallet) -> Result<(), EngineError> {
+    match (&input.move_transactions_to, input.delete_transactions) {
+        (None, false) => Err(EngineError::validation("wallet still has transactions")),
+        (Some(_), true) => {
+            Err(EngineError::validation("move the transactions or delete them, not both"))
+        }
+        (None, true) => delete_transactions_of(ctx, &input.id),
+        (Some(target), false) => move_transactions(ctx, &input.id, target),
+    }
+}
+
+fn transaction_ids_of(ctx: &Ctx, wallet_id: &str) -> Result<Vec<String>, EngineError> {
+    let filter = TransactionFilter { wallet_id: Some(wallet_id.into()), ..Default::default() };
+    Ok(list_transactions(ctx.db, &filter)?.into_iter().map(|item| item.id).collect())
+}
+
+fn delete_transactions_of(ctx: &Ctx, wallet_id: &str) -> Result<(), EngineError> {
+    for id in transaction_ids_of(ctx, wallet_id)? {
+        transactions::delete(ctx, &id)?;
+    }
+    Ok(())
+}
+
+fn move_transactions(ctx: &Ctx, from: &str, to: &str) -> Result<(), EngineError> {
+    if from == to {
+        return Err(EngineError::validation("choose a different wallet to move the transactions to"));
+    }
+    require(ctx, to)?;
+    for id in transaction_ids_of(ctx, from)? {
+        transactions::update(ctx, move_to_wallet(&id, to))?;
+    }
+    Ok(())
+}
+
+fn move_to_wallet(transaction_id: &str, wallet_id: &str) -> UpdateTransaction {
+    UpdateTransaction {
+        id: transaction_id.into(),
+        title: None,
+        amount_vnd: None,
+        category_id: None,
+        wallet_id: Some(wallet_id.into()),
+        occurred_on: None,
+        note: None,
+        recurring_rule: None,
+    }
 }
 
 pub fn require(ctx: &Ctx, id: &str) -> Result<Wallet, EngineError> {
@@ -62,6 +114,10 @@ mod tests {
 
     fn new_wallet(name: &str, kind: WalletKind, opening: i64) -> NewWallet {
         NewWallet { name: name.into(), kind, opening_balance_vnd: Money(opening) }
+    }
+
+    fn only(id: &str) -> DeleteWallet {
+        DeleteWallet::only(id)
     }
 
     fn change(id: &str) -> UpdateWallet {
@@ -172,7 +228,7 @@ mod tests {
         let fixture = Fixture::new();
         let ctx = fixture.ctx();
         transactions::record(&ctx, expense("Phở", 70_000, "2026-10-06")).unwrap();
-        assert_eq!(delete(&ctx, CASH).unwrap_err().code, ErrorCode::Validation);
+        assert_eq!(delete(&ctx, only(CASH)).unwrap_err().code, ErrorCode::Validation);
         assert_eq!(list(&ctx).unwrap().len(), 3);
     }
 
@@ -181,10 +237,63 @@ mod tests {
         let fixture = Fixture::new();
         let ctx = fixture.ctx();
         let bank = create(&ctx, new_wallet("Techcombank", WalletKind::Bank, 0)).unwrap();
-        delete(&ctx, &bank.id).unwrap();
+        delete(&ctx, only(&bank.id)).unwrap();
         assert_eq!(list(&ctx).unwrap().len(), 3);
         let events = fixture.events("wallet");
         assert_eq!(events.last().unwrap().action, "delete");
-        assert_eq!(delete(&ctx, &bank.id).unwrap_err().code, ErrorCode::NotFound);
+        assert_eq!(delete(&ctx, only(&bank.id)).unwrap_err().code, ErrorCode::NotFound);
+    }
+
+    fn spent_in_two_wallets(ctx: &Ctx) -> String {
+        let savings = create(ctx, new_wallet("Tiết kiệm", WalletKind::Bank, 0)).unwrap();
+        transactions::record(ctx, expense("Phở", 70_000, "2026-10-06")).unwrap();
+        let mut saved = expense("Gửi tiết kiệm", 300_000, "2026-10-07");
+        saved.wallet_id = savings.id.clone();
+        transactions::record(ctx, saved).unwrap();
+        savings.id
+    }
+
+    #[test]
+    fn deleting_a_wallet_can_move_its_transactions_to_another_wallet() {
+        let fixture = Fixture::new();
+        let ctx = fixture.ctx();
+        let savings = spent_in_two_wallets(&ctx);
+        let input = DeleteWallet { move_transactions_to: Some(CASH.into()), ..only(&savings) };
+        delete(&ctx, input).unwrap();
+        assert!(list(&ctx).unwrap().iter().all(|wallet| wallet.id != savings));
+        assert_eq!(find_wallet(ctx.db, CASH).unwrap().unwrap().balance_vnd, Money(-370_000));
+        let moved = fixture.events("transaction").iter().filter(|e| e.action == "update").count();
+        assert_eq!(moved, 1);
+    }
+
+    #[test]
+    fn deleting_a_wallet_can_delete_its_transactions_too() {
+        let fixture = Fixture::new();
+        let ctx = fixture.ctx();
+        let savings = spent_in_two_wallets(&ctx);
+        let input = DeleteWallet { delete_transactions: true, ..only(&savings) };
+        delete(&ctx, input).unwrap();
+        assert_eq!(find_wallet(ctx.db, CASH).unwrap().unwrap().balance_vnd, Money(-70_000));
+        let removed = fixture.events("transaction").iter().filter(|e| e.action == "delete").count();
+        assert_eq!(removed, 1);
+        assert_eq!(fixture.events("wallet").last().unwrap().action, "delete");
+    }
+
+    #[test]
+    fn moving_transactions_needs_a_different_existing_wallet_and_never_both_options() {
+        let fixture = Fixture::new();
+        let ctx = fixture.ctx();
+        let savings = spent_in_two_wallets(&ctx);
+        let same = DeleteWallet { move_transactions_to: Some(savings.clone()), ..only(&savings) };
+        assert_eq!(delete(&ctx, same).unwrap_err().code, ErrorCode::Validation);
+        let missing = DeleteWallet { move_transactions_to: Some("nope".into()), ..only(&savings) };
+        assert_eq!(delete(&ctx, missing).unwrap_err().code, ErrorCode::NotFound);
+        let both = DeleteWallet {
+            move_transactions_to: Some(CASH.into()),
+            delete_transactions: true,
+            ..only(&savings)
+        };
+        assert_eq!(delete(&ctx, both).unwrap_err().code, ErrorCode::Validation);
+        assert_eq!(list(&ctx).unwrap().len(), 4);
     }
 }

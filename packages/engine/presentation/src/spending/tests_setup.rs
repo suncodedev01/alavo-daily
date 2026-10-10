@@ -105,6 +105,31 @@ fn a_wallet_can_be_updated_and_an_empty_one_deleted() {
 }
 
 #[test]
+fn a_wallet_with_transactions_can_be_deleted_by_moving_or_removing_them() {
+    let harness = Harness::start();
+    let savings = harness.call(
+        "spending.create_wallet",
+        json!({ "name": "Tiết kiệm", "kind": "bank", "openingBalanceVnd": 0 }),
+    );
+    let savings_id = savings["id"].as_str().unwrap().to_string();
+    harness.record("Phở", -70_000, "2026-10-06");
+    let both = harness.fail(
+        "spending.delete_wallet",
+        json!({ "id": "wallet-cash", "moveTransactionsTo": savings_id, "deleteTransactions": true }),
+    );
+    assert_eq!(both["code"], "validation");
+    let moved = json!({ "id": "wallet-cash", "moveTransactionsTo": savings_id });
+    assert_eq!(harness.call("spending.delete_wallet", moved), json!({}));
+    let wallets = harness.call("spending.list_wallets", json!({}));
+    let saved = wallets.as_array().unwrap().iter().find(|w| w["id"] == savings_id).unwrap();
+    assert_eq!(saved["balanceVnd"].as_i64(), Some(-70_000));
+    let removed = json!({ "id": savings_id, "deleteTransactions": true });
+    assert_eq!(harness.call("spending.delete_wallet", removed), json!({}));
+    let remaining = harness.call("spending.list_transactions", json!({}));
+    assert_eq!(remaining.as_array().map(Vec::len), Some(0));
+}
+
+#[test]
 fn goals_can_be_created_updated_funded_and_deleted() {
     let harness = Harness::start();
     let goal = harness.call(

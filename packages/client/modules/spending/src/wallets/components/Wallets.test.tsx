@@ -113,28 +113,45 @@ describe('manage wallets dialog', () => {
     expect(await within(await screen.findByRole('dialog', { name: 'Quản lý ví' })).findByText(/^Ví điện tử · 490\.000 ₫/)).toBeInTheDocument();
   });
 
-  it('explains why a wallet with transactions cannot be deleted', async () => {
+  it('offers to move the transactions to another wallet when deleting a wallet that has some', async () => {
     const { engine, dialog } = await openDialog();
     await userEvent.click(within(dialog).getByRole('button', { name: 'Xoá ví Tiền mặt' }));
-    await userEvent.click(within(await screen.findByRole('alertdialog', { name: 'Xoá ví Tiền mặt?' })).getByRole('button', { name: 'Xoá' }));
-    const failure = await screen.findByRole('dialog', { name: 'Không xoá được ví' });
-    expect(failure).toHaveTextContent('Ví này vẫn còn giao dịch');
-    expect(engine.callsTo('spending.delete_wallet')).toEqual([{ id: 'wallet-cash' }]);
+    const confirm = await screen.findByRole('dialog', { name: 'Xoá ví Tiền mặt?' });
+    expect(within(confirm).getByRole('button', { name: /Chuyển sang ví khác/ })).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.click(within(confirm).getByRole('button', { name: 'Xoá' }));
+    await waitFor(() => expect(engine.callsTo('spending.delete_wallet')).toHaveLength(1));
+    const [call] = engine.callsTo('spending.delete_wallet') as { id: string; moveTransactionsTo?: string }[];
+    expect(call?.id).toBe('wallet-cash');
+    expect(call?.moveTransactionsTo).toEqual(expect.any(String));
+    expect(call?.moveTransactionsTo).not.toBe('wallet-cash');
   });
 
-  it('deletes an empty wallet after confirmation', async () => {
+  it('deletes the transactions with the wallet when that is chosen', async () => {
+    const { engine, dialog } = await openDialog();
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Xoá ví Tiền mặt' }));
+    const confirm = await screen.findByRole('dialog', { name: 'Xoá ví Tiền mặt?' });
+    await userEvent.click(within(confirm).getByRole('button', { name: /Xoá luôn các giao dịch/ }));
+    await userEvent.click(within(confirm).getByRole('button', { name: 'Xoá' }));
+    await waitFor(() =>
+      expect(engine.callsTo('spending.delete_wallet')).toEqual([{ id: 'wallet-cash', deleteTransactions: true }]),
+    );
+  });
+
+  it('deletes an empty wallet after confirmation without asking about transactions', async () => {
     const data = createDemoData();
     data.wallets.push({ id: 'wallet-empty', name: 'Ví trống', kind: 'cash', openingBalanceVnd: 0, balanceVnd: 0, position: 9 });
     const { dialog } = await openDialog({ data });
     await userEvent.click(await within(dialog).findByRole('button', { name: 'Xoá ví Ví trống' }));
-    await userEvent.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Xoá' }));
+    const confirm = await screen.findByRole('dialog', { name: 'Xoá ví Ví trống?' });
+    expect(within(confirm).queryByRole('button', { name: /Chuyển sang ví khác/ })).not.toBeInTheDocument();
+    await userEvent.click(within(confirm).getByRole('button', { name: 'Xoá' }));
     await waitFor(() => expect(within(dialog).queryByText('Ví trống')).not.toBeInTheDocument());
   });
 
   it('keeps the wallet when the confirmation is cancelled', async () => {
     const { engine, dialog } = await openDialog();
     await userEvent.click(within(dialog).getByRole('button', { name: 'Xoá ví Ví MoMo' }));
-    await userEvent.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Huỷ' }));
+    await userEvent.click(within(await screen.findByRole('dialog', { name: 'Xoá ví Ví MoMo?' })).getByRole('button', { name: 'Huỷ' }));
     expect(engine.callsTo('spending.delete_wallet')).toHaveLength(0);
   });
 

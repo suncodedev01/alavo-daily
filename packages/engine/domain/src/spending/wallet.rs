@@ -62,6 +62,24 @@ pub struct UpdateWallet {
     pub opening_balance_vnd: Option<Money>,
 }
 
+/// What to do with the transactions of a wallet that is being deleted.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteWallet {
+    pub id: String,
+    #[serde(default)]
+    pub move_transactions_to: Option<String>,
+    #[serde(default)]
+    pub delete_transactions: bool,
+}
+
+impl DeleteWallet {
+    /// Deletes the wallet and fails when it still has transactions.
+    pub fn only(id: &str) -> Self {
+        Self { id: id.into(), move_transactions_to: None, delete_transactions: false }
+    }
+}
+
 impl Wallet {
     pub fn from_new(id: String, position: i64, input: NewWallet) -> Result<Wallet, EngineError> {
         Ok(Wallet {

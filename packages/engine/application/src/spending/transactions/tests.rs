@@ -99,7 +99,7 @@ fn record_rejects_an_unknown_or_deleted_category_or_wallet() {
     let spare =
         NewWallet { name: "Ví".into(), kind: WalletKind::Ewallet, opening_balance_vnd: Money(0) };
     let spare = wallets::create(&ctx, spare).unwrap();
-    wallets::delete(&ctx, &spare.id).unwrap();
+    wallets::delete(&ctx, alavo_domain::spending::DeleteWallet::only(&spare.id)).unwrap();
     let gone = NewTransaction { wallet_id: spare.id, ..expense("x", 1, TODAY) };
     assert_eq!(error_code(record(&ctx, gone)), ErrorCode::Validation);
 }

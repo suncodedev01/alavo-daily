@@ -7,7 +7,7 @@ use alavo_application::Ctx;
 use alavo_domain::shared::error::EngineError;
 use alavo_domain::spending::report::ReportRange;
 use alavo_domain::spending::{
-    CategoryKind, ContributeGoal, MonthQuery, NewCategory, NewGoal, NewTransaction, NewWallet,
+    CategoryKind, ContributeGoal, DeleteWallet, MonthQuery, NewCategory, NewGoal, NewTransaction, NewWallet,
     SaveBill, TransactionFilter, UpdateCategory, UpdateGoal, UpdateTransaction, UpdateWallet,
 };
 use serde::Deserialize;
@@ -68,7 +68,9 @@ fn wallet_command(ctx: &Ctx, command: &str, payload: &str) -> Handled {
         "spending.update_wallet" => {
             with_input(payload, |input: UpdateWallet| wallets::update(ctx, input))
         }
-        "spending.delete_wallet" => deleted(payload, |id| wallets::delete(ctx, id)),
+        "spending.delete_wallet" => with_input(payload, |input: DeleteWallet| {
+            wallets::delete(ctx, input).map(|_| json!({}))
+        }),
         _ => return None,
     })
 }
