@@ -228,6 +228,7 @@ fn change(id: &str) -> UpdateTransaction {
 
 fn set_food_budget(fixture: &Fixture, budget: i64) {
     let change = UpdateCategory {
+        position: None,
         id: FOOD.into(),
         name: None,
         icon: None,

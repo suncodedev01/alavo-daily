@@ -365,3 +365,35 @@ describe('importing data', () => {
     expect(await screen.findByText('Không nhập được dữ liệu')).toBeInTheDocument();
   });
 });
+
+describe('how often it syncs by itself', () => {
+  it('is only offered once Google is connected', async () => {
+    renderHub('/settings/sync');
+    await screen.findByText('Chưa cấu hình đăng nhập Google');
+    expect(screen.queryByRole('radiogroup', { name: 'Tự đồng bộ mỗi' })).not.toBeInTheDocument();
+  });
+
+  it('offers 1, 5, 15 and 30 minutes or off, with five minutes chosen at first', async () => {
+    renderHub('/settings/sync', { sync: fakeController(), state: { sync: connectedStatus() } });
+    const group = await screen.findByRole('radiogroup', { name: 'Tự đồng bộ mỗi' });
+    const labels = within(group).getAllByRole('radio').map((radio) => radio.textContent);
+    expect(labels).toEqual(['1 phút', '5 phút', '15 phút', '30 phút', 'Tắt']);
+    await waitFor(() => expect(within(group).getByRole('radio', { name: '5 phút' })).toBeChecked());
+  });
+
+  it('saves the chosen interval, including turning the timer off', async () => {
+    const { engine } = renderHub('/settings/sync', { sync: fakeController(), state: { sync: connectedStatus() } });
+    const group = await screen.findByRole('radiogroup', { name: 'Tự đồng bộ mỗi' });
+    await userEvent.click(within(group).getByRole('radio', { name: '15 phút' }));
+    await userEvent.click(within(group).getByRole('radio', { name: 'Tắt' }));
+    await waitFor(() =>
+      expect(engine.callsTo('hub.update_settings')).toEqual([{ syncIntervalMinutes: 15 }, { syncIntervalMinutes: 0 }]),
+    );
+  });
+
+  it('says it only runs while the app is open', async () => {
+    renderHub('/settings/sync', { sync: fakeController(), state: { sync: connectedStatus() } });
+    expect(await screen.findByText(/Chỉ chạy khi ứng dụng đang mở/)).toBeInTheDocument();
+  });
+});
+

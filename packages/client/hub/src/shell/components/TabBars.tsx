@@ -5,7 +5,7 @@ import { TabBar, TabBarAction, TabBarItem } from '@alavo-daily/design-system';
 
 import { useModules } from '../../module-registry';
 import { useSettings } from '../../hub-settings';
-import { activeViewId, HOME_MODULE, isPathActive, narrowPinnedSlots, pinnedManifests, SETTINGS_PATH, tabViews, useSelectModule } from '../../module-navigation';
+import { activeViewId, HOME_MODULE, isMoreActive, isPathActive, moreScreenPath, narrowPinnedSlots, pinnedManifests, SETTINGS_PATH, tabViews, useSelectModule } from '../../module-navigation';
 
 export function NarrowTabBar({ manifest }: { manifest: ModuleManifest }) {
   return manifest.id === HOME_MODULE.id ? <HomeTabBar /> : <ModuleTabBar manifest={manifest} />;
@@ -31,8 +31,23 @@ function ModuleTabBar({ manifest }: { manifest: ModuleManifest }) {
   return (
     <TabBar label={t('Điều hướng')}>
       {tabs.slice(0, middle).map(renderTab)}
-      {action ? <TabBarAction icon="plus" label={t(action.label)} onClick={() => navigate(action.path)} /> : null}
+      {action ? (
+        <TabBarAction
+          icon="plus"
+          label={t(action.tabLabel ?? action.label)}
+          showLabel={Boolean(manifest.more)}
+          onClick={() => navigate(action.path)}
+        />
+      ) : null}
       {tabs.slice(middle).map(renderTab)}
+      {manifest.more ? (
+        <TabBarItem
+          icon="dots-three"
+          label={t('Khác')}
+          active={isMoreActive(manifest, pathname, search)}
+          onClick={() => navigate(moreScreenPath(manifest))}
+        />
+      ) : null}
     </TabBar>
   );
 }

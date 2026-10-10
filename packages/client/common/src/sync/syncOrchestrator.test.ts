@@ -327,3 +327,49 @@ describe('disconnecting', () => {
     expect(drive.requests.length).toBe(requests);
   });
 });
+
+describe('the timer that checks for changes from other devices', () => {
+  const MINUTE = 60_000;
+
+  async function waitingForTheTimer() {
+    const world = createWorld();
+    const a = world.addDevice('dev-a', { timerFromSettings: true });
+    const b = world.addDevice('dev-b');
+    await connected(a);
+    await connected(b);
+    const stop = a.orchestrator.start();
+    await vi.advanceTimersByTimeAsync(10);
+    b.engine.write('tx1', 'Phở');
+    await b.orchestrator.syncNow();
+    return { a, stop };
+  }
+
+  it('picks up changes from another device after five minutes by default', async () => {
+    const { a, stop } = await waitingForTheTimer();
+    await vi.advanceTimersByTimeAsync(4 * MINUTE);
+    expect(a.engine.visible()).toEqual({});
+    await vi.advanceTimersByTimeAsync(MINUTE + 1000);
+    expect(a.engine.visible()).toEqual({ tx1: 'Phở' });
+    stop();
+  });
+
+  it('follows the interval the person chose, also after the app has started', async () => {
+    const { a, stop } = await waitingForTheTimer();
+    a.engine.setSyncInterval(1);
+    await vi.advanceTimersByTimeAsync(MINUTE + 1000);
+    expect(a.engine.visible()).toEqual({ tx1: 'Phở' });
+    stop();
+  });
+
+  it('does not check on its own while it is turned off, and starts again when turned back on', async () => {
+    const { a, stop } = await waitingForTheTimer();
+    a.engine.setSyncInterval(0);
+    await vi.advanceTimersByTimeAsync(60 * MINUTE);
+    expect(a.engine.visible()).toEqual({});
+    a.engine.setSyncInterval(15);
+    await vi.advanceTimersByTimeAsync(15 * MINUTE + 1000);
+    expect(a.engine.visible()).toEqual({ tx1: 'Phở' });
+    stop();
+  });
+});
+

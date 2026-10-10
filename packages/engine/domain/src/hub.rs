@@ -10,6 +10,15 @@ pub struct Settings {
     pub household_size: i64,
     pub pinned_modules: Vec<String>,
     pub recent_modules: Vec<String>,
+    /// Minutes between automatic Google syncs while the app is open; 0 turns the timer off.
+    #[serde(default = "default_sync_interval_minutes")]
+    pub sync_interval_minutes: i64,
+}
+
+pub const SYNC_INTERVAL_CHOICES: [i64; 5] = [0, 1, 5, 15, 30];
+
+fn default_sync_interval_minutes() -> i64 {
+    5
 }
 
 impl Default for Settings {
@@ -20,6 +29,7 @@ impl Default for Settings {
             household_size: 2,
             pinned_modules: vec!["spending".to_string(), "recipes".to_string()],
             recent_modules: Vec::new(),
+            sync_interval_minutes: default_sync_interval_minutes(),
         }
     }
 }
@@ -32,6 +42,7 @@ pub struct UpdateSettings {
     pub household_size: Option<i64>,
     pub pinned_modules: Option<Vec<String>>,
     pub recent_modules: Option<Vec<String>>,
+    pub sync_interval_minutes: Option<i64>,
 }
 
 fn is_supported_language(language: &String) -> bool {
@@ -54,6 +65,9 @@ impl Settings {
         }
         if let Some(value) = update.recent_modules {
             self.recent_modules = value.into_iter().take(4).collect();
+        }
+        if let Some(value) = update.sync_interval_minutes.filter(|v| SYNC_INTERVAL_CHOICES.contains(v)) {
+            self.sync_interval_minutes = value;
         }
         self
     }
@@ -122,6 +136,28 @@ mod tests {
         let updated = Settings::default()
             .apply(UpdateSettings { language: Some("en".into()), ..Default::default() });
         assert_eq!(updated.language, "en");
+    }
+
+    #[test]
+    fn syncs_every_five_minutes_until_the_person_chooses_otherwise() {
+        assert_eq!(Settings::default().sync_interval_minutes, 5);
+    }
+
+    #[test]
+    fn apply_accepts_only_the_offered_sync_intervals() {
+        let off = Settings::default()
+            .apply(UpdateSettings { sync_interval_minutes: Some(0), ..Default::default() });
+        assert_eq!(off.sync_interval_minutes, 0);
+        let odd = Settings::default()
+            .apply(UpdateSettings { sync_interval_minutes: Some(7), ..Default::default() });
+        assert_eq!(odd.sync_interval_minutes, 5);
+    }
+
+    #[test]
+    fn settings_saved_before_the_sync_interval_existed_still_load_with_the_default() {
+        let old = r#"{"language":"en","theme":"dark","householdSize":3,"pinnedModules":[],"recentModules":[]}"#;
+        let loaded: Settings = serde_json::from_str(old).unwrap();
+        assert_eq!((loaded.language.as_str(), loaded.sync_interval_minutes), ("en", 5));
     }
 
     #[test]

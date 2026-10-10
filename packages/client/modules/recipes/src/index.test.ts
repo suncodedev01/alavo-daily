@@ -9,19 +9,20 @@ describe('recipesManifest', () => {
     expect(recipesManifest.icon).toBe('cooking-pot');
   });
 
-  it('keeps the three main views and adds the favorites tab after shopping', () => {
+  it('keeps the three main tabs and moves favourites under "Khác"', () => {
     expect(recipesManifest.views.map((view) => [view.id, view.path])).toEqual([
       ['list', '/recipes/list'],
       ['plan', '/recipes/plan'],
       ['shopping', '/recipes/shopping'],
       ['favorites', '/recipes/list?tag=favorites'],
     ]);
-    expect(recipesManifest.views.every((view) => view.tab)).toBe(true);
+    expect(recipesManifest.views.filter((view) => view.tab).map((view) => view.id)).toEqual(['list', 'plan', 'shopping']);
+    expect(recipesManifest.views.find((view) => view.id === 'favorites')?.more).toBe(true);
   });
 
   it('keeps the quick action for a new recipe', () => {
     expect(recipesManifest.quickActions).toEqual([
-      { id: 'new-recipe', label: 'Công thức mới', icon: 'book-open', path: '/recipes/new' },
+      { id: 'new-recipe', label: 'Công thức mới', tabLabel: 'Thêm công thức', icon: 'book-open', path: '/recipes/new' },
     ]);
   });
 

@@ -9,6 +9,8 @@ export interface Settings {
   pinnedModules: string[];
   /** Module ids opened lately, newest first, at most 4. */
   recentModules: string[];
+  /** Minutes between automatic Google syncs while the app is open: 0, 1, 5, 15 or 30. 0 is off. */
+  syncIntervalMinutes?: number;
 }
 
 export type UpdateSettings = Partial<Settings>;

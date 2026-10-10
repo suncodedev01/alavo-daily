@@ -52,9 +52,20 @@ import type {
   UpdateGoal,
   UpdateTransaction,
   UpdateWallet,
+  DeleteCategoryRequest,
   DeleteWalletRequest,
+  EstimateRowRef,
+  EstimateSummary,
+  EstimateView,
+  NewEstimate,
   NewPaymentMethod,
   PaymentMethod,
+  RecordEstimatePayment,
+  SaveEstimateFactor,
+  SaveEstimateIncome,
+  SaveEstimateItem,
+  SetEstimateItemPaid,
+  UpdateEstimate,
   UpdatePaymentMethod,
   Wallet,
 } from './types/spending';
@@ -100,11 +111,26 @@ export interface CommandMap {
   'spending.list_categories': { payload: { kind?: CategoryKind } | void; result: Category[] };
   'spending.create_category': { payload: NewCategory; result: Category };
   'spending.update_category': { payload: UpdateCategory; result: Category };
-  'spending.delete_category': { payload: { id: string }; result: Empty };
+  'spending.delete_category': { payload: DeleteCategoryRequest; result: Empty };
+  /** Puts categories of one kind in this order and returns that kind's list. */
+  'spending.reorder_categories': { payload: { ids: string[] }; result: Category[] };
   'spending.list_wallets': { payload: void; result: Wallet[] };
   'spending.create_wallet': { payload: NewWallet; result: Wallet };
   'spending.update_wallet': { payload: UpdateWallet; result: Wallet };
   'spending.delete_wallet': { payload: DeleteWalletRequest; result: Empty };
+  'spending.list_estimates': { payload: void; result: EstimateSummary[] };
+  'spending.get_estimate': { payload: { id: string }; result: EstimateView };
+  'spending.create_estimate': { payload: NewEstimate; result: EstimateView };
+  'spending.update_estimate': { payload: UpdateEstimate; result: EstimateView };
+  'spending.delete_estimate': { payload: { id: string }; result: Empty };
+  'spending.save_estimate_factor': { payload: SaveEstimateFactor; result: EstimateView };
+  'spending.delete_estimate_factor': { payload: EstimateRowRef; result: EstimateView };
+  'spending.save_estimate_item': { payload: SaveEstimateItem; result: EstimateView };
+  'spending.delete_estimate_item': { payload: EstimateRowRef; result: EstimateView };
+  /** With `record`, the increase is also written into the ledger as an expense. */
+  'spending.set_estimate_item_paid': { payload: SetEstimateItemPaid; result: EstimateView };
+  'spending.save_estimate_income': { payload: SaveEstimateIncome; result: EstimateView };
+  'spending.delete_estimate_income': { payload: EstimateRowRef; result: EstimateView };
   'spending.list_payment_methods': { payload: void; result: PaymentMethod[] };
   'spending.create_payment_method': { payload: NewPaymentMethod; result: PaymentMethod };
   'spending.update_payment_method': { payload: UpdatePaymentMethod; result: PaymentMethod };

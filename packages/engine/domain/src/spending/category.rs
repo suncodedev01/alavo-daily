@@ -61,6 +61,26 @@ pub struct UpdateCategory {
     pub icon: Option<String>,
     #[serde(default, deserialize_with = "double_option")]
     pub budget_vnd: Option<Option<Money>>,
+    #[serde(default)]
+    pub position: Option<i64>,
+}
+
+/// What to do with the transactions of a category that is being deleted.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteCategory {
+    pub id: String,
+    #[serde(default)]
+    pub move_transactions_to: Option<String>,
+    #[serde(default)]
+    pub delete_transactions: bool,
+}
+
+impl DeleteCategory {
+    /// Deletes the category and fails when it still has transactions.
+    pub fn only(id: &str) -> Self {
+        Self { id: id.into(), move_transactions_to: None, delete_transactions: false }
+    }
 }
 
 impl Category {
@@ -89,6 +109,7 @@ impl Category {
             name: updated_text("name", update.name.as_deref(), self.name)?,
             icon: updated_text("icon", update.icon.as_deref(), self.icon)?,
             budget_vnd: without_budget_for_income(self.kind, budget),
+            position: update.position.unwrap_or(self.position),
             ..self
         })
     }
@@ -105,6 +126,9 @@ impl UpdateCategory {
         }
         if self.budget_vnd.is_some() {
             columns.push("budget_vnd");
+        }
+        if self.position.is_some() {
+            columns.push("position");
         }
         columns
     }
@@ -140,7 +164,7 @@ mod tests {
     }
 
     fn update(id: &str) -> UpdateCategory {
-        UpdateCategory { id: id.into(), name: None, icon: None, budget_vnd: None }
+        UpdateCategory { position: None, id: id.into(), name: None, icon: None, budget_vnd: None }
     }
 
     #[test]

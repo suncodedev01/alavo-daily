@@ -1,6 +1,7 @@
 pub mod bills;
 pub mod categories;
 pub mod duplicates;
+pub mod estimates;
 pub mod export;
 pub mod goals;
 pub mod payment_methods;

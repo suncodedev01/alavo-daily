@@ -61,13 +61,14 @@ pub fn update_category(
 ) -> Result<(), EngineError> {
     let sql = r#"
         UPDATE spending_categories
-        SET name = ?, icon = ?, budget_vnd = ?, updated_at = ?, field_updated_at = ?
+        SET name = ?, icon = ?, budget_vnd = ?, position = ?, updated_at = ?, field_updated_at = ?
         WHERE id = ?
     "#;
     let params = [
         Value::from(category.name.as_str()),
         Value::from(category.icon.as_str()),
         Value::from(category.budget_vnd.map(Money::vnd)),
+        Value::from(category.position),
         Value::from(stamp.updated_at),
         Value::from(stamp.field_updated_at.as_str()),
         Value::from(category.id.as_str()),

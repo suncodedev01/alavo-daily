@@ -5,7 +5,7 @@ import { NavItem, Sidebar, SidebarGroup, SidebarSeparator, StickerTile } from '@
 
 import { useModules } from '../../module-registry';
 import { useSettings } from '../../hub-settings';
-import { activeViewId, HOME_MODULE, isPathActive, ModuleSwitcherMenu, pinnedManifests, SETTINGS_PATH, useCurrentModule, useSelectModule } from '../../module-navigation';
+import { activeViewId, HOME_MODULE, isMoreActive, isPathActive, moreScreenPath, sidebarViews, ModuleSwitcherMenu, pinnedManifests, SETTINGS_PATH, useCurrentModule, useSelectModule } from '../../module-navigation';
 import { SidebarFooterContent } from './SidebarFooterContent';
 
 export function WideSidebar() {
@@ -32,7 +32,7 @@ function ModuleNav({ manifest }: { manifest: ModuleManifest }) {
   return (
     <>
       <SidebarGroup>
-        {manifest.views.map((view) => (
+        {sidebarViews(manifest).map((view) => (
           <NavItem
             key={view.id}
             icon={view.icon}
@@ -41,6 +41,14 @@ function ModuleNav({ manifest }: { manifest: ModuleManifest }) {
             render={<Link to={view.path} />}
           />
         ))}
+        {manifest.more ? (
+          <NavItem
+            icon="dots-three"
+            label={t('Khác')}
+            active={isMoreActive(manifest, pathname, search)}
+            render={<Link to={moreScreenPath(manifest)} />}
+          />
+        ) : null}
       </SidebarGroup>
       <SidebarSeparator />
       <SidebarGroup>

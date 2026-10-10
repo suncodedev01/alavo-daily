@@ -6,7 +6,8 @@ import { ExploreScreen } from '../../screens/explore';
 import { SettingsScreen } from '../../screens/settings';
 import { TodayScreen } from '../../screens/today';
 import { UnknownPath } from '../../screens/unknown-path';
-import { firstViewPath } from '../../module-navigation';
+import { firstViewPath, moreScreenPath } from '../../module-navigation';
+import { MoreScreen } from '../../screens/more';
 import { ShellFrame } from '../../shell';
 import { useModules } from '../../module-registry';
 
@@ -22,6 +23,7 @@ export function AppRoutes() {
         <Route path="/explore" element={<ExploreScreen />} />
         <Route path="/settings/:tab?" element={<SettingsScreen />} />
         {modules.filter((manifest) => !hasOwnRoot(manifest)).map(renderModuleRedirect)}
+        {modules.filter((manifest) => manifest.more).map(renderMoreRoute)}
         {routes.filter((route) => !route.fullscreen).map(renderRoute)}
         <Route path="*" element={<UnknownPath />} />
       </Route>
@@ -39,6 +41,10 @@ function FramedLayout() {
 
 function renderRoute(route: ModuleRoute) {
   return <Route key={route.path} path={route.path} element={route.element} />;
+}
+
+function renderMoreRoute(manifest: ModuleManifest) {
+  return <Route key={`${manifest.id}-more`} path={moreScreenPath(manifest)} element={<MoreScreen manifest={manifest} />} />;
 }
 
 function renderModuleRedirect(manifest: ModuleManifest) {

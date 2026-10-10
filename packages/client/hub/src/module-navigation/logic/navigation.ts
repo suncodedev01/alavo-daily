@@ -42,6 +42,22 @@ export function tabViews(manifest: ModuleManifest): ModuleView[] {
   return manifest.views.filter((view) => view.tab).slice(0, 4);
 }
 
+export function moreScreenPath(manifest: ModuleManifest): string {
+  return `/${manifest.id}/more`;
+}
+
+export function sidebarViews(manifest: ModuleManifest): ModuleView[] {
+  return manifest.views.filter((view) => !view.more);
+}
+
+/** "Khác" stays lit on its own screen and on every screen that lives under it. */
+export function isMoreActive(manifest: ModuleManifest, pathname: string, search: string): boolean {
+  if (!manifest.more) return false;
+  if (isPathActive(pathname, moreScreenPath(manifest))) return true;
+  const id = activeViewId(manifest.views, pathname, search);
+  return manifest.views.find((view) => view.id === id)?.more === true;
+}
+
 export function pinnedManifests(
   modules: readonly ModuleManifest[],
   pinnedIds: readonly string[],

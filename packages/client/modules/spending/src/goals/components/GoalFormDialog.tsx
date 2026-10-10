@@ -11,26 +11,33 @@ import { useToday } from '../../today';
 import { FormDialog, IconGrid } from '../../form-dialogs';
 import { MoneyField } from '../../money';
 
+export interface GoalSuggestion {
+  name: string;
+  targetVnd: number;
+}
+
 export interface GoalFormDialogProps {
   editing: Goal | 'new' | null;
+  /** What to fill in a new goal with, such as the amount an estimate is short by. */
+  suggestion?: GoalSuggestion;
   onClose: () => void;
 }
 
 const DEFAULT_DUE_DAYS = 90;
 
-export function GoalFormDialog({ editing, onClose }: GoalFormDialogProps) {
+export function GoalFormDialog({ editing, suggestion, onClose }: GoalFormDialogProps) {
   if (editing === null) return null;
-  return <GoalForm existing={editing === 'new' ? null : editing} onClose={onClose} />;
+  return <GoalForm existing={editing === 'new' ? null : editing} suggestion={suggestion} onClose={onClose} />;
 }
 
-function GoalForm({ existing, onClose }: { existing: Goal | null; onClose: () => void }) {
+function GoalForm({ existing, suggestion, onClose }: { existing: Goal | null; suggestion?: GoalSuggestion; onClose: () => void }) {
   const t = useT();
   const today = useToday();
   const create = useEngineMutation('spending.create_goal');
   const update = useEngineMutation('spending.update_goal');
-  const [name, setName] = useState(existing?.name ?? '');
+  const [name, setName] = useState(existing?.name ?? suggestion?.name ?? '');
   const [icon, setIcon] = useState<string>(existing?.icon ?? GOAL_ICONS[0]);
-  const [target, setTarget] = useState(formatVndInput(String(existing?.targetVnd ?? '')));
+  const [target, setTarget] = useState(formatVndInput(String(existing?.targetVnd ?? suggestion?.targetVnd ?? '')));
   const [saved, setSaved] = useState('');
   const [dueOn, setDueOn] = useState<string | null>(existing?.dueOn ?? null);
   const [problem, setProblem] = useState<string | null>(null);

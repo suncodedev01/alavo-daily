@@ -14,6 +14,8 @@ import { addMonths, daysInMonth, monthOf } from '@alavo-daily/common/format';
 import type { Handlers } from '@alavo-daily/common/testing';
 
 import { automationHandlers } from './fakeAutomation';
+import { reorderCategories, settleCategoryTransactions } from './fakeCategories';
+import { estimateHandlers } from './fakeEstimates';
 import { paymentMethodHandlers } from './fakePaymentMethods';
 import type { FakeData } from './fixtures';
 
@@ -181,7 +183,9 @@ function transactionHandlers(data: FakeData): Handlers {
 function categoryHandlers(data: FakeData): Handlers {
   return {
     'spending.list_categories': (filter) =>
-      data.categories.filter((item) => !filter?.kind || item.kind === filter.kind),
+      data.categories
+        .filter((item) => !filter?.kind || item.kind === filter.kind)
+        .sort((a, b) => a.position - b.position),
     'spending.create_category': (input) => {
       const name = requireText('name', input.name);
       if (input.budgetVnd !== undefined && input.budgetVnd !== null && input.budgetVnd <= 0) {
@@ -207,13 +211,14 @@ function categoryHandlers(data: FakeData): Handlers {
       data.categories[index] = next;
       return next;
     },
-    'spending.delete_category': ({ id }) => {
+    'spending.delete_category': ({ id, moveTransactionsTo, deleteTransactions }) => {
       if (data.transactions.some((item) => item.categoryId === id)) {
-        throw validation('category still has transactions');
+        settleCategoryTransactions(data, id, moveTransactionsTo, deleteTransactions);
       }
       data.categories = data.categories.filter((item) => item.id !== id);
       return {};
     },
+    'spending.reorder_categories': ({ ids }) => reorderCategories(data, ids),
   };
 }
 
@@ -344,6 +349,7 @@ export function spendingHandlers(data: FakeData): Handlers {
     ...categoryHandlers(data),
     ...walletHandlers(data),
     ...paymentMethodHandlers(data),
+    ...estimateHandlers(data),
     ...goalHandlers(data),
     ...billHandlers(data),
     ...automationHandlers(data),

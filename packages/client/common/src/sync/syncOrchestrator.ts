@@ -6,7 +6,8 @@ import { runSyncRound } from './syncRound';
 import { SyncError, toSyncError } from './syncError';
 
 const DEBOUNCE_MS = 5_000;
-const POLL_MS = 5 * 60_000;
+const DEFAULT_POLL_MINUTES = 5;
+const MINUTE_MS = 60_000;
 const RETRY_DELAYS_MS = [15_000, 60_000, 300_000];
 /** Commands sync itself issues. Reacting to them would make sync trigger sync. */
 const SYNC_BOOKKEEPING = new Set(['sync.report_state', 'sync.apply_remote', 'sync.mark_synced']);
@@ -54,6 +55,7 @@ export class SyncOrchestrator implements SyncController {
   private failures = 0;
   private soonTimer: Timer | undefined;
   private retryTimer: Timer | undefined;
+  private pollTimer: Timer | undefined;
 
   constructor(private readonly options: OrchestratorOptions) {
     this.engine = options.engine;
@@ -119,11 +121,35 @@ export class SyncOrchestrator implements SyncController {
     if (status.state !== 'off') await this.syncNow();
   }
 
+  /** A fixed `pollMs` is for tests; otherwise the person's "Tự đồng bộ mỗi" setting decides. */
   private startPolling(): () => void {
-    const interval = this.options.pollMs ?? POLL_MS;
+    if (this.options.pollMs !== undefined) return this.startFixedPolling(this.options.pollMs);
+    void this.schedulePoll();
+    const stop = this.engine.subscribe((event) => {
+      if (event.command === 'hub.update_settings') void this.schedulePoll();
+    });
+    return () => {
+      clearTimeout(this.pollTimer);
+      stop();
+    };
+  }
+
+  private startFixedPolling(interval: number): () => void {
     if (interval <= 0) return () => undefined;
     const timer = setInterval(() => void this.syncNow(), interval);
     return () => clearInterval(timer);
+  }
+
+  private async schedulePoll(): Promise<void> {
+    clearTimeout(this.pollTimer);
+    const settings = await this.engine.call('hub.get_settings').catch(() => null);
+    const minutes = settings?.syncIntervalMinutes ?? DEFAULT_POLL_MINUTES;
+    if (minutes <= 0) return;
+    clearTimeout(this.pollTimer);
+    this.pollTimer = setTimeout(() => {
+      void this.syncNow();
+      void this.schedulePoll();
+    }, minutes * MINUTE_MS);
   }
 
   private syncSoon(): void {

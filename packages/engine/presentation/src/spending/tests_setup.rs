@@ -188,6 +188,34 @@ fn a_wallet_can_keep_an_account_number_that_can_be_changed_and_cleared() {
 }
 
 #[test]
+fn categories_can_be_put_in_order_and_deleted_with_their_transactions_moved_or_removed() {
+    let harness = Harness::start();
+    let created = harness.call(
+        "spending.create_category",
+        json!({ "name": "Cà phê", "icon": "coffee", "kind": "expense" }),
+    );
+    let id = created["id"].as_str().unwrap().to_string();
+    let listed = harness.call("spending.list_categories", json!({ "kind": "expense" }));
+    let mut order: Vec<String> =
+        listed.as_array().unwrap().iter().map(|c| c["id"].as_str().unwrap().to_string()).collect();
+    order.rotate_right(1);
+    let reordered = harness.call("spending.reorder_categories", json!({ "ids": order }));
+    assert_eq!(reordered[0]["id"], json!(order[0]));
+    assert_eq!(reordered[0]["id"], json!(id));
+    let transaction = harness.record("Phở", -70_000, "2026-10-06");
+    let used = harness.fail("spending.delete_category", json!({ "id": "category-food" }));
+    assert_eq!(used["code"], "validation");
+    let moved = json!({ "id": "category-food", "moveTransactionsTo": id });
+    assert_eq!(harness.call("spending.delete_category", moved), json!({}));
+    let after = harness.call("spending.get_transaction", json!({ "id": transaction["id"] }));
+    assert_eq!(after["categoryId"], json!(id));
+    let removed = json!({ "id": id, "deleteTransactions": true });
+    assert_eq!(harness.call("spending.delete_category", removed), json!({}));
+    let rest = harness.call("spending.list_transactions", json!({}));
+    assert_eq!(rest.as_array().map(Vec::len), Some(0));
+}
+
+#[test]
 fn goals_can_be_created_updated_funded_and_deleted() {
     let harness = Harness::start();
     let goal = harness.call(

@@ -42,6 +42,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "spending_payment_methods",
         sql: include_str!("spending/v107_spending_payment_methods.sql"),
     },
+    Migration {
+        version: 108,
+        name: "spending_estimates",
+        sql: include_str!("spending/v108_spending_estimates.sql"),
+    },
 ];
 
 #[cfg(all(test, feature = "native"))]
@@ -52,9 +57,13 @@ mod tests {
     use crate::persistence::native_db::NativeDb;
     use crate::testing::{migrated_memory_db, TEST_NOW_MS};
 
-    const SPENDING_TABLES: [&str; 6] = [
+    const SPENDING_TABLES: [&str; 10] = [
         "spending_bills",
         "spending_categories",
+        "spending_estimate_factors",
+        "spending_estimate_income",
+        "spending_estimate_items",
+        "spending_estimates",
         "spending_goals",
         "spending_payment_methods",
         "spending_transactions",

@@ -8,6 +8,8 @@ pub mod calendar;
 pub mod category;
 pub mod csv_export;
 pub mod entity;
+pub mod estimate;
+pub mod estimate_input;
 pub mod goal;
 pub mod notice;
 pub mod payment_method;
@@ -22,8 +24,15 @@ pub mod wallet;
 pub use bill::{Bill, SaveBill};
 pub use budget::{BudgetLine, BudgetStatus, BudgetTone};
 pub use calendar::{normalize_month, today_utc, MonthContext, MonthQuery};
-pub use category::{Category, CategoryKind, NewCategory, UpdateCategory};
+pub use category::{Category, CategoryKind, DeleteCategory, NewCategory, UpdateCategory};
 pub use entity::Entity;
+pub use estimate_input::{
+    NewEstimate, NewFactor, RecordPayment, SaveFactor, SaveIncome, SaveItem, SetItemPaid,
+    UpdateEstimate,
+};
+pub use estimate::{
+    Estimate, EstimateItem, EstimateTotals, ExpectedIncome, Factor, Priority, SavingOption,
+};
 pub use goal::{ContributeGoal, Goal, NewGoal, UpdateGoal};
 pub use notice::{budget_category_id, BudgetAlert};
 pub use payment_method::{

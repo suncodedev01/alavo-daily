@@ -50,6 +50,8 @@ export {
 } from './components/overlays/Menu';
 export { Popover, type PopoverProps } from './components/overlays/Popover';
 export { OptionPicker, type OptionPickerProps, type PickerOption } from './components/overlays/OptionPicker';
+export { ReorderList, type ReorderItem, type ReorderListProps } from './components/lists/ReorderList';
+export { moveItem } from './components/lists/reorder';
 export { Dialog, type DialogProps } from './components/overlays/Dialog';
 export { Sheet, type SheetProps } from './components/overlays/Sheet';
 export { ResponsiveDialog, type ResponsiveDialogProps } from './components/overlays/ResponsiveDialog';

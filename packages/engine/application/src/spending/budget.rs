@@ -62,6 +62,7 @@ mod tests {
 
     fn set_budget(fixture: &Fixture, category: &str, budget: Option<i64>) {
         let change = UpdateCategory {
+            position: None,
             id: category.into(),
             name: None,
             icon: None,

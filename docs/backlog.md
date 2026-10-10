@@ -82,3 +82,21 @@ Cập nhật: 2026-10-09. `[x]` là đã làm xong và có test (và đã xem tr
 - [x] Nhắc hoá đơn trước 2 ngày, tóm tắt chi tiêu cuối tuần (Chủ Nhật)
 - [x] Ngày hiện tại tự đổi lúc nửa đêm và khi tab hiện lại, nên lịch nhắc tự tính lại khi ứng dụng mở qua đêm
 - [ ] Kiểm tra thông báo hiện trên màn hình khoá của điện thoại (code và test có rồi; thử trên máy ảo Android là bước kế tiếp)
+
+## Bàn giao từ thiết kế (10/10/2026)
+
+Thứ tự dựng do phiên thiết kế chốt. Mỗi mục xong thì chạy typecheck, test và xem trên trình duyệt thật ở cả sáng và tối.
+
+- [x] Hình thức thanh toán là bảng riêng (`spending_payment_methods`, v107), giao dịch có `payment_method_id`, mặc định "Tiền mặt" không xoá được; form thêm giao dịch có hai ô chọn "Chi từ ví" và "Thanh toán bằng" kèm nút Quản lý
+- [x] Số tài khoản ngân hàng (không bắt buộc) của ví loại Tài khoản, chỉ để tra cứu, hiện dạng •••• 8901
+- [x] Xoá ví đã có giao dịch: chuyển sang ví khác hoặc xoá luôn giao dịch
+- [x] Khung "Khác" theo manifest (`more.sections`, `ModuleView.more`, `QuickAction.tabLabel`): hub vẽ màn Khác dùng chung, thanh tab và thanh bên tự thêm mục "Khác" ở cuối
+- [x] Menu Chi tiêu: Tổng quan, Tài khoản, (+ Ghi chép), Báo cáo, Khác; menu Món ăn: Công thức, Thực đơn, (+ Thêm công thức), Đi chợ, Khác
+- [x] Component danh sách đổi thứ tự dùng chung (`ReorderList`), đã dùng cho "Hạng mục hiện ở ngoài"; còn dùng cho "Khu mua sắm"
+- [ ] Khác của Chi tiêu còn thiếu: Ngày bắt đầu tháng, Mặc định khi ghi chép, Cách hiển thị (đã có: Quản lý hạng mục, Hạng mục hiện ở ngoài, Dự toán, Số tài khoản ngân hàng, Nhắc nhở chi tiêu)
+- [ ] Khác của Món ăn còn thiếu: Nhóm món, Nhập công thức, Bữa trong ngày, Khu mua sắm, Ghi chi phí đi chợ, Chế độ nấu ăn, Xuất công thức (đã có: Khẩu phần mặc định, Nhắc nấu ăn)
+- [x] Ô "Tự đồng bộ mỗi" (1, 5 mặc định, 15, 30 phút, Tắt) trong tab Đồng bộ Google khi đã kết nối
+- [x] Dự toán v2 (thông số nhân, tiền cọc, mức cần thiết, gợi ý bỏ khoản, khoản thu dự kiến), tính toán thuần hàm ở domain; bảng `spending_estimates`, `spending_estimate_factors`, `spending_estimate_items`, `spending_estimate_income`
+- [ ] Bộ màu theo mệnh đổi tông toàn app: token `--sticker-tint`, `--sticker-pct`, `--card-bg`, `--card-ring`, `--chrome-bg`, `--sidebar-bg`, `--meter-plain`, `--wash-a`, `--wash-b`
+- [ ] Màn Ghi chép dạng lưới "Mục hay dùng 4×2" và hero gradient (chưa có bản vẽ)
+

@@ -5,6 +5,7 @@ import { RecipesBackground } from './background';
 import { CookingScreen } from './cooking';
 import { RecipeEditorScreen } from './editor';
 import { RecipeListScreen } from './list';
+import { recipesMoreSections } from './more/moreSections';
 import { PlanScreen } from './plan';
 import { ShoppingScreen } from './shopping';
 import { TodayMealsGroup } from './sidebar';
@@ -23,11 +24,18 @@ export const recipesManifest: ModuleManifest = {
       label: 'Yêu thích',
       icon: 'heart',
       path: '/recipes/list?tag=favorites',
-      tab: true,
+      more: true,
     },
   ],
+  more: { sections: recipesMoreSections },
   quickActions: [
-    { id: 'new-recipe', label: 'Công thức mới', icon: 'book-open', path: '/recipes/new' },
+    {
+      id: 'new-recipe',
+      label: 'Công thức mới',
+      tabLabel: 'Thêm công thức',
+      icon: 'book-open',
+      path: '/recipes/new',
+    },
   ],
   routes: [
     { path: '/recipes/list/:id?', element: createElement(RecipeListScreen) },

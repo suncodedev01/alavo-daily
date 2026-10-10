@@ -147,6 +147,7 @@ export function defaultState(): HubState {
       householdSize: 2,
       pinnedModules: ['alpha', 'beta'],
       recentModules: [],
+      syncIntervalMinutes: 5,
     },
     notifications: [],
     rules: [],

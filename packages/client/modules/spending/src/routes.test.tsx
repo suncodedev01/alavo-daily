@@ -12,10 +12,13 @@ describe('spendingManifest', () => {
     expect(spendingManifest.id).toBe('spending');
     expect(spendingManifest.views.map((view) => view.path)).toEqual([
       '/spending/overview',
+      '/spending/accounts',
       '/spending/transactions',
+      '/spending/reports',
       '/spending/budgets',
       '/spending/goals',
-      '/spending/reports',
+      '/spending/estimates',
+      '/spending/import',
     ]);
     expect(spendingManifest.quickActions?.map((action) => action.path)).toEqual(['/spending/transactions?new=1']);
   });
@@ -35,10 +38,10 @@ describe('spendingManifest', () => {
     expect(spendingManifest.sidebarExtra).toBeDefined();
   });
 
-  it('keeps the reports out of the bottom tab bar', () => {
+  it('keeps budgets and goals out of the bottom tab bar, behind the more screen', () => {
     const tabs = spendingManifest.views.filter((view) => view.tab).map((view) => view.id);
-    expect(tabs).toEqual(['overview', 'transactions', 'budgets', 'goals']);
-    expect(spendingManifest.views.find((view) => view.id === 'reports')?.tab).toBeUndefined();
+    expect(tabs).toEqual(['overview', 'accounts', 'reports']);
+    expect(spendingManifest.views.find((view) => view.id === 'budgets')?.more).toBe(true);
   });
 
   it('has a background component for recurring transactions and reminders', () => {

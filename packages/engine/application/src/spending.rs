@@ -7,6 +7,10 @@ pub mod categories;
 pub mod contract;
 pub mod demo;
 mod demo_data;
+pub mod estimate_rows;
+#[cfg(test)]
+mod estimate_rows_tests;
+pub mod estimates;
 pub mod goals;
 pub mod import;
 pub mod payment_methods;

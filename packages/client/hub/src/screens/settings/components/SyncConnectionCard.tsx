@@ -4,6 +4,7 @@ import { Button, Card } from '@alavo-daily/design-system';
 import { useSyncActions, type SyncActions } from '../../../sync-status';
 import { CardIntro, WaitingChanges } from './CardIntro';
 import { ConnectedCard } from './ConnectedCard';
+import { SyncIntervalCard } from './SyncIntervalCard';
 
 /** The Google connection card: whichever of the states below the sync is in. */
 export function SyncConnectionCard({ status }: { status: SyncStatus | undefined }) {
@@ -12,7 +13,12 @@ export function SyncConnectionCard({ status }: { status: SyncStatus | undefined 
   if (!actions.available) return <NotConfiguredCard pending={pending} />;
   if (!status || status.state === 'off') return <NotConnectedCard actions={actions} pending={pending} />;
   if (status.state === 'needs_login') return <NeedsLoginCard actions={actions} pending={pending} />;
-  return <ConnectedCard status={status} actions={actions} />;
+  return (
+    <>
+      <ConnectedCard status={status} actions={actions} />
+      <SyncIntervalCard />
+    </>
+  );
 }
 
 function NotConfiguredCard({ pending }: { pending: number }) {

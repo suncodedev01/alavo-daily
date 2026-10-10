@@ -19,6 +19,7 @@ const baseSettings = {
   householdSize: 2,
   pinnedModules: [],
   recentModules: [],
+  syncIntervalMinutes: 5,
 };
 
 describe('FakeEngineClient', () => {

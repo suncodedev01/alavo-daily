@@ -11,6 +11,8 @@ export interface ModuleView {
   path: string;
   /** Show as a tab in the bottom bar (at most four per module; the rest stay in the sidebar). */
   tab?: boolean;
+  /** Lives under the module's "Khác" screen instead of the sidebar and tab bar, which keep "Khác" lit. */
+  more?: boolean;
 }
 
 /** A shortcut offered by the hub's "quick add" menu. */
@@ -20,6 +22,39 @@ export interface QuickAction {
   icon: string;
   /** Where to go; the screen opens its own "new" dialog when it sees `?new=1`. */
   path: string;
+  /** Shorter label under the round middle button of the tab bar. */
+  tabLabel?: string;
+}
+
+/** What the props of a dialog opened from the "Khác" screen look like. */
+export interface MoreDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+/** What a row of the "Khác" screen does when pressed. */
+export type MoreTarget =
+  | { screen: string }
+  | { dialog: ComponentType<MoreDialogProps> }
+  | { useAction: () => () => void };
+
+export interface MoreItem {
+  id: string;
+  /** Natural-text i18n key. */
+  label: string;
+  icon: string;
+  /** Natural-text i18n key, shown under the label. */
+  description?: string;
+  /** Text worked out from data, such as "3 công thức bạn đã đánh dấu". Called as a hook. */
+  useDescription?: () => string | undefined;
+  target: MoreTarget;
+}
+
+export interface MoreSection {
+  id: string;
+  /** Natural-text i18n key. */
+  title: string;
+  items: MoreItem[];
 }
 
 export interface ModuleRoute {
@@ -46,6 +81,8 @@ export interface ModuleManifest {
   views: ModuleView[];
   routes: ModuleRoute[];
   quickActions?: QuickAction[];
+  /** The sections of the module's "Khác" screen. The hub draws it; the module never builds that screen. */
+  more?: { sections: MoreSection[] };
   /** Extra content under the module's navigation in the wide sidebar (wallets, today's meals). */
   sidebarExtra?: ComponentType;
   /**

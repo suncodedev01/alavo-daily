@@ -1,4 +1,4 @@
-import type { Bill, Category, Goal, PaymentMethod, Transaction, Wallet } from '@alavo-daily/common/engine';
+import type { Bill, Category, Estimate, Goal, PaymentMethod, Transaction, Wallet } from '@alavo-daily/common/engine';
 
 import { defaultPaymentMethods } from './fakePaymentMethods';
 
@@ -8,6 +8,7 @@ export interface FakeData {
   categories: Category[];
   wallets: Wallet[];
   paymentMethods: PaymentMethod[];
+  estimates: Estimate[];
   transactions: Transaction[];
   goals: Goal[];
   bills: Bill[];
@@ -76,13 +77,14 @@ export function createDemoData(): FakeData {
       category('home', 'Nhà ở', 'house-line', null, true),
       category('bills', 'Hoá đơn', 'lightning', 1_200_000),
       income,
-    ],
+    ].map((item, index) => ({ ...item, position: index + 1 })),
     wallets: [
       wallet('tcb', 'Techcombank', 'bank', 10_000_000),
       wallet('momo', 'Ví MoMo', 'ewallet', 500_000),
       wallet('cash', 'Tiền mặt', 'cash', 300_000),
     ],
     paymentMethods: defaultPaymentMethods(),
+    estimates: [],
     transactions: [...septemberTransactions(), ...octoberTransactions()],
     goals: [
       { id: 'goal-1', name: 'Quỹ khẩn cấp', icon: 'piggy-bank', targetVnd: 60_000_000, savedVnd: 38_500_000, dueOn: null },

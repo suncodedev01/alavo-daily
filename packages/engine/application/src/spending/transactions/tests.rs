@@ -1,6 +1,6 @@
 use alavo_domain::shared::error::ErrorCode;
 use alavo_domain::shared::money::Money;
-use alavo_domain::spending::{CategoryKind, DeleteWallet, NewWallet, WalletKind};
+use alavo_domain::spending::{CategoryKind, DeleteCategory, DeleteWallet, NewWallet, WalletKind};
 
 use crate::spending::test_support::{expense, income, Fixture, CASH, FOOD, INCOME, TODAY};
 use crate::spending::{categories, wallets};
@@ -94,7 +94,7 @@ fn record_rejects_an_unknown_or_deleted_category_or_wallet() {
     let no_wallet = NewTransaction { wallet_id: "nope".into(), ..expense("x", 1, TODAY) };
     assert_eq!(error_code(record(&ctx, no_category)), ErrorCode::Validation);
     assert_eq!(error_code(record(&ctx, no_wallet)), ErrorCode::Validation);
-    categories::delete(&ctx, "category-fun").unwrap();
+    categories::delete(&ctx, DeleteCategory::only("category-fun")).unwrap();
     let deleted = NewTransaction { category_id: "category-fun".into(), ..expense("x", 1, TODAY) };
     assert_eq!(error_code(record(&ctx, deleted)), ErrorCode::Validation);
     let spare =

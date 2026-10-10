@@ -36,6 +36,7 @@ pub fn load(ctx: &Ctx) -> Result<(), EngineError> {
 fn set_budgets(ctx: &Ctx) -> Result<(), EngineError> {
     for (category_id, budget_vnd) in BUDGETS {
         let change = UpdateCategory {
+            position: None,
             id: category_id.to_string(),
             name: None,
             icon: None,

@@ -42,6 +42,14 @@ export class FakeSyncEngine implements EngineClient {
     this.state = { state: 'off', pendingEvents: 0, lastSyncedAt: null, deviceId, accountEmail: null, error: null, conflictCount: 0 };
   }
 
+  private syncIntervalMinutes = 5;
+
+  /** Changes the "Tự đồng bộ mỗi" setting the way the settings screen does. */
+  setSyncInterval(minutes: number): void {
+    this.syncIntervalMinutes = minutes;
+    this.listeners.forEach((listener) => listener({ command: 'hub.update_settings' }));
+  }
+
   write(id: string, value: string): void {
     const hlc = this.clock();
     this.take(id, { value, contentHlc: hlc, deletedHlc: 0 });
@@ -80,6 +88,8 @@ export class FakeSyncEngine implements EngineClient {
 
   private run(command: string, payload: unknown): unknown {
     switch (command) {
+      case 'hub.get_settings':
+        return { syncIntervalMinutes: this.syncIntervalMinutes };
       case 'sync.status':
         return this.statusNow();
       case 'sync.report_state':

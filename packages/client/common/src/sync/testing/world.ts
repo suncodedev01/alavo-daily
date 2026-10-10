@@ -36,7 +36,10 @@ export function createWorld() {
   const clock = () => (tick += 1);
   const drive = new FakeDrive();
 
-  function addDevice(deviceId: string, options: { debounceMs?: number } = {}): SimulatedDevice {
+  function addDevice(
+    deviceId: string,
+    options: { debounceMs?: number; timerFromSettings?: boolean } = {},
+  ): SimulatedDevice {
     const engine = new FakeSyncEngine(deviceId, clock);
     const auth = new FakeGoogleAuth((token) => drive.accounts.add(token));
     const network = new FakeNetwork();
@@ -46,7 +49,7 @@ export function createWorld() {
       fetch: drive.fetch,
       network,
       sleep: async () => undefined,
-      pollMs: 0,
+      pollMs: options.timerFromSettings ? undefined : 0,
       debounceMs: options.debounceMs,
       retryDelaysMs: [1000],
     });

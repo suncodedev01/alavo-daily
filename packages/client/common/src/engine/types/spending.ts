@@ -178,6 +178,14 @@ export interface UpdateCategory {
   name?: string;
   icon?: string;
   budgetVnd?: number | null;
+  position?: number;
+}
+
+/** A category with transactions needs one of the two options; an empty category needs neither. */
+export interface DeleteCategoryRequest {
+  id: string;
+  moveTransactionsTo?: string;
+  deleteTransactions?: boolean;
 }
 
 export interface NewWallet {
@@ -316,4 +324,156 @@ export interface StatementImportResult {
   imported: number;
   /** Rows left out because the wallet already had the same date, amount and title. */
   skippedDuplicates: number;
+}
+
+/** How much an item of an estimate matters, so the person can see what to drop. */
+export type EstimatePriority = 'must' | 'should' | 'nice';
+
+/** A number the amounts of an estimate multiply by: guests, people, days, nights. */
+export interface EstimateFactor {
+  id: string;
+  label: string;
+  value: number;
+}
+
+export interface EstimateItem {
+  id: string;
+  group: string;
+  name: string;
+  price: number;
+  quantity: number;
+  priority: EstimatePriority;
+  /** Ids of the factors the price is multiplied by. */
+  by: string[];
+  /** A deposit or the whole amount; never more than the item costs. */
+  paid: number;
+}
+
+export interface ExpectedIncome {
+  id: string;
+  label: string;
+  amount: number;
+}
+
+export interface Estimate {
+  id: string;
+  name: string;
+  icon: string;
+  /** 0, 5, 10, 15 or 20. */
+  contingencyPercent: number;
+  /** Wallets whose balances count as money on hand. */
+  walletIds: string[];
+  factors: EstimateFactor[];
+  items: EstimateItem[];
+  income: ExpectedIncome[];
+}
+
+export interface EstimateTotals {
+  base: number;
+  paid: number;
+  contingency: number;
+  total: number;
+  /** Still to pay: items minus what is paid, plus the contingency. */
+  remaining: number;
+  available: number;
+  incoming: number;
+  /** Negative means short. */
+  result: number;
+  withoutIncoming: number;
+  /** How much of what is still to pay is covered, 0 to 100. */
+  coveredPercent: number;
+}
+
+export interface SavingOption {
+  dropped: EstimatePriority[];
+  saving: number;
+  result: number;
+}
+
+/** What one item costs after multiplying by its factors, and how much of it is paid. */
+export interface EstimateItemAmount {
+  id: string;
+  amount: number;
+  paid: number;
+}
+
+export interface EstimateView {
+  estimate: Estimate;
+  totals: EstimateTotals;
+  savingOptions: SavingOption[];
+  /** In the order of `estimate.items`. */
+  amounts: EstimateItemAmount[];
+}
+
+export interface EstimateSummary {
+  id: string;
+  name: string;
+  icon: string;
+  itemCount: number;
+  total: number;
+  remaining: number;
+  result: number;
+  coveredPercent: number;
+}
+
+export interface NewEstimate {
+  name: string;
+  icon: string;
+  contingencyPercent?: number;
+  walletIds?: string[];
+  factors?: { label: string; value: number }[];
+}
+
+export interface UpdateEstimate {
+  id: string;
+  name?: string;
+  icon?: string;
+  contingencyPercent?: number;
+  walletIds?: string[];
+}
+
+/** Creates a factor when `id` is missing, otherwise changes it. */
+export interface SaveEstimateFactor {
+  estimateId: string;
+  id?: string;
+  label: string;
+  value: number;
+}
+
+export interface SaveEstimateItem {
+  estimateId: string;
+  id?: string;
+  group: string;
+  name: string;
+  price: number;
+  quantity?: number;
+  priority: EstimatePriority;
+  by?: string[];
+}
+
+export interface SaveEstimateIncome {
+  estimateId: string;
+  id?: string;
+  label: string;
+  amount: number;
+}
+
+/** Where the payment goes in the spending ledger when the person asks for it to be recorded. */
+export interface RecordEstimatePayment {
+  categoryId: string;
+  walletId: string;
+  occurredOn: string;
+  paymentMethodId?: string | null;
+}
+
+export interface SetEstimateItemPaid {
+  id: string;
+  paid: number;
+  /** Leave out when the payment was already recorded, so it is not counted twice. */
+  record?: RecordEstimatePayment;
+}
+
+export interface EstimateRowRef {
+  estimateId: string;
+  id: string;
 }
