@@ -30,7 +30,7 @@ dependencies = [
 
 [[package]]
 name = "alavo-application"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "alavo-domain",
  "alavo-infrastructure",
@@ -40,7 +40,7 @@ dependencies = [
 
 [[package]]
 name = "alavo-daily-native"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "alavo-domain",
  "alavo-infrastructure",
@@ -63,7 +63,7 @@ dependencies = [
 
 [[package]]
 name = "alavo-domain"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "serde",
  "serde_json",
@@ -71,7 +71,7 @@ dependencies = [
 
 [[package]]
 name = "alavo-infrastructure"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "alavo-domain",
  "rusqlite",
@@ -82,7 +82,7 @@ dependencies = [
 
 [[package]]
 name = "alavo-presentation"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "alavo-application",
  "alavo-domain",
