@@ -112,6 +112,7 @@ function TransactionForm({ onOpenChange, editing, lookups, onSaved, title }: For
           wallets={lookups.wallets}
           selectedId={draft.walletId}
           onSelect={(walletId) => patch({ walletId })}
+          label={draft.kind === 'income' ? t('Nhận vào ví') : t('Chi từ ví')}
           error={errors.wallet}
         />
         <DatePicker

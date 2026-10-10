@@ -77,9 +77,9 @@ function LogExpenseForm({ range, today, onDone }: LogExpenseFormProps) {
         <p className="text-sm text-text-muted">{t('Chưa có ví nào. Hãy tạo ví trong Chi tiêu trước.')}</p>
       ) : null}
       <OptionPicker
-        label={t('Thanh toán bằng')}
+        label={t('Chi từ ví')}
         value={walletId}
-        placeholder={t('Chọn hình thức thanh toán')}
+        placeholder={t('Chọn ví')}
         leadingIcon="wallet"
         options={walletList.map((wallet) => ({ value: wallet.id, label: t(wallet.name) }))}
         onChange={setWalletChoice}

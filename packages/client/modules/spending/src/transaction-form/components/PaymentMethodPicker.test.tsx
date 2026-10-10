@@ -37,7 +37,7 @@ function openDialog(options: SpendingRenderOptions & { editingId?: string } = {}
   });
 }
 
-const paymentGroup = () => screen.findByRole('group', { name: 'Thanh toán bằng' });
+const paymentGroup = () => screen.findByRole('group', { name: 'Chi từ ví' });
 
 async function typeAmount(text: string) {
   await userEvent.type(await screen.findByRole('textbox', { name: 'Số tiền' }), text);
@@ -46,14 +46,14 @@ async function typeAmount(text: string) {
 const save = () => userEvent.click(screen.getByRole('button', { name: 'Lưu giao dịch' }));
 
 describe('payment method pills', () => {
-  it('shows every wallet as a pill under "Thanh toán bằng" and selects the first one', async () => {
+  it('shows every wallet as a pill under "Chi từ ví" and selects the first one', async () => {
     openDialog();
     const group = await paymentGroup();
     const names = within(group).getAllByRole('button').map((button) => button.textContent);
     expect(names).toEqual(['Techcombank', 'Ví MoMo', 'Tiền mặt']);
     expect(within(group).getByRole('button', { name: 'Techcombank', pressed: true })).toBeInTheDocument();
     expect(within(group).getByRole('button', { name: 'Ví MoMo', pressed: false })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /^Thanh toán bằng:/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Chi từ ví:/ })).not.toBeInTheDocument();
   });
 
   it('saves the wallet of the pill the person picked', async () => {
@@ -98,8 +98,8 @@ describe('payment method pills', () => {
 describe('payment method picker with many wallets', () => {
   it('falls back to a picker once there are more than four wallets', async () => {
     const { engine } = openDialog({ data: dataWithWalletCount(5) });
-    await userEvent.click(await screen.findByRole('button', { name: /^Thanh toán bằng: Techcombank/ }));
-    expect(screen.queryByRole('group', { name: 'Thanh toán bằng' })).not.toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('button', { name: /^Chi từ ví: Techcombank/ }));
+    expect(screen.queryByRole('group', { name: 'Chi từ ví' })).not.toBeInTheDocument();
     await userEvent.click(await screen.findByRole('menuitemradio', { name: /Thẻ 2/ }));
     await typeAmount('1000');
     await save();
@@ -122,7 +122,7 @@ describe('payment method wording', () => {
       { ...extraWallet(3), id: 'wallet-ewallet', name: 'Ví điện tử', kind: 'ewallet' },
     ];
     openDialog({ data, language: 'en' });
-    const group = await screen.findByRole('group', { name: 'Paid with' });
+    const group = await screen.findByRole('group', { name: 'Spend from' });
     const names = within(group).getAllByRole('button').map((button) => button.textContent);
     expect(names).toEqual(['Cash', 'Bank transfer', 'E-wallet']);
   });

@@ -62,7 +62,7 @@ function DetailCard({ transaction, lookups }: { transaction: Transaction; lookup
       </div>
       <MoneyAmount amountVnd={transaction.amountVnd} className="text-display font-semibold" />
       <dl className="grid grid-cols-3 gap-x-4 gap-y-3 text-sm">
-        <Fact label={t('Thanh toán bằng')} value={lookups.walletName(transaction.walletId)} />
+        <Fact label={t('Ví')} value={lookups.walletName(transaction.walletId)} />
         <Fact label={t('Danh mục')} value={categoryName} />
         <Fact label={t('Ngày')} value={fullDate(transaction.occurredOn)} />
         <Fact label={t('Lặp lại')} value={recurrenceText(transaction, t)} />
