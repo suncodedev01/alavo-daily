@@ -14,7 +14,7 @@
   /* Floating card recipe: 8px inset, rounded-lg, ring, shadow-card */
   .float { margin: 8px; border-radius: var(--r-lg); box-shadow: 0 0 0 1px var(--line-hairline), var(--elevation-card); overflow: hidden; }
 
-  .sidebar { width: 256px; flex: none; background: var(--surface-raised); display: flex; flex-direction: column; margin-right: 0; }
+  .sidebar { width: 256px; flex: none; background: var(--sidebar-bg, var(--surface-raised)); display: flex; flex-direction: column; margin-right: 0; }
   .sb-head { height: 40px; padding: 0 8px 0 12px; display: flex; align-items: center; gap: 8px; margin-top: 0; }
   .brand-tile { width: 24px; height: 24px; border-radius: var(--r-md); background-color: var(--tile-bg, var(--primary)); color: var(--tile-fg, var(--primary-fg)); display: grid; place-items: center; }
   .sb-scroll { flex: 1; overflow-y: auto; padding: 4px 8px 8px; }
@@ -305,9 +305,11 @@
     <div class="row" style="justify-content:space-between"><h2 class="t-title">Thêm giao dịch</h2><button class="btn ghost icon sm" type="button" id="closeDlg" aria-label="Đóng"><span data-i="x"></span></button></div>
     <div class="seg" role="tablist"><button type="button" class="on" data-kind="out">Chi tiêu</button><button type="button" data-kind="in">Thu nhập</button></div>
     <label class="amount-in"><input id="fAmount" inputmode="numeric" placeholder="0" autocomplete="off" aria-label="Số tiền"><span class="t-2xl muted">₫</span></label>
+    <div class="row"><span class="eyebrow grow">Hạng mục</span><button type="button" class="btn ghost sm" data-dlg="quick-categories">Sắp xếp</button></div>
     <div class="cat-grid" id="fCats"></div>
     <div class="field"><span data-i="receipt"></span><input id="fNote" placeholder="Ghi chú (ví dụ: Highlands Coffee)" aria-label="Ghi chú"></div>
-    <div class="pay"><span class="eyebrow">Thanh toán bằng</span><div class="pay-pills" id="fPay" role="radiogroup" aria-label="Thanh toán bằng"></div></div>
+    <div class="pay"><div class="row"><span class="eyebrow grow">Chi từ ví</span><button type="button" class="btn ghost sm" data-dlg="wallets">Quản lý ví</button></div><div class="pay-pills" id="fWallet" role="radiogroup" aria-label="Chi từ ví"></div></div>
+    <div class="pay"><div class="row"><span class="eyebrow grow">Thanh toán bằng</span><button type="button" class="btn ghost sm" data-dlg="payments">Quản lý</button></div><div class="pay-pills" id="fPay" role="radiogroup" aria-label="Thanh toán bằng"></div></div>
     <div class="field"><span data-i="calendar-blank"></span><span class="t-sm" style="color:var(--text-primary)">Hôm nay, 9/10</span></div>
     <div class="row" style="gap:8px;justify-content:flex-end"><button class="btn outline" type="button" id="cancelDlg">Huỷ</button><button class="btn primary" type="submit" id="saveBtn">Lưu giao dịch</button></div>
   </form>
@@ -345,13 +347,16 @@
 <script src="assets/data.js"></script>
 <script src="assets/food-data.js"></script>
 <script src="assets/ui.js"></script>
+<script src="assets/estimates.js"></script>
 <script src="assets/dialogs.js"></script>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const state = { view: 'overview', selected: 1, filter: 'all', query: '' };
-const TITLES = { overview: 'Tổng quan', transactions: 'Giao dịch', budgets: 'Ngân sách', goals: 'Mục tiêu', report: 'Báo cáo', import: 'Nhập sao kê', settings: 'Cài đặt' };
-const sync = { state: 'off', last: '2 phút trước', auto: true, wifi: false, choice: 'merge' };
+const TITLES = { estimates: 'Dự toán', estimate: 'Dự toán', overview: 'Tổng quan', accounts: 'Tài khoản', more: 'Khác', transactions: 'Ghi chép', budgets: 'Ngân sách', goals: 'Mục tiêu', report: 'Báo cáo', import: 'Nhập sao kê', settings: 'Cài đặt' };
+const sync = { state: 'off', last: '2 phút trước', auto: true, wifi: false, choice: 'merge', every: '5' };
+const SYNC_EVERY = [['1', '1 phút'], ['5', '5 phút'], ['15', '15 phút'], ['30', '30 phút'], ['off', 'Tắt']];
+const syncEveryCard = () => `<section class="card p6" style="display:grid;gap:12px"><div><span class="t-sm w5" style="display:block">Tự đồng bộ mỗi</span><span class="t-xs muted">Chỉ chạy khi ứng dụng đang mở. Mỗi lần bạn thay đổi dữ liệu, ứng dụng vẫn đồng bộ sau vài giây.</span></div><div class="pay-pills" role="radiogroup" aria-label="Tự đồng bộ mỗi">${SYNC_EVERY.map(([id, label]) => `<button type="button" class="pill ${sync.every === id ? 'on' : ''}" role="radio" aria-checked="${sync.every === id}" data-sync-every="${id}">${label}</button>`).join('')}</div></section>`;
 
 const section = (title, body, open = true, chip = '') => `
   <details class="sec" ${open ? 'open' : ''}><summary>${title}${chip}<span class="caret">${ic('caret-down')}</span></summary><div class="sec-body">${body}</div></details>`;
@@ -362,7 +367,7 @@ const daysLeft = 31 - TODAY;
 /* ───────── shared pieces ───────── */
 function walletsHtml() {
   $('#walletList').innerHTML = WALLETS.map((w) => `
-    <li class="wallet"><span class="cat-tile sm">${ic(w.id === 'cash' ? 'coffee' : 'wallet')}</span>
+    <li class="wallet"><span class="cat-tile sm">${ic(WALLET_ICON[w.id])}</span>
       <span class="grow wallet-meta"><span class="t-sm w5 trunc" style="display:block">${w.name}</span><span class="t-xs muted" style="display:block">${vnd(w.balance)}</span></span></li>`).join('');
 }
 
@@ -471,7 +476,7 @@ const VIEWS = {
     main() {
       return `<div class="col"><div class="row"><span class="grow"></span><button class="btn outline" data-dlg="goal-form"><span data-i="plus"></span>Thêm mục tiêu</button></div><div class="grid-3">${GOALS.map((g) => { const p = g.saved / g.target; return `
         <section class="card p6" style="display:grid;gap:16px"><div class="row" style="gap:12px"><span class="cat-tile">${ic(g.icon)}</span><div class="grow"><div class="t-sm w6">${g.name}</div><div class="t-xs muted">${g.due}</div></div><button class="btn ghost icon sm" data-dlg="confirm-goal" aria-label="Xoá mục tiêu"><span data-i="trash"></span></button></div>
-          <div><div class="t-2xl">${vnd(g.saved)}</div><div class="t-xs muted" style="margin-top:4px">trên ${vnd(g.target)}</div></div>${meter(p)}
+          <div><div class="t-2xl">${vnd(g.saved)}</div><div class="t-xs muted" style="margin-top:4px">trên ${vnd(g.target)}</div></div>${plainMeter(p)}
           <div class="row t-xs muted"><span class="grow">${pctText(p)} hoàn thành</span><span>Còn ${vnd(g.target - g.saved)}</span></div>
           <button class="btn affirm sm" style="justify-self:start" data-dlg="contribute"><span data-i="plus"></span>Thêm tiền</button></section>`; }).join('')}</div></div>`;
     },
@@ -541,6 +546,7 @@ const syncCards = {
       <div class="stat4">${syncCounts().map(([n, l]) => `<div><div class="t-title">${n}</div><div class="t-xs muted">${l}</div></div>`).join('')}</div>
       <div class="row" style="gap:12px"><span class="t-sm secondary grow">Đồng bộ lần cuối: ${sync.last}</span><button class="btn outline sm" data-sync="now">${ic('arrows-clockwise')}Đồng bộ ngay</button></div></section>
     <section class="card p6">${toggleRule('auto', 'Tự động đồng bộ', 'Gửi thay đổi lên Google ngay sau khi bạn lưu', sync.auto)}${toggleRule('wifi', 'Chỉ đồng bộ qua Wi-Fi', 'Tiết kiệm dữ liệu di động trên điện thoại', sync.wifi)}</section>
+    ${syncEveryCard()}
     <section class="card p6 row" style="gap:16px"><span class="grow"><span class="t-sm w5" style="display:block">Ngắt kết nối Google</span><span class="t-xs muted">Dữ liệu trên máy này được giữ nguyên.</span></span><button class="btn outline danger sm" data-sync="disconnect">${ic('sign-out')}Ngắt kết nối</button></section>`,
   syncing: () => `<section class="card p6" style="display:grid;gap:24px">${acctRow()}
       <div style="display:grid;gap:8px"><div class="row t-sm"><span class="grow w5">Đang đồng bộ…</span><span class="muted">14 / 23 giao dịch</span></div><div class="meter" role="progressbar" aria-valuenow="61" aria-valuemin="0" aria-valuemax="100"><i style="width:61%"></i></div><span class="t-xs muted">Đừng đóng ứng dụng cho tới khi xong.</span></div></section>`,
@@ -580,6 +586,7 @@ function render() {
   $('#monthSw').hidden = !(state.module === 'spend' && !v.four && state.view !== 'settings');
   $('#listSlot').innerHTML = v.four ? `<section class="listpane float" aria-label="${v.listLabel || 'Danh sách giao dịch'}">${v.list()}</section>` : '';
   $('#paneBody').innerHTML = v.main();
+  $('#paneBody').classList.toggle('top-wash', state.view === 'today');
   $('#dockBody').innerHTML = v.dock();
   const dockExtra = { today: `<button class="btn outline" data-dlg="bills">${ic('repeat')}Quản lý khoản định kỳ</button>`, overview: `<button class="btn outline" data-dlg="bills">${ic('repeat')}Quản lý khoản định kỳ</button>`, recipes: `<button class="btn outline" data-dlg="confirm-recipe">${ic('trash')}Xoá công thức</button>` }[state.view];
   if (dockExtra) $('#dockBody').insertAdjacentHTML('beforeend', `<div class="dock-extra">${dockExtra}</div>`);
@@ -598,7 +605,7 @@ const go = (view) => { state.view = view; render(); };
 const toast = (m) => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200); };
 
 document.addEventListener('click', (e) => {
-  const nav = e.target.closest('[data-view]'); if (nav) return go(nav.dataset.view);
+  const nav = e.target.closest('[data-view]'); if (nav) { if (nav.dataset.setTag) state.tag = nav.dataset.setTag; if (nav.dataset.est) state.est = nav.dataset.est; return go(nav.dataset.view); }
   const g = e.target.closest('[data-go]'); if (g) return go(g.dataset.go);
   const tx = e.target.closest('.tx'); if (tx && state.view === 'transactions' && tx.closest('.listpane')) { state.selected = +tx.dataset.id; return render(); }
   const f = e.target.closest('[data-filter]'); if (f) { state.filter = f.dataset.filter; return render(); }
@@ -612,7 +619,7 @@ document.addEventListener('click', (e) => {
 /* ───────── multi-app shell + Món ăn ───────── */
 const h = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 Object.assign(state, { view: 'today', module: 'today', recipe: 'ga-kho', servings: HOUSEHOLD, tag: 'Tất cả', rq: '', settingsTab: 'sync', shop: buildShopping(), shopLogged: false, notifs: NOTIFS.map((n) => ({ ...n })), rules: JSON.parse(JSON.stringify(NOTIF_RULES)) });
-Object.assign(TITLES, { today: 'Hôm nay', recipes: 'Công thức', plan: 'Thực đơn tuần', shopping: 'Đi chợ' });
+Object.assign(TITLES, { foodMore: 'Khác', today: 'Hôm nay', recipes: 'Công thức', plan: 'Thực đơn tuần', shopping: 'Đi chợ' });
 const titleFor = () => state.view === 'transactions' ? (TX.find((x) => x.id === state.selected) || {}).title || 'Giao dịch' : state.view === 'recipes' ? (recipeById(state.recipe) || {}).name || 'Công thức' : TITLES[state.view];
 
 const shopNeed = () => state.shop.filter((i) => !i.have);
@@ -631,7 +638,7 @@ function shopDecision() {
 function paintShell() {
   const mod = MODULES.find((m) => m.id === state.module);
   $('.sb-head').innerHTML = `<button class="mod-switch" id="modBtn" data-popanchor aria-haspopup="menu" aria-label="Chuyển ứng dụng"><span class="brand-tile">${ic(mod.icon)}</span><span class="grow lbl"><span class="t-sm w6" style="display:block">${mod.name}</span><span class="t-meta muted" style="display:block">Alavo Daily</span></span><span class="lbl muted">${ic('caret-down')}</span></button>`;
-  const items = mod.views.map(([v, icon, label]) => `<button class="nav-item ${state.view === v || (v === 'recipes' && state.view === 'recipeNew') ? 'on' : ''}" data-view="${v}">${ic(icon)}<span class="lbl">${label}</span>${v === 'transactions' ? `<span class="count">${TX.length}</span>` : ''}${v === 'shopping' ? `<span class="count">${shopNeed().length}</span>` : ''}</button>`).join('');
+  const items = mod.views.map(([v, icon, label]) => `<button class="nav-item ${state.view === v || (v === 'recipes' && state.view === 'recipeNew') || (v === 'more' && ['budgets', 'goals', 'import', 'estimates', 'estimate'].includes(state.view)) ? 'on' : ''}" data-view="${v}">${ic(icon)}<span class="lbl">${label}</span>${v === 'transactions' ? `<span class="count">${TX.length}</span>` : ''}${v === 'shopping' ? `<span class="count">${shopNeed().length}</span>` : ''}</button>`).join('');
   $('#navSlot').innerHTML = items + `<div class="nav-sep"></div><button class="nav-item ${state.view === 'settings' ? 'on' : ''}" data-view="settings">${ic('gear')}<span class="lbl">Cài đặt</span></button>`;
   const todayMeals = SLOTS.flatMap(([s, label]) => planOf(TODAY, s).map((id) => [label, recipeById(id)]));
   $('#sideGroup').innerHTML = state.module === 'spend' ? `<div class="row"><span class="eyebrow grow">Ví</span><button class="btn ghost sm" data-dlg="wallets">Quản lý</button></div><ul id="walletList"></ul>`
@@ -641,7 +648,7 @@ function paintShell() {
   const add = $('#addBtn');
   add.innerHTML = state.module === 'food' ? `${ic('plus')}Thêm công thức` : state.module === 'today' ? `${ic('plus')}Thêm nhanh ${ic('caret-down')}` : `${ic('plus')}Thêm giao dịch`;
 }
-function walletsHtml() { const ul = $('#walletList'); if (!ul) return; ul.innerHTML = WALLETS.map((w) => `<li class="wallet"><span class="cat-tile sm">${ic(w.id === 'cash' ? 'coffee' : 'wallet')}</span><span class="grow wallet-meta"><span class="t-sm w5 trunc" style="display:block">${w.name}</span><span class="t-xs muted" style="display:block">${vnd(w.balance)}</span></span></li>`).join(''); }
+function walletsHtml() { const ul = $('#walletList'); if (!ul) return; ul.innerHTML = WALLETS.map((w) => `<li class="wallet"><span class="cat-tile sm">${ic(WALLET_ICON[w.id])}</span><span class="grow wallet-meta"><span class="t-sm w5 trunc" style="display:block">${w.name}</span><span class="t-xs muted" style="display:block">${vnd(w.balance)}</span></span></li>`).join(''); }
 
 function openModuleMenu(anchor) {
   const html = `<span class="eyebrow pop-head">Ứng dụng</span>` + MODULES.map((m) => `<button role="menuitem" data-pick="${m.id}" aria-selected="${m.id === state.module}"><span class="cat-tile sm">${ic(m.icon)}</span><span style="display:grid"><span class="w5">${m.name}</span><span class="t-xs muted">${m.desc}</span></span>${m.id === state.module ? `<span class="sub" style="margin-left:auto">${ic('check')}</span>` : ''}</button>`).join('') + `<div class="nav-sep" style="margin:4px 0"></div><button role="menuitem" disabled style="opacity:.5;cursor:default"><span class="cat-tile sm">${ic('plus')}</span><span style="display:grid"><span class="w5">Thêm ứng dụng</span><span class="t-xs muted">Sắp có</span></span></button>`;
@@ -681,7 +688,7 @@ VIEWS.today = {
           ${meals.map((m) => `<div class="row" style="gap:12px;padding:8px 0;align-items:flex-start"><span class="eyebrow" style="width:48px;padding-top:4px">${m.label}</span><div class="grow">${m.items.length ? m.items.map((r) => `<button class="rrow" data-recipe-open="${r.id}" style="padding:4px 0"><span class="rn grow">${r.name}</span><span class="rm">${fmtMin(totalTime(r))}</span></button>`).join('') : '<span class="t-sm muted">Chưa lên món</span>'}</div></div>`).join('')}</section>
         <section class="card p6"><div class="card-head"><h2 class="t-title">Đi chợ</h2><button class="btn ghost sm" data-go="shopping">Mở danh sách</button></div>
           <div class="t-2xl">${shopNeed().length} món</div><div class="t-sm muted" style="margin:4px 0 16px">cần mua cho 3 ngày tới · ước tính ${vnd(shopCost())}</div>
-          ${meter(1 - shopNeed().length / state.shop.length)}<div class="t-xs muted" style="margin-top:8px">${state.shop.filter((i) => i.have).length}/${state.shop.length} món đã có sẵn</div></section>
+          ${plainMeter(1 - shopNeed().length / state.shop.length)}<div class="t-xs muted" style="margin-top:8px">${state.shop.filter((i) => i.have).length}/${state.shop.length} món đã có sẵn</div></section>
       </div></div>`;
   },
   dock() {
@@ -800,6 +807,36 @@ const _todayMain = VIEWS.today.main;
 VIEWS.today.main = () => `<div class="demo-bar"><span class="eyebrow">Xem thử trạng thái</span><button class="pill ${state.emptyDemo ? '' : 'on'}" data-empty="0">Có dữ liệu</button><button class="pill ${state.emptyDemo ? 'on' : ''}" data-empty="1">Chưa có dữ liệu</button></div>` + (state.emptyDemo ? `<div class="col">${firstRunCard()}</div>` : _todayMain());
 VIEWS.unknown = { main: () => `<div class="col" style="max-width:560px">${unknownPathCard(state.unknownName)}</div>`, dock: () => '' };
 Object.assign(TITLES, { unknown: 'Chưa sẵn sàng' });
+
+VIEWS.accounts = {
+  main() {
+    return `<div class="col" style="max-width:720px"><section class="card p6"><span class="eyebrow">Tổng số dư</span><div class="t-display" style="margin-top:8px">${vnd(totalBalance)}</div><div class="t-sm muted" style="margin-top:8px">Trên ${WALLETS.length} tài khoản</div></section>
+      <div class="row"><span class="eyebrow grow">Danh sách tài khoản</span><button class="btn primary" data-dlg="wallet-form"><span data-i="plus"></span>Thêm tài khoản</button></div>${accountCardsHtml()}</div>`;
+  },
+  dock() {
+    return section('Tài khoản là gì', `<p class="t-sm secondary">Tài khoản là nơi tiền của bạn đang nằm: ngân hàng, ví điện tử hoặc tiền mặt. Mỗi khoản thu chi thuộc về một tài khoản.</p>`)
+      + section('Xoá tài khoản', `<p class="t-sm secondary">Ví đã có giao dịch thì bạn chọn chuyển giao dịch sang ví khác hoặc xoá luôn.</p>`);
+  },
+};
+VIEWS.foodMore = {
+  main() { return `<div class="col" style="max-width:720px">${moreMenuHtml('food')}</div>`; },
+  dock() { return section('Công thức của bạn', `<p class="t-sm secondary">Công thức, thực đơn và danh sách đi chợ nằm trên máy bạn. Những mục ở đây giúp bạn chỉnh cách ứng dụng làm việc cho hợp với bếp nhà mình.</p>`); },
+};
+VIEWS.estimates = {
+  main() { return `<div class="col" style="max-width:720px">${estimateListHtml()}</div>`; },
+  dock() { return section('Dự toán dùng khi nào', estimateExplainerHtml()); },
+};
+VIEWS.estimate = {
+  main() { return `<div class="col" style="max-width:720px">${estimateDetailHtml(ESTIMATES.find((p) => p.id === state.est) || ESTIMATES[0])}</div>`; },
+  dock() {
+    return section('Cách tính', `<p class="t-sm secondary">Còn phải chi là tổng dự toán trừ tiền đã trả (kể cả tiền cọc), cộng khoản dự phòng. Tiền đã trả đã rời ví nên không bị tính lại.</p><p class="t-sm secondary" style="margin-top:8px">Dư hoặc thiếu bằng tiền đang có, cộng khoản thu dự kiến, trừ còn phải chi. Khi thiếu, ứng dụng cho biết bỏ các khoản "Có thì tốt" và "Nên có" thì còn dư hay thiếu bao nhiêu.</p>`)
+      + section('Dự toán dùng khi nào', estimateExplainerHtml(), false);
+  },
+};
+VIEWS.more = {
+  main() { return `<div class="col" style="max-width:720px">${moreMenuHtml('spend')}</div>`; },
+  dock() { return section('Dữ liệu của bạn', `<p class="t-sm secondary">Mọi dữ liệu nằm trên máy bạn. Ứng dụng không kết nối với ngân hàng: bạn nhập sao kê tải từ ứng dụng ngân hàng.</p>`); },
+};
 
 /* ───────── Báo cáo và Nhập sao kê ───────── */
 VIEWS.report = {
@@ -1070,6 +1107,7 @@ document.addEventListener('click', (e) => {
   if (e.target.closest('#syncQuick')) return runQuickSync();
   const demo = e.target.closest('[data-demo]'); if (demo) return setSync(demo.dataset.demo);
   const ch = e.target.closest('[data-choice]'); if (ch) { sync.choice = ch.dataset.choice; return render(); }
+  const ev = e.target.closest('[data-sync-every]'); if (ev) { sync.every = ev.dataset.syncEvery; return render(); }
   const tg = e.target.closest('[data-sync-toggle]'); if (tg) { sync[tg.dataset.syncToggle] = tg.getAttribute('aria-checked') !== 'true'; return render(); }
   const a = e.target.closest('[data-sync]'); if (!a) return;
   const act = a.dataset.sync;
@@ -1091,11 +1129,14 @@ $('#themeBtn').onclick = () => setThemeMode(root.dataset.theme === 'dark' ? 'lig
 
 /* add-transaction dialog */
 const dlg = $('#addDlg'); let kind = 'out', cat = 'food', walletId = WALLETS[0].id;
-const PAY_METHODS = [['cash', 'Tiền mặt', 'money'], ['tcb', 'Chuyển khoản', 'bank'], ['momo', 'Ví điện tử', 'device-mobile']];
+const PAY_METHODS = [['cash', 'Tiền mặt', 'money'], ['transfer', 'Chuyển khoản', 'bank'], ['ewallet', 'Ví điện tử', 'device-mobile']];
+let payMethod = 'cash';
 function paintWallet() {
-  $('#fPay').innerHTML = PAY_METHODS.map(([id, label, icon]) => `<button type="button" class="pill ${id === walletId ? 'on' : ''}" role="radio" aria-checked="${id === walletId}" data-w="${id}">${ic(icon)}${label}</button>`).join('');
+  $('#fWallet').innerHTML = WALLETS.map((x) => `<button type="button" class="pill ${x.id === walletId ? 'on' : ''}" role="radio" aria-checked="${x.id === walletId}" data-w="${x.id}">${ic(WALLET_ICON[x.id])}${x.name} · ${vnd(x.balance)}</button>`).join('');
+  $('#fPay').innerHTML = PAY_METHODS.map(([id, label, icon]) => `<button type="button" class="pill ${id === payMethod ? 'on' : ''}" role="radio" aria-checked="${id === payMethod}" data-pay="${id}">${ic(icon)}${label}</button>`).join('');
 }
-$('#fPay').onclick = (e) => { const b = e.target.closest('[data-w]'); if (!b) return; walletId = b.dataset.w; paintWallet(); };
+$('#fWallet').onclick = (e) => { const b = e.target.closest('[data-w]'); if (!b) return; walletId = b.dataset.w; paintWallet(); };
+$('#fPay').onclick = (e) => { const b = e.target.closest('[data-pay]'); if (!b) return; payMethod = b.dataset.pay; paintWallet(); };
 const VISIBLE_CATS = 6;
 const categoryIds = () => Object.keys(CATS).filter((id) => (kind === 'in') === isIncomeCat(id));
 const catOptions = () => {
@@ -1105,7 +1146,7 @@ const catOptions = () => {
   const more = ids.length > shown.length ? `<button type="button" class="cat-opt new" data-allcats><span class="cat-tile sm">${ic('magnifying-glass')}</span>Xem tất cả</button>` : '';
   return shown.map(tile).join('') + more + `<button type="button" class="cat-opt new" data-newcat><span class="cat-tile sm">${ic('plus')}</span>Hạng mục mới</button>`;
 };
-function openDlg() { kind = 'out'; cat = 'food'; $('#addForm').reset(); walletId = WALLETS[0].id; paintWallet(); $$('.seg button').forEach((b) => b.classList.toggle('on', b.dataset.kind === kind)); $('#fCats').innerHTML = catOptions(); hydrateIcons(); dlg.showModal(); $('#fAmount').focus(); }
+function openDlg() { kind = 'out'; cat = 'food'; $('#addForm').reset(); walletId = WALLETS[0].id; payMethod = 'cash'; paintWallet(); $$('.seg button').forEach((b) => b.classList.toggle('on', b.dataset.kind === kind)); $('#fCats').innerHTML = catOptions(); hydrateIcons(); dlg.showModal(); $('#fAmount').focus(); }
 $('#addBtn').onclick = (e) => addAction(e.currentTarget);
 $('#closeDlg').onclick = $('#cancelDlg').onclick = () => dlg.close();
 $$('.seg button').forEach((b) => (b.onclick = () => { kind = b.dataset.kind; cat = kind === 'in' ? 'income' : 'food'; $$('.seg button').forEach((x) => x.classList.toggle('on', x === b)); $('#fCats').innerHTML = catOptions(); }));

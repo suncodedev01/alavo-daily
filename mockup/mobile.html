@@ -23,7 +23,7 @@
   .status .r { display: flex; gap: 6px; align-items: center; }
   .scroll { flex: 1; overflow-y: auto; padding: 8px 16px 24px; display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-rows: max-content; gap: 16px; align-content: start; scrollbar-width: none; }
   .scroll::-webkit-scrollbar { display: none; }
-  .tabbar { flex: none; height: 84px; padding: 8px 8px 0; background: var(--surface); box-shadow: 0 -1px 0 var(--line-hairline); display: grid; grid-template-columns: repeat(5, 1fr); align-items: start; position: relative; }
+  .tabbar { flex: none; height: 84px; padding: 8px 8px 0; background: var(--chrome-bg, var(--surface)); box-shadow: 0 -1px 0 var(--line-hairline); display: grid; grid-template-columns: repeat(5, 1fr); align-items: start; position: relative; }
   .tab { display: grid; justify-items: center; gap: 2px; padding: 6px 0; font-size: 11px; font-weight: 500; color: var(--text-muted); min-height: 48px; }
   .tab .ic { width: 24px; height: 24px; }
   .tab.on { color: var(--accent-fg); }
@@ -219,6 +219,7 @@
 <script src="assets/icons.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/food-data.js"></script>
+<script src="assets/estimates.js"></script>
 <script src="assets/dialogs.js"></script>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
@@ -236,17 +237,19 @@ const phone = (caption, body, tab, { bar = true, tabs = 'spend' } = {}) => `
 
 const tabbar = (on) => {
   const t = (id, icon, label) => `<button class="tab ${on === id ? 'on' : ''}" type="button"><span class="pillbg">${ic(icon)}</span>${label}</button>`;
-  return `<nav class="tabbar" aria-label="Điều hướng">${t('overview', 'squares-four', 'Tổng quan')}${t('tx', 'receipt', 'Giao dịch')}<button class="fab" type="button" aria-label="Thêm giao dịch">${ic('plus')}</button>${t('budget', 'chart-pie-slice', 'Ngân sách')}${t('goals', 'target', 'Mục tiêu')}</nav>`;
+  return `<nav class="tabbar" aria-label="Điều hướng">${t('overview', 'squares-four', 'Tổng quan')}${t('accounts', 'wallet', 'Tài khoản')}<button class="tab center ${on === 'tx' ? 'on' : ''}" type="button" aria-label="Ghi chép"><span class="fab">${ic('plus')}</span><span>Ghi chép</span></button>${t('report', 'chart-bar', 'Báo cáo')}${t('more', 'dots-three', 'Khác')}</nav>`;
 };
 
 /* 1 · Tổng quan */
-const overview = () => phone('1 · Tổng quan', `<div class="scroll">
+const overview = () => phone('1 · Tổng quan', `<div class="scroll top-wash">
   ${topbar('spend', { sync: true })}
   <div style="padding:0 4px"><div class="t-base w6">Chào Linh</div><div class="t-row muted">Thứ Sáu, 9 tháng 10</div></div>
   <section class="card p5"><span class="eyebrow">Tổng số dư</span><div class="t-display" style="margin:8px 0 16px;white-space:nowrap">${vnd(totalBalance)}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="well p4" style="padding:12px"><div class="t-row muted">Thu tháng 10</div><div class="t-base w6 income">${signed(income)}</div></div>
       <div class="well p4" style="padding:12px"><div class="t-row muted">Chi tháng 10</div><div class="t-base w6 expense">${vnd(expense)}</div></div></div></section>
+  <section class="card p4"><div class="row" style="gap:8px;margin-bottom:4px"><h2 class="t-title grow">Các khoản tiền</h2><button class="btn ghost sm" type="button">Quản lý</button></div>
+    ${WALLETS.map((w) => `<div class="gd-row"><span class="cat-tile sm">${ic(WALLET_ICON[w.id])}</span><span class="grow"><b>${w.name}</b><small>${w.kind}</small></span><span class="gd-amt">${vnd(w.balance)}</span></div>`).join('')}</section>
   <section class="card p4"><div class="row" style="gap:8px;margin-bottom:8px"><span class="t-base w6 grow">Cần bạn quyết định</span><span class="chip needs">Cần bạn</span></div>
     <p class="t-sm secondary" style="margin-bottom:12px">Ăn uống đã dùng <b>${pctText(food.pct)}</b> ngân sách, còn ${vnd(food.budget - food.spent)} cho ${daysLeft} ngày.</p>${meter(food.pct)}
     <div class="row" style="gap:8px;margin-top:16px"><button class="btn primary grow" style="height:44px">Tăng thêm ${vnd(500)}</button><button class="btn outline" style="height:44px">Giữ nguyên</button></div></section>
@@ -259,10 +262,13 @@ const add = () => phone('2 · Thêm giao dịch (bấm được)', `<div class="
   <div class="sheet-head"><h2 class="t-title">Thêm giao dịch</h2><button class="iconbtn" aria-label="Đóng">${ic('x')}</button></div>
   <div class="seg"><button class="on" data-kind="out">Chi tiêu</button><button data-kind="in">Thu nhập</button></div>
   <div class="amount"><div class="t-display" id="amt" aria-live="polite">0 ₫</div><div class="t-row muted" style="margin-top:4px" id="amtHint">Nhập số tiền</div></div>
+  <div style="padding:0 16px"><div class="row"><span class="eyebrow grow">Hạng mục</span><button type="button" class="btn ghost sm" data-dlg="quick-categories">Sắp xếp</button></div></div>
   <div class="chipset" id="cats"></div>
   <div style="padding:0 16px;display:grid;gap:8px"><label class="field">${ic('receipt', 'lg')}<input id="note" placeholder="Ghi chú" style="border:0;background:none;outline:0;flex:1;min-width:0;color:var(--text-primary);font-size:16px"></label>
-    <span class="eyebrow">Thanh toán bằng</span>
-    <div class="pay-pills"><span class="pill">${ic('money')}Tiền mặt</span><span class="pill">${ic('bank')}Chuyển khoản</span><span class="pill on">${ic('device-mobile')}Ví điện tử</span></div>
+    <div class="row"><span class="eyebrow grow">Chi từ ví</span><button type="button" class="btn ghost sm">Quản lý ví</button></div>
+    <div class="pay-pills gd-pills">${WALLETS.map((x, i) => `<button type="button" class="pill ${i === 2 ? 'on' : ''}">${ic(WALLET_ICON[x.id])}${x.name}</button>`).join('')}</div>
+    <div class="row"><span class="eyebrow grow">Thanh toán bằng</span><button type="button" class="btn ghost sm">Quản lý</button></div>
+    <div class="pay-pills gd-pills"><button type="button" class="pill on">${ic('money')}Tiền mặt</button><button type="button" class="pill">${ic('bank')}Chuyển khoản</button><button type="button" class="pill">${ic('device-mobile')}Ví điện tử</button></div>
     <div class="row" style="gap:8px"><span class="pill">${ic('calendar-blank')}Hôm nay</span><span class="pill">${ic('repeat')}Một lần</span></div></div>
   <div class="keypad" id="keys">${['1','2','3','4','5','6','7','8','9','000','0','del'].map((k) => `<button class="key" data-k="${k}" ${k === 'del' ? 'aria-label="Xoá"' : ''}>${k === 'del' ? ic('backspace') : k}</button>`).join('')}</div>
   <button class="save" id="save" disabled style="opacity:.5">Lưu giao dịch</button>
@@ -296,16 +302,16 @@ const budgets = () => phone('4 · Ngân sách', `<div class="scroll">
   <section class="card p5">${donut()}<p class="t-sm muted" style="text-align:center;margin-top:8px">Khoảng ${vnd(Math.round((budgetTotal - budgetSpent) / daysLeft))} mỗi ngày trong ${daysLeft} ngày tới</p></section>
   <section class="card p4" style="padding-top:4px;padding-bottom:4px">${BUDGETED.map((b) => `<div class="bline"><div class="row" style="gap:12px"><span class="cat-tile">${ic(b.icon)}</span><span class="grow"><span class="rt">${b.name}</span><span class="rs">${vnd(b.spent)} / ${vnd(b.budget)}</span></span><span class="t-base w6">${pctText(b.pct)}</span></div>${meter(b.pct)}</div>`).join('')}</section>
   <button class="rowbtn card p4" style="box-shadow:none;border:1px dashed var(--line-strong);background:transparent;justify-content:center;color:var(--text-secondary);font-weight:500">${ic('plus')}Thêm hạng mục</button>
-</div>`, 'budget');
+</div>`, 'more');
 
 /* 5 · Mục tiêu */
 const goals = () => phone('5 · Mục tiêu', `<div class="scroll">
   ${topbar('spend')}
   <h1 class="t-2xl" style="padding:4px 4px 0">Mục tiêu</h1>
   ${GOALS.map((g) => { const p = g.saved / g.target; return `<section class="card p5" style="display:grid;gap:16px"><div class="row" style="gap:12px"><span class="cat-tile">${ic(g.icon)}</span><span class="grow"><span class="rt">${g.name}</span><span class="rs">${g.due}</span></span></div>
-    <div><div class="t-2xl">${vnd(g.saved)}</div><div class="t-row muted">trên ${vnd(g.target)}</div></div>${meter(p)}
+    <div><div class="t-2xl">${vnd(g.saved)}</div><div class="t-row muted">trên ${vnd(g.target)}</div></div>${plainMeter(p)}
     <div class="t-row muted">${pctText(p)} hoàn thành · còn ${vnd(g.target - g.saved)}</div><button class="btn affirm" style="height:44px;width:100%">${ic('plus')}Thêm tiền</button></section>`; }).join('')}
-</div>`, 'goals');
+</div>`, 'more');
 
 
 /* 6-8 · Đồng bộ Google */
@@ -337,6 +343,7 @@ const syncOnBody = () => `
     <div class="row" style="gap:12px"><span class="t-sm secondary grow">${ic('cloud-check')} Đồng bộ lần cuối: 2 phút trước</span></div>
     <button class="btn outline" style="height:48px">${ic('arrows-clockwise')}Đồng bộ ngay</button></section>
   <section class="card p4" style="padding-top:0;padding-bottom:0">${swRow('Tự động đồng bộ', 'Gửi thay đổi lên Google ngay sau khi lưu', true)}${swRow('Chỉ đồng bộ qua Wi-Fi', 'Tiết kiệm dữ liệu di động', false)}</section>
+  <section class="card p4" style="display:grid;gap:12px"><div><span class="rt" style="display:block">Tự đồng bộ mỗi</span><span class="rs" style="display:block">Chỉ chạy khi ứng dụng đang mở. Mỗi lần bạn thay đổi dữ liệu, ứng dụng vẫn đồng bộ sau vài giây.</span></div><div class="pay-pills gd-pills sync-every" role="radiogroup" aria-label="Tự đồng bộ mỗi">${[['1', '1 phút'], ['5', '5 phút'], ['15', '15 phút'], ['30', '30 phút'], ['off', 'Tắt']].map(([id, label]) => `<button type="button" class="pill ${id === '5' ? 'on' : ''}" role="radio" aria-checked="${id === '5'}">${label}</button>`).join('')}</div></section>
   <button class="btn outline" style="height:48px;color:var(--destructive-fg)" data-act="ask-disconnect">${ic('sign-out')}Ngắt kết nối Google</button>`;
 
 const syncConflictBody = () => `
@@ -360,7 +367,7 @@ const unreadCount = NOTIFS.filter((n) => n.unread).length;
 const topbar = (modId, { sync = false } = {}) => `<div class="topbar"><button class="modpill" type="button" aria-haspopup="dialog" aria-label="Chuyển ứng dụng"><span class="tile">${ic(MOD[modId].icon)}</span>${MOD[modId].name}${ic('caret-down')}</button><span class="grow"></span>${sync ? `<button class="iconbtn" aria-label="Đồng bộ Google: chưa kết nối">${ic('cloud-slash')}</button>` : ''}<button class="iconbtn" aria-label="Thông báo">${ic('bell')}${unreadCount ? '<i class="udot"></i>' : ''}</button></div>`;
 const tabbarFood = (on) => {
   const t = (id, icon, label) => `<button class="tab ${on === id ? 'on' : ''}" type="button"><span class="pillbg">${ic(icon)}</span>${label}</button>`;
-  return `<nav class="tabbar" aria-label="Điều hướng">${t('recipes', 'book-open', 'Công thức')}${t('plan', 'calendar-blank', 'Thực đơn')}<button class="fab" type="button" aria-label="Thêm công thức">${ic('plus')}</button>${t('shopping', 'shopping-bag', 'Đi chợ')}${t('fav', 'heart', 'Yêu thích')}</nav>`;
+  return `<nav class="tabbar" aria-label="Điều hướng">${t('recipes', 'book-open', 'Công thức')}${t('plan', 'calendar-blank', 'Thực đơn')}<button class="fab" type="button" aria-label="Thêm công thức">${ic('plus')}</button>${t('shopping', 'shopping-bag', 'Đi chợ')}${t('more', 'dots-three', 'Khác')}</nav>`;
 };
 const shopState = buildShopping();
 const shopNeedM = () => shopState.filter((i) => !i.have);
@@ -378,7 +385,7 @@ const decisionM = () => {
 /* Hôm nay (hub) */
 const todayBody = () => {
   const dinner = planOf(TODAY, 'toi').map(recipeById), missing = shopNeedM().filter((i) => i.from.some((f) => dinner.some((r) => r.name === f))).length, b = foodB();
-  return `<div class="scroll">${topbar('today')}
+  return `<div class="scroll top-wash">${topbar('today')}
     <div style="padding:0 4px"><div class="t-2xl">Chào Linh</div><div class="t-row muted">Thứ Sáu, 9 tháng 10</div></div>
     <section class="card p4"><div class="row" style="margin-bottom:4px"><span class="eyebrow grow">Bữa tối nay · nhắc 17:30</span><span class="t-row muted">Món ăn</span></div>
       ${dinner.map((r) => `<button class="dish" type="button"><span class="cat-tile">${ic(r.icon)}</span><span class="grow"><span class="rt">${r.name}</span><span class="rs">${fmtMin(totalTime(r))} · ${HOUSEHOLD} người</span></span>${ic('caret-right')}</button>`).join('')}
@@ -529,7 +536,7 @@ const editorPhones = () => phone('Nhập công thức · từ đường dẫn, x
 
 const foodPhones = () => ({
   system: phone('Hôm nay — màn hình chung', todayBody(), 'today', { tabs: 'home' }) + phone('Khám phá — tất cả ứng dụng', exploreBody(), 'explore', { tabs: 'home' }) + phone('Chuyển nhanh ứng dụng', todayBody() + switcherSheet(), 'today', { tabs: 'home' }) + phone('Trung tâm thông báo', notifBody(), '', { bar: false }) + phone('Cài đặt thông báo', notifSettingsBody(), '', { bar: false }),
-  food: phone('Công thức', recipesBody(), 'recipes', { tabs: 'food' }) + phone('Chi tiết công thức (bấm được)', detailBody(), '', { bar: false }) + phone('Chế độ nấu ăn (bấm được)', cookBody(), '', { bar: false }) + phone('Thực đơn tuần (bấm được)', planBody(), 'plan', { tabs: 'food' }) + phone('Đi chợ (bấm được)', shopBody(), 'shopping', { tabs: 'food' }) + phone('Thêm công thức · chọn cách nhập', addRecipeBody(), '', { bar: false }) + editorPhones(),
+  food: phone('Công thức', recipesBody(), 'recipes', { tabs: 'food' }) + phone('Chi tiết công thức (bấm được)', detailBody(), '', { bar: false }) + phone('Chế độ nấu ăn (bấm được)', cookBody(), '', { bar: false }) + phone('Thực đơn tuần (bấm được)', planBody(), 'plan', { tabs: 'food' }) + phone('Đi chợ (bấm được)', shopBody(), 'shopping', { tabs: 'food' }) + foodMoreScreen() + phone('Thêm công thức · chọn cách nhập', addRecipeBody(), '', { bar: false }) + editorPhones(),
 });
 
 function bindFood() {
@@ -573,6 +580,22 @@ const osNotifPhones = () => lockPhone('Màn hình khóa — thông báo mới', 
   + lockPhone('Màn hình khóa — nhấn giữ để mở nút hành động', osNotif(notifById(1), { time: 'bây giờ', actions: [['Bắt đầu nấu', 'primary'], ['Nhắc lại sau 10 phút', 'outline']] }) + osNotif(notifById(2), { actions: [['Tăng thêm 300.000 ₫', 'primary'], ['Giữ nguyên', 'outline']] }))
   + bannerPhone();
 
+const accountsScreen = () => phone('Tài khoản', `<div class="scroll top-wash">${topbar('spend')}
+  <h1 class="t-2xl" style="padding:4px 4px 0">Tài khoản</h1>
+  <section class="card p5"><span class="eyebrow">Tổng số dư</span><div class="t-display" style="margin:8px 0 4px;white-space:nowrap">${vnd(totalBalance)}</div><div class="t-sm muted">Trên ${WALLETS.length} tài khoản</div></section>
+  <div class="row"><span class="eyebrow grow">Danh sách tài khoản</span><button class="btn primary sm" type="button" data-dlg="wallet-form">${ic('plus')}Thêm</button></div>
+  ${accountCardsHtml()}</div>`, 'accounts');
+const moreScreen = () => phone('Khác', `<div class="scroll top-wash">${topbar('spend')}
+  <h1 class="t-2xl" style="padding:4px 4px 0">Khác</h1>${moreMenuHtml('spend')}</div>`, 'more');
+const foodMoreScreen = () => phone('Món ăn · Khác', `<div class="scroll top-wash">${topbar('food')}
+  <h1 class="t-2xl" style="padding:4px 4px 0">Khác</h1>${moreMenuHtml('food')}</div>`, 'more', { tabs: 'food' });
+const estimateListScreen = () => phone('Dự toán · danh sách', `<div class="scroll">${topbar('spend')}
+  <h1 class="t-2xl" style="padding:4px 4px 0">Dự toán</h1>
+  <p class="t-sm secondary" style="padding:0 4px">Liệt kê việc lớn cần chi, ứng dụng cộng lại và so với tiền bạn đang có.</p>${estimateListHtml()}</div>`, 'more');
+const estimateDetailScreen = () => phone('Dự toán · chi tiết (Đám cưới)', `${navHead('Đám cưới').replace('Cài đặt', 'Dự toán')}<div class="scroll">${estimateDetailHtml(ESTIMATES[0])}</div>`, 'more');
+const estimateTravelScreen = () => phone('Dự toán · chi tiết (Du lịch, đủ tiền)', `${navHead('Du lịch Đà Lạt').replace('Cài đặt', 'Dự toán')}<div class="scroll">${estimateDetailHtml(ESTIMATES[1])}</div>`, 'more');
+const estimateEmptyScreen = () => phone('Dự toán · chưa có gì', `<div class="scroll">${topbar('spend')}
+  <h1 class="t-2xl" style="padding:4px 4px 0">Dự toán</h1>${estimateEmptyHtml()}</div>`, 'more');
 /* Báo cáo và Nhập sao kê (mobile) */
 const reportScreen = () => {
   const rows = spentByCategory(), total = rows.reduce((s, r) => s + r.total, 0);
@@ -583,7 +606,7 @@ const reportScreen = () => {
     <section class="card p4 range-stack"><label class="field">${ic('calendar-blank', 'lg')}<span>Từ 1/10/2026</span></label><label class="field">${ic('calendar-blank', 'lg')}<span>Đến 9/10/2026</span></label></section>
     <section class="card p5" style="display:grid;gap:12px;justify-items:center"><span class="eyebrow" style="justify-self:start">Chi theo hạng mục</span>${donutChart(rows, total)}<ul style="width:100%">${legend}</ul></section>
     <section class="card p4"><span class="eyebrow">Bảng hạng mục</span><table class="rep-table" style="margin-top:8px"><thead><tr><th>Hạng mục</th><th class="num">Đã chi</th><th class="num">Tỷ lệ</th></tr></thead><tbody>${table}</tbody></table></section>
-    <button class="btn outline" type="button" style="width:100%">${ic('download-simple')}Xuất ra bảng tính</button></div>`, '', { tabs: 'spend' });
+    <button class="btn outline" type="button" style="width:100%">${ic('download-simple')}Xuất ra bảng tính</button></div>`, 'report');
 };
 const importInputScreen = () => phone('Nhập sao kê · chọn file', `<div class="scroll">${topbar('spend')}<h1 class="t-2xl" style="padding:4px 4px 0">Nhập sao kê</h1>
     <section class="card p4" style="display:grid;gap:12px"><div class="row" style="gap:12px"><span class="cat-tile">${ic('upload-simple')}</span><div class="grow"><h2 class="t-title">Chọn sao kê ngân hàng</h2><p class="t-sm secondary">Dùng file sao kê tải từ ứng dụng ngân hàng, hoặc dán nội dung vào ô bên dưới.</p></div></div>
@@ -602,7 +625,7 @@ const importReviewScreen = () => {
 const appearancePhones = () => phone('Cài đặt · Giao diện và ngôn ngữ', `${navHead('Giao diện')}<div class="scroll">${appearanceCards()}</div>`, '', { bar: false })
   + phone('Cài đặt · Bộ màu (bấm được)', `${navHead('Bộ màu')}<div class="scroll">${paletteCards()}</div>`, '', { bar: false });
 
-const dialogFrames = () => DIALOG_IDS.map((id, i) => dialogPhone('Hộp thoại · ' + ({ 'wallets': 'Quản lý ví', 'wallet-form': 'Thêm ví', 'bills': 'Khoản định kỳ', 'bill-form': 'Thêm khoản định kỳ', 'goal-form': 'Mục tiêu mới', 'contribute': 'Thêm tiền vào mục tiêu', 'confirm-goal': 'Xoá mục tiêu', 'confirm-tx': 'Xoá giao dịch', 'confirm-recipe': 'Xoá công thức', 'category-picker': 'Chọn hạng mục có tìm kiếm', 'budget-form': 'Sửa ngân sách', 'import-data': 'Nhập dữ liệu', 'suggest-plan': 'Gợi ý thực đơn', 'log-expense': 'Ghi khoản chi đi chợ' }[id]), id)).join('');
+const dialogFrames = () => DIALOG_IDS.map((id, i) => dialogPhone('Hộp thoại · ' + ({ 'wallets': 'Quản lý ví', 'wallet-form': 'Thêm ví', 'bills': 'Khoản định kỳ', 'bill-form': 'Thêm khoản định kỳ', 'goal-form': 'Mục tiêu mới', 'contribute': 'Thêm tiền vào mục tiêu', 'confirm-goal': 'Xoá mục tiêu', 'confirm-tx': 'Xoá giao dịch', 'confirm-recipe': 'Xoá công thức', 'category-picker': 'Chọn hạng mục có tìm kiếm', 'estimate-form': 'Dự toán mới', 'estimate-item-form': 'Thêm khoản cần mua', 'estimate-paid': 'Đánh dấu đã chi', 'estimate-sources': 'Tính tiền từ ví nào', 'estimate-income-form': 'Khoản thu dự kiến', 'estimate-contingency': 'Dự phòng phát sinh', 'estimate-factors': 'Thông số của dự toán', 'factor-form': 'Thêm thông số', 'estimate-delete': 'Xoá dự toán', 'recipe-tags': 'Nhóm món', 'tag-form': 'Nhóm món mới', 'aisles': 'Khu mua sắm (đổi thứ tự)', 'household': 'Khẩu phần mặc định', 'meal-slots': 'Bữa trong ngày', 'cook-settings': 'Chế độ nấu ăn', 'cook-reminders': 'Nhắc nấu ăn', 'shopping-cost': 'Ghi chi phí đi chợ', 'categories': 'Quản lý hạng mục', 'category-form': 'Hạng mục mới', 'category-delete': 'Xoá hạng mục đã có giao dịch', 'quick-categories': 'Hạng mục hiện ở ngoài (đổi thứ tự)', 'entry-defaults': 'Mặc định khi ghi chép', 'month-start': 'Ngày bắt đầu tháng', 'spend-reminders': 'Nhắc nhở chi tiêu', 'display-options': 'Cách hiển thị', 'wallet-delete': 'Xoá ví đã có giao dịch', 'bank-accounts': 'Số tài khoản ngân hàng', 'payments': 'Quản lý hình thức thanh toán', 'payment-form': 'Thêm hình thức thanh toán', 'payment-delete': 'Xoá hình thức thanh toán', 'wallet-delete-empty': 'Xoá ví chưa có giao dịch', 'budget-form': 'Sửa ngân sách', 'import-data': 'Nhập dữ liệu', 'suggest-plan': 'Gợi ý thực đơn', 'log-expense': 'Ghi khoản chi đi chợ' }[id]), id)).join('');
 const stateFrames = () => phone('Cài đặt · Dữ liệu trên máy', `${navHead('Dữ liệu')}<div class="scroll">${localDataCard()}</div>`, '', { bar: false })
   + phone('Đồng bộ · chưa cấu hình đăng nhập', `${navHead('Đồng bộ Google')}<div class="scroll">${syncProblemCard('unconfigured')}</div>`, '', { bar: false })
   + phone('Đồng bộ · cần đăng nhập lại', `${navHead('Đồng bộ Google')}<div class="scroll">${syncProblemCard('relogin')}</div>`, '', { bar: false })
@@ -610,7 +633,7 @@ const stateFrames = () => phone('Cài đặt · Dữ liệu trên máy', `${navH
   + phone('Không tìm thấy trang', `<div class="scroll">${topbar('today')}${unknownPathCard('')}</div>`, 'today', { tabs: 'home' })
   + phone('Màn hình đang hoàn thiện', `<div class="scroll">${topbar('today')}${unknownPathCard('Công việc')}</div>`, 'today', { tabs: 'home' });
 const _ph = foodPhones();
-$('#groups').innerHTML = [['Hệ thống · nhiều ứng dụng trong một', _ph.system], ['Thông báo trên điện thoại', osNotifPhones()], ['Cài đặt giao diện', appearancePhones()], ['Ứng dụng Chi tiêu', overview() + add() + txScreen() + budgets() + goals() + reportScreen() + importInputScreen() + importReviewScreen()], ['Ứng dụng Món ăn', _ph.food], ['Hộp thoại và bảng kéo lên', dialogFrames()], ['Trạng thái và màn phụ', stateFrames()], ['Đồng bộ Google', syncPhones()]].map(([t, html]) => `<h2 class="gtitle">${t}</h2><div class="stage">${html}</div>`).join('');
+$('#groups').innerHTML = [['Hệ thống · nhiều ứng dụng trong một', _ph.system], ['Thông báo trên điện thoại', osNotifPhones()], ['Cài đặt giao diện', appearancePhones()], ['Ứng dụng Chi tiêu', overview() + accountsScreen() + add() + txScreen() + moreScreen() + estimateListScreen() + estimateDetailScreen() + estimateTravelScreen() + estimateEmptyScreen() + budgets() + goals() + reportScreen() + importInputScreen() + importReviewScreen()], ['Ứng dụng Món ăn', _ph.food], ['Hộp thoại và bảng kéo lên', dialogFrames()], ['Trạng thái và màn phụ', stateFrames()], ['Đồng bộ Google', syncPhones()]].map(([t, html]) => `<h2 class="gtitle">${t}</h2><div class="stage">${html}</div>`).join('');
 document.querySelectorAll('figcaption').forEach((f, i) => { f.textContent = (i + 1) + ' · ' + f.textContent.replace(/^\d+ · /, ''); });
 
 

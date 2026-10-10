@@ -31,6 +31,13 @@
   --wallpaper-b: #5D7692;
   --wallpaper-c: #4E6279;
   --on-wallpaper: #FFFFFF;
+  --sticker-tint: var(--brand);
+  --sticker-pct: 22%;
+  --card-bg: color-mix(in srgb, var(--brand) 4%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--brand) 18%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--brand) 9%, var(--surface-raised));
+  --meter-plain: var(--brand);
   --accent: #EAEDF0;
   --accent-fg: #384657;
   --ring: #384657;
@@ -56,6 +63,11 @@
   --click-300: #D3DBE3;
   --ozone-500: #DDB75F;
   --ozone-700: #E8C87D;
+  --sticker-pct: 26%;
+  --card-bg: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--brand) 26%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--brand) 12%, var(--surface-raised));
 }
 :root[data-palette="moc"] {
   --paper: #F3F6F5;
@@ -89,6 +101,13 @@
   --wallpaper-b: #1E804C;
   --wallpaper-c: #165F38;
   --on-wallpaper: #FFFFFF;
+  --sticker-tint: var(--brand);
+  --sticker-pct: 22%;
+  --card-bg: color-mix(in srgb, var(--brand) 4%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--brand) 18%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--brand) 9%, var(--surface-raised));
+  --meter-plain: var(--brand);
   --accent: #E4F7ED;
   --accent-fg: #145733;
   --ring: #145733;
@@ -114,6 +133,11 @@
   --click-300: #ACECCA;
   --ozone-500: #5FA9DD;
   --ozone-700: #7DBBE8;
+  --sticker-pct: 26%;
+  --card-bg: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--brand) 26%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--brand) 12%, var(--surface-raised));
 }
 :root[data-palette="thuy"] {
   --paper: #F3F5F7;
@@ -147,6 +171,13 @@
   --wallpaper-b: #1D6ED7;
   --wallpaper-c: #185CB4;
   --on-wallpaper: #FFFFFF;
+  --sticker-tint: var(--brand);
+  --sticker-pct: 22%;
+  --card-bg: color-mix(in srgb, var(--brand) 4%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--brand) 18%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--brand) 9%, var(--surface-raised));
+  --meter-plain: var(--brand);
   --accent: #E2ECF9;
   --accent-fg: #113E79;
   --ring: #113E79;
@@ -172,6 +203,11 @@
   --click-300: #C9DDF8;
   --ozone-500: #5FD0DD;
   --ozone-700: #7DDDE8;
+  --sticker-pct: 26%;
+  --card-bg: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--brand) 26%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--brand) 12%, var(--surface-raised));
 }
 :root[data-palette="hoa"] {
   --paper: #F6F3F7;
@@ -205,6 +241,13 @@
   --wallpaper-b: #AF38C7;
   --wallpaper-c: #932FA7;
   --on-wallpaper: #FFFFFF;
+  --sticker-tint: var(--brand);
+  --sticker-pct: 22%;
+  --card-bg: color-mix(in srgb, var(--brand) 4%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--brand) 18%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--brand) 9%, var(--surface-raised));
+  --meter-plain: var(--brand);
   --accent: #F3E5F6;
   --accent-fg: #5F1E6B;
   --ring: #5F1E6B;
@@ -230,6 +273,11 @@
   --click-300: #EDD3F3;
   --ozone-500: #5FDD9E;
   --ozone-700: #7DE8B3;
+  --sticker-pct: 26%;
+  --card-bg: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--brand) 26%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--brand) 12%, var(--surface-raised));
 }
 :root[data-palette="tho"] {
   --paper: #F7F5F3;
@@ -263,6 +311,13 @@
   --wallpaper-b: #A5622C;
   --wallpaper-c: #854F23;
   --on-wallpaper: #FFFFFF;
+  --sticker-tint: var(--brand);
+  --sticker-pct: 22%;
+  --card-bg: color-mix(in srgb, var(--brand) 4%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--brand) 18%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--brand) 9%, var(--surface-raised));
+  --meter-plain: var(--brand);
   --accent: #F6ECE4;
   --accent-fg: #653C1B;
   --ring: #653C1B;
@@ -288,6 +343,11 @@
   --click-300: #EFD7C3;
   --ozone-500: #DDBE5F;
   --ozone-700: #E8CD7D;
+  --sticker-pct: 26%;
+  --card-bg: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--brand) 26%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--brand) 12%, var(--surface-raised));
 }
 :root[data-palette="hong"] {
   --paper: #F7F3F4;
@@ -321,6 +381,13 @@
   --wallpaper-b: #D22866;
   --wallpaper-c: #B02156;
   --on-wallpaper: #FFFFFF;
+  --sticker-tint: var(--brand);
+  --sticker-pct: 22%;
+  --card-bg: color-mix(in srgb, var(--brand) 4%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--brand) 18%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--brand) 9%, var(--surface-raised));
+  --meter-plain: var(--brand);
   --accent: #F7E3EA;
   --accent-fg: #6B1434;
   --ring: #6B1434;
@@ -346,6 +413,11 @@
   --click-300: #F6D0DE;
   --ozone-500: #9E5FDD;
   --ozone-700: #B27DE8;
+  --sticker-pct: 26%;
+  --card-bg: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--brand) 26%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--brand) 12%, var(--surface-raised));
 }
 :root[data-palette="phuquy"] {
   --paper: #F5F3F7;
@@ -361,6 +433,13 @@
   --ozone-500: #913BCE;
   --ozone-700: #8323C7;
   --ozone-800: #441268;
+  --sticker-tint: var(--ozone-500);
+  --sticker-pct: 22%;
+  --card-bg: color-mix(in srgb, var(--ozone-500) 4%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--ozone-500) 18%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--ozone-500) 7%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--ozone-500) 9%, var(--surface-raised));
+  --meter-plain: var(--brand);
   --accent: #FFF7C2;
   --accent-fg: #8A4C00;
   --ring: #8A4C00;
@@ -381,4 +460,9 @@
   --ring: #F3D673;
   --ozone-500: #A95FDD;
   --ozone-700: #BB7DE8;
+  --sticker-pct: 26%;
+  --card-bg: color-mix(in srgb, var(--ozone-500) 9%, var(--surface));
+  --card-ring: color-mix(in srgb, var(--ozone-500) 26%, var(--line-hairline));
+  --chrome-bg: color-mix(in srgb, var(--ozone-500) 12%, var(--surface));
+  --sidebar-bg: color-mix(in srgb, var(--ozone-500) 12%, var(--surface-raised));
 }

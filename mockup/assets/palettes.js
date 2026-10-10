@@ -225,7 +225,7 @@
   const card = (p) => `<button class="pal-card" type="button" data-palette-pick="${p.id}" aria-pressed="false">
     <span class="pal-top"><span class="pal-name">${p.name}</span><span class="pal-badge" data-rel-slot="${p.id}"></span><span class="pal-on">${ic('check')}Đang dùng</span></span>
     <span class="pal-tag">${p.tag}</span>
-    <span class="pal-prev" style="background:${p.sw.nen};color:${p.sw.chu}"><span>Aa · Chữ chính</span><span class="pal-btn" style="background:${p.sw.nut};color:${p.sw.chu_nut}">Nút</span><span class="pal-btn" style="background:${p.sw.nhan};color:${p.sw.chu}">Nhấn</span></span>
+    <span class="pal-prev" style="background:${p.sw.nen};color:${p.sw.chu}"><span class="pal-sticker" style="background-color:color-mix(in srgb, ${p.sw.nut} 24%, ${p.sw.nen})"></span><span>Aa · Chữ chính</span><span class="pal-btn" style="background:${p.sw.nut};color:${p.sw.chu_nut}">Nút</span><span class="pal-btn" style="background:${p.sw.nhan};color:${p.sw.chu}">Nhấn</span></span>
     <span class="pal-sws">${swatch('Nền', p.sw.nen)}${swatch('Nút', p.sw.nut)}${swatch('Nhấn', p.sw.nhan)}${swatch('Chữ', p.sw.chu)}</span>
     <span class="pal-fit">${p.fit}</span></button>`;
 

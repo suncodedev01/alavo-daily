@@ -26,7 +26,7 @@ function addCategory({ name, icon, budget, kind }) {
 }
 
 const WALLETS = [
-  { id: 'tcb',  name: 'Techcombank', kind: 'Tài khoản', balance: 38420 },
+  { id: 'tcb',  name: 'Techcombank', kind: 'Tài khoản', balance: 38420, account: '1903 4567 8901' },
   { id: 'momo', name: 'Ví MoMo',     kind: 'Ví điện tử', balance: 1250 },
   { id: 'cash', name: 'Tiền mặt',    kind: 'Tiền mặt',   balance: 820 },
 ];
@@ -82,6 +82,7 @@ const walletName = (id) => WALLETS.find((w) => w.id === id).name;
 let income, expense, totalBalance, BUDGETED, budgetTotal, budgetSpent, dailySpend, expenseDelta;
 const spentByCat = (c) => -TX.filter((t) => t.cat === c && t.amt < 0).reduce((s, t) => s + t.amt, 0);
 const meterTone = (pct) => (pct > 1 ? 'over' : pct >= 0.85 ? 'warn' : '');
+const plainMeter = (pct) => `<div class="meter plain" role="progressbar" aria-valuenow="${Math.round(pct * 100)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${Math.min(pct, 1) * 100}%"></i></div>`;
 const pctText = (p) => Math.round(p * 100) + '%';
 function recompute() {
   income = TX.filter((t) => t.amt > 0).reduce((s, t) => s + t.amt, 0);
