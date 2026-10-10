@@ -317,7 +317,7 @@ describe('Narrow layout', () => {
     const card = await screen.findByRole('region', { name: 'Các khoản tiền' });
     expect(await within(card).findByText('Techcombank')).toBeInTheDocument();
     expect(within(card).getByText('Ví MoMo')).toBeInTheDocument();
-    expect(within(card).getByText('Tiền mặt')).toBeInTheDocument();
+    expect(within(card).getAllByRole('listitem')).toHaveLength(3);
     await userEvent.click(within(card).getByRole('link', { name: 'Quản lý' }));
     expect(location()).toHaveTextContent('/spending/accounts');
   });
