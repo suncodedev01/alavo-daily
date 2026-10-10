@@ -450,6 +450,11 @@
 [data-icon-name="chart-bar"] { --glyph: var(--ink-purple); }
 [data-icon-name="upload-simple"], [data-icon-name="table"] { --glyph: var(--ink-teal); }
 [data-icon-name="file-text"] { --glyph: var(--ink-brown); }
-:is(nav, [role="menuitem"], [data-variant="outline"], [data-variant="ghost"], [data-pill]) svg[data-icon-name]:not(.bg-primary *) { color: var(--glyph, currentColor); }
+[data-icon-name="cloud-slash"], [data-icon-name="cloud"], [data-icon-name="cloud-arrow-up"], [data-icon-name="cloud-arrow-down"], [data-icon-name="info"] { --glyph: var(--ink-blue); }
+[data-icon-name="warning"], [data-icon-name="warning-circle"] { --glyph: var(--ink-orange); }
+[data-icon-name="sparkle"], [data-icon-name="star"] { --glyph: var(--ink-gold); }
+[data-icon-name="download-simple"] { --glyph: var(--ink-teal); }
+/* Icons keep their group colour everywhere except on solid fills, where the fill sets the text colour. */
+:where(svg[data-icon-name]:not(:where(.bg-primary, .bg-brand, .bg-brand-tile, .bg-destructive, [data-variant="primary"], [data-variant="destructive"], [data-variant="destructive-outline"], [data-variant="affirm"], [data-slot="switch"]) *)) { color: var(--glyph, currentColor); }
 
 @import "./palettes.css";
